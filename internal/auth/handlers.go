@@ -86,7 +86,57 @@ func Login(c *gin.Context) (any, error) {
 		return nil, errors.NewServerError(err)
 	}
 
-	return models.NewLoginOut(token, user), nil
+	refreshToken, err := jwtx.GenerateRefresh(user.ID)
+	if err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	return models.NewLoginOut(token, refreshToken, user), nil
+}
+
+// Refresh godoc
+// @Summary      Refresh access token
+// @Description  Refreshes JWT access token using a refresh token
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        refreshToken  body      map[string]string  true  "Refresh token payload"
+// @Success      200            {object}  models.Session
+// @Failure      400            {object}  models.ErrorResponse  "Bad request"
+// @Failure      401            {object}  models.ErrorResponse  "Unauthorized"
+// @Failure      500            {object}  models.ErrorResponse  "Server error"
+// @Router       /refresh [post]
+func Refresh(c *gin.Context) (any, error) {
+	var input struct {
+		RefreshToken string `json:"refresh_token" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		return nil, errors.NewValidationError(err)
+	}
+
+	claims, err := jwtx.Parse(input.RefreshToken)
+	if err != nil || claims["type"] != "refresh" {
+		return nil, errors.NewUnauthorizedError("Invalid refresh token", err)
+	}
+
+	userIDFloat, ok := claims["sub"].(float64)
+	if !ok {
+		return nil, errors.NewServerError(fmt.Errorf("invalid user ID in token"))
+	}
+	userID := uint(userIDFloat)
+
+	accessToken, err := jwtx.Generate(userID)
+	if err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	refreshToken, err := jwtx.GenerateRefresh(userID)
+	if err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	return models.NewSession(accessToken, refreshToken), nil
 }
 
 // Me godoc

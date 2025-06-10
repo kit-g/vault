@@ -24,6 +24,7 @@ func Router() *gin.Engine {
 	// Public routes
 	r.POST("/register", Wrap(auth.Register))
 	r.POST("/login", Wrap(auth.Login))
+	r.POST("/refresh", Wrap(auth.Refresh))
 
 	// Protected routes
 	authGroup := r.Group("/")

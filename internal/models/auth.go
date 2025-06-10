@@ -12,14 +12,26 @@ type UserOut struct {
 	Username string `json:"username"`
 }
 
+type Session struct {
+	Token   string `json:"token"`
+	Refresh string `json:"refresh"`
+}
+
 type Login struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
 }
 
 type LoginOut struct {
-	Token string  `json:"token"`
-	User  UserOut `json:"user"`
+	Session Session `json:"session"`
+	User    UserOut `json:"user"`
+}
+
+func NewSession(token string, refresh string) Session {
+	return Session{
+		Token:   token,
+		Refresh: refresh,
+	}
 }
 
 func NewUserOut(user User) UserOut {
@@ -30,9 +42,9 @@ func NewUserOut(user User) UserOut {
 	}
 }
 
-func NewLoginOut(token string, user User) LoginOut {
+func NewLoginOut(token string, refresh string, user User) LoginOut {
 	return LoginOut{
-		Token: token,
-		User:  NewUserOut(user),
+		Session: NewSession(token, refresh),
+		User:    NewUserOut(user),
 	}
 }

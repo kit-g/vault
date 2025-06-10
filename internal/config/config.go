@@ -8,13 +8,15 @@ import (
 )
 
 type Config struct {
-	DBHost     string `env:"DB_HOST" default:"localhost" required:"true"`
-	DBPort     string `env:"DB_PORT" default:"5432" required:"true"`
-	DBUser     string `env:"DB_USER" default:""`
-	DBPassword string `env:"DB_PASSWORD" default:""`
-	DBName     string `env:"DB_NAME" required:"true"`
-	DBSSLMode  string `env:"DB_SSLMODE" default:"disable"   required:"true"`
-	JWTSecret  string `env:"JWT_SECRET" required:"true"`
+	DBHost               string `env:"DB_HOST" default:"localhost" required:"true"`
+	DBPort               string `env:"DB_PORT" default:"5432" required:"true"`
+	DBUser               string `env:"DB_USER" default:""`
+	DBPassword           string `env:"DB_PASSWORD" default:""`
+	DBName               string `env:"DB_NAME" required:"true"`
+	DBSSLMode            string `env:"DB_SSLMODE" default:"disable"   required:"true"`
+	JWTSecret            string `env:"JWT_SECRET" required:"true"`
+	AuthTokenLifespan    int    `env:"AUTH_TOKEN_LIFESPAN" default:"180" required:"true"`       // 3 hours
+	RefreshTokenLifespan int    `env:"REFRESH_TOKEN_LIFESPAN" default:"100800" required:"true"` // 10 weeks
 
 	AppName string `env:"APP_NAME" default:"vault-api"`
 }

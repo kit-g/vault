@@ -31,7 +31,7 @@ func main() {
 		return
 	}
 
-	jwtx.Init(cfg.JWTSecret)
+	jwtx.Init(cfg.JWTSecret, cfg.AuthTokenLifespan, cfg.RefreshTokenLifespan)
 
 	if err := db.Connect(cfg); err != nil {
 		log.Fatal("Failed to connect to DB:", err)
