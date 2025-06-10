@@ -1,9 +1,11 @@
 package auth
 
 import (
+	"fmt"
 	"vault/internal/db"
 	"vault/internal/errors"
 	"vault/internal/models"
+	"vault/jwtx"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -57,7 +59,10 @@ func Login(c *gin.Context) (any, error) {
 		return nil, errors.NewUnauthorizedError("Invalid email or password", err)
 	}
 
-	token := "fake-jwt-token" // e.g. jwt.Generate(user.ID)
+	token, err := jwtx.Generate(user.ID)
+	if err != nil {
+		return nil, errors.NewServerError(err)
+	}
 
 	return gin.H{
 		"token": token,
@@ -66,5 +71,28 @@ func Login(c *gin.Context) (any, error) {
 			Email:    user.Email,
 			Username: user.Username,
 		},
+	}, nil
+}
+
+func Me(c *gin.Context) (any, error) {
+	userIDValue, exists := c.Get("userID")
+	if !exists {
+		return nil, errors.NewUnauthorizedError("User ID not found in context", nil)
+	}
+
+	userID, ok := userIDValue.(uint)
+	if !ok {
+		return nil, errors.NewServerError(fmt.Errorf("invalid user ID type"))
+	}
+
+	var user models.User
+	if err := db.DB.First(&user, userID).Error; err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	return models.UserOut{
+		ID:       user.ID,
+		Email:    user.Email,
+		Username: user.Username,
 	}, nil
 }
