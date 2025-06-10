@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
-	"vault/jwtx"
+	"vault/internal/jwtx"
 )
 
 func AuthenticationMiddleware() gin.HandlerFunc {

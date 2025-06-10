@@ -1,3 +1,16 @@
+// @title Vault API
+// @version 1.0
+// @description A simple Secrets storage API
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name Kit
+// @contact.url https://github.com/kit-g
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host localhost:8080
+// @BasePath /
 package main
 
 import (
@@ -5,8 +18,8 @@ import (
 	"vault/internal/config"
 	"vault/internal/db"
 	"vault/internal/httpx"
+	"vault/internal/jwtx"
 	"vault/internal/models"
-	"vault/jwtx"
 )
 
 func main() {

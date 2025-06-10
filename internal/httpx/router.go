@@ -2,7 +2,10 @@ package httpx
 
 import (
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"net/http"
+	_ "vault/docs"
 	"vault/internal/auth"
 )
 
@@ -15,6 +18,9 @@ func Router() *gin.Engine {
 			c.JSON(http.StatusOK, gin.H{"status": "up"})
 		},
 	)
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	// Public routes
 	r.POST("/register", Wrap(auth.Register))
 	r.POST("/login", Wrap(auth.Login))
