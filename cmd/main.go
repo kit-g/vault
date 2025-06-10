@@ -38,7 +38,12 @@ func main() {
 		return
 	}
 
-	_ = db.DB.AutoMigrate(&models.User{})
+	_ = db.DB.AutoMigrate(
+		&models.User{},
+		&models.Note{},
+		&models.NoteShare{},
+		&models.Attachment{},
+	)
 
 	r := httpx.Router()
 
