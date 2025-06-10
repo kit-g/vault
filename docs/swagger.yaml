@@ -1,0 +1,198 @@
+basePath: /
+definitions:
+  models.ErrorResponse:
+    properties:
+      code:
+        type: string
+      error:
+        type: string
+    type: object
+  models.Login:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  models.LoginOut:
+    properties:
+      session:
+        $ref: '#/definitions/models.Session'
+      user:
+        $ref: '#/definitions/models.UserOut'
+    type: object
+  models.Session:
+    properties:
+      refresh:
+        type: string
+      token:
+        type: string
+    type: object
+  models.UserIn:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      username:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  models.UserOut:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      username:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    name: Kit
+    url: https://github.com/kit-g
+  description: A simple Secrets storage API
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: Vault API
+  version: "1.0"
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user and returns a JWT token
+      parameters:
+      - description: Login credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/models.Login'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.LoginOut'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Log in a user
+      tags:
+      - auth
+  /me:
+    get:
+      description: Returns the currently authenticated user's information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserOut'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get current user
+      tags:
+      - auth
+  /refresh:
+    post:
+      consumes:
+      - application/json
+      description: Refreshes JWT access token using a refresh token
+      parameters:
+      - description: Refresh token payload
+        in: body
+        name: refreshToken
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Session'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Refresh access token
+      tags:
+      - auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Register using email, password, and username
+      parameters:
+      - description: user info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserIn'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.UserOut'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new user
+      tags:
+      - auth
+swagger: "2.0"
