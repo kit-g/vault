@@ -153,6 +153,32 @@ paths:
       tags:
       - auth
   /notes:
+    get:
+      consumes:
+      - application/json
+      description: Returns all notes created by the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.NoteOut'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List user notes
+      tags:
+      - notes
     post:
       consumes:
       - application/json

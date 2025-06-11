@@ -34,6 +34,10 @@ func Router() *gin.Engine {
 
 	vaultGroup := r.Group("/notes")
 	vaultGroup.Use(auth.AuthenticationMiddleware())
+	vaultGroup.GET("", Wrap(notes.GetNotes))
 	vaultGroup.POST("", Wrap(notes.CreateNote))
+	//vaultGroup.GET("/:noteId", Wrap(notes.GetNote))
+	//vaultGroup.PUT("/:noteId", Wrap(notes.EditNote))
+	//vaultGroup.DELETE("/:noteId", Wrap(notes.DeleteNote))
 	return r
 }
