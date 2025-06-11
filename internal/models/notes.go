@@ -34,19 +34,19 @@ func (n *Note) BeforeCreate(_ *gorm.DB) (err error) {
 // Attachment represents a file attached to a note
 type Attachment struct {
 	gorm.Model
-	NoteID   *uint  `json:"-"`
-	FileName string `json:"file_name"`
-	URL      string `json:"url"`
-	Size     int64  `json:"size"`
-	MIMEType string `json:"mime_type"`
+	NoteID   *uuid.UUID `json:"-"`
+	FileName string     `json:"file_name"`
+	URL      string     `json:"url"`
+	Size     int64      `json:"size"`
+	MIMEType string     `json:"mime_type"`
 }
 
 // NoteShare represents a shared note and permission level
 type NoteShare struct {
 	gorm.Model
-	NoteID           uint   `json:"-"`
-	SharedWithUserID uint   `json:"shared_with"`
-	Permission       string `json:"permission"` // "read", "write"
+	NoteID           uuid.UUID `json:"-"`
+	SharedWithUserID uint      `json:"shared_with"`
+	Permission       string    `json:"permission"` // "read", "write"
 }
 
 type NoteIn struct {

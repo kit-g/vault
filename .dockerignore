@@ -1,0 +1,10 @@
+.aws-sam
+.idea
+
+*.yaml
+!docs/swagger.yaml
+*.toml
+*.sh
+*.zip
+
+**/bootstrap
