@@ -156,7 +156,27 @@ paths:
     get:
       consumes:
       - application/json
-      description: Returns all notes created by the authenticated user
+      description: Returns paginated notes for the authenticated user with optional
+        filtering
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Filter by archived status
+        in: query
+        name: archived
+        type: boolean
+      - description: Filter by encrypted status
+        in: query
+        name: encrypted
+        type: boolean
       produces:
       - application/json
       responses:
@@ -171,7 +191,7 @@ paths:
           schema:
             $ref: '#/definitions/models.ErrorResponse'
         "500":
-          description: Server error
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ErrorResponse'
       security:

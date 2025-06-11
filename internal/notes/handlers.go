@@ -1,7 +1,9 @@
 package notes
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"strconv"
 	"vault/internal/db"
 	"vault/internal/errors"
 	"vault/internal/models"
@@ -48,13 +50,17 @@ func CreateNote(c *gin.Context) (any, error) {
 
 // GetNotes godoc
 // @Summary      List user notes
-// @Description  Returns all notes created by the authenticated user
+// @Description  Returns paginated notes for the authenticated user with optional filtering
 // @Tags         notes
 // @Accept       json
 // @Produce      json
-// @Success      200  {array}   models.NoteOut
-// @Failure      401  {object}  models.ErrorResponse  "Unauthorized"
-// @Failure      500  {object}  models.ErrorResponse  "Server error"
+// @Param        page       query     int     false  "Page number"     default(1)
+// @Param        limit      query     int     false  "Items per page"  default(10)
+// @Param        archived   query     bool    false  "Filter by archived status"
+// @Param        encrypted  query     bool    false  "Filter by encrypted status"
+// @Success      200        {array}   models.NoteOut
+// @Failure      401        {object}  models.ErrorResponse  "Unauthorized"
+// @Failure      500        {object}  models.ErrorResponse  "Server error"
 // @Router       /notes [get]
 // @Security     BearerAuth
 func GetNotes(c *gin.Context) (any, error) {
@@ -63,10 +69,36 @@ func GetNotes(c *gin.Context) (any, error) {
 		return nil, errors.NewUnauthorizedError("User ID not found", nil)
 	}
 
-	var notes []models.Note
-	query := db.DB.Where("user_id = ?", userID).Order("created_at desc").Find(&notes)
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	offset := (page - 1) * limit
 
-	if err := query.Error; err != nil {
+	var (
+		archived, archivedSet   = c.GetQuery("archived")
+		encrypted, encryptedSet = c.GetQuery("encrypted")
+	)
+
+	query := db.DB.
+		Model(&models.Note{}).
+		Where("user_id = ?", userID).
+		Order("created_at desc").
+		Limit(limit).
+		Offset(offset)
+
+	if archivedSet {
+		if v, err := strconv.ParseBool(archived); err == nil {
+			query = query.Where("archived = ?", v)
+		}
+	}
+
+	if encryptedSet {
+		if v, err := strconv.ParseBool(encrypted); err == nil {
+			query = query.Where("encrypted = ?", v)
+		}
+	}
+
+	var notes []models.Note
+	if err := query.Find(&notes).Error; err != nil {
 		return nil, errors.NewServerError(err)
 	}
 
