@@ -25,5 +25,5 @@ go.work.sum
  .idea/
  .vscode/
 
- .aws-sam
- ignored
+ .aws-sam/
+ ignored/

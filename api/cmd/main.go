@@ -14,16 +14,17 @@
 package main
 
 import (
+	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/awslabs/aws-lambda-go-api-proxy/gin"
 	"log"
+	"os"
 	"vault/internal/config"
 	"vault/internal/db"
 	"vault/internal/httpx"
 	"vault/internal/jwtx"
-	"vault/internal/models"
 )
 
-func main() {
-
+func Init() {
 	cfg, err := config.Load()
 
 	if err != nil {
@@ -38,16 +39,29 @@ func main() {
 		return
 	}
 
-	_ = db.DB.AutoMigrate(
-		&models.User{},
-		&models.Note{},
-		&models.NoteShare{},
-		&models.Attachment{},
-	)
+	//_ = db.DB.AutoMigrate(
+	//	&models.User{},
+	//	&models.Note{},
+	//	&models.NoteShare{},
+	//	&models.Attachment{},
+	//)
+}
 
+func main() {
+	Init()
 	r := httpx.Router()
 
-	if err := r.Run(":8080"); err != nil {
-		log.Fatal("Server failed to start:", err)
+	mode := os.Getenv("MODE")
+
+	if mode == "lambda" {
+		// Wrap Gin router with the Lambda adapter
+		log.Println("Running in Lambda mode...")
+		lambda.Start(ginadapter.New(r).ProxyWithContext)
+	} else {
+		// Default: local dev mode
+		log.Println("Running in local mode on :8080...")
+		if err := r.Run(":8080"); err != nil {
+			log.Fatal("Server failed to start:", err)
+		}
 	}
 }

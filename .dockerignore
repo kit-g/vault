@@ -2,7 +2,7 @@
 .idea
 
 *.yaml
-!docs/swagger.yaml
+!api/docs/swagger.yaml
 *.toml
 *.sh
 *.zip

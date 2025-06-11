@@ -12,7 +12,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy source
-COPY . .
+COPY .. .
 
 # Build the binary
 RUN go build -o vault ./cmd/main.go
