@@ -37,7 +37,7 @@ func Router() *gin.Engine {
 	vaultGroup.GET("", Wrap(notes.GetNotes))
 	vaultGroup.POST("", Wrap(notes.CreateNote))
 	vaultGroup.GET("/:noteId", Wrap(notes.GetNote))
-	//vaultGroup.PUT("/:noteId", Wrap(notes.EditNote))
+	vaultGroup.PUT("/:noteId", Wrap(notes.EditNote))
 	//vaultGroup.DELETE("/:noteId", Wrap(notes.DeleteNote))
 	return r
 }

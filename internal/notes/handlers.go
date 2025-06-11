@@ -152,3 +152,54 @@ func GetNote(c *gin.Context) (any, error) {
 
 	return models.NewNoteOut(&note), nil
 }
+
+// EditNote godoc
+// @Summary      Edit a note
+// @Description  Updates the note fields for the authenticated user
+// @Tags         notes
+// @Accept       json
+// @Produce      json
+// @Param        noteId  path      string          true  "Note ID"
+// @Param        note    body      models.NoteIn   true  "Note fields"
+// @Success      200     {object}  models.NoteOut
+// @Failure      400     {object}  models.ErrorResponse
+// @Failure      401     {object}  models.ErrorResponse
+// @Failure      404     {object}  models.ErrorResponse
+// @Failure      500     {object}  models.ErrorResponse
+// @Router       /notes/{noteId} [put]
+// @Security     BearerAuth
+func EditNote(c *gin.Context) (any, error) {
+	userIDValue, exists := c.Get("userID")
+	if !exists {
+		return nil, errors.NewUnauthorizedError("User ID not found", nil)
+	}
+	userID := userIDValue.(uint)
+
+	noteIDStr := c.Param("noteId")
+	noteID, err := uuid.Parse(noteIDStr)
+	if err != nil {
+		return nil, errors.NewValidationError(fmt.Errorf("invalid note ID: %w", err))
+	}
+
+	var input models.NoteIn
+	if err := c.ShouldBindJSON(&input); err != nil {
+		return nil, errors.NewValidationError(err)
+	}
+
+	var note models.Note
+	if err := db.DB.Where("id = ? AND user_id = ?", noteID, userID).First(&note).Error; err != nil {
+		if e.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.NewNotFoundError("Note not found", err)
+		}
+		return nil, errors.NewServerError(err)
+	}
+
+	note.Title = input.Title
+	note.Content = input.Content
+
+	if err := db.DB.Save(&note).Error; err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	return models.NewNoteOut(&note), nil
+}

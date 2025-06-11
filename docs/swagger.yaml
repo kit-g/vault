@@ -271,6 +271,50 @@ paths:
       summary: Get a single note
       tags:
       - notes
+    put:
+      consumes:
+      - application/json
+      description: Updates the note fields for the authenticated user
+      parameters:
+      - description: Note ID
+        in: path
+        name: noteId
+        required: true
+        type: string
+      - description: Note fields
+        in: body
+        name: note
+        required: true
+        schema:
+          $ref: '#/definitions/models.NoteIn'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.NoteOut'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Edit a note
+      tags:
+      - notes
   /refresh:
     post:
       consumes:
