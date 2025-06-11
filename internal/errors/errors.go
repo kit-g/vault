@@ -55,6 +55,10 @@ type UnauthorizedError struct {
 	*baseError
 }
 
+type NotFoundError struct {
+	*baseError
+}
+
 func NewServerError(err error) *ServerError {
 	return &ServerError{&baseError{
 		Err:     err,
@@ -92,6 +96,17 @@ func NewUnauthorizedError(msg string, err error) *UnauthorizedError {
 			status:  401,
 			message: msg,
 			code:    "Unauthorized",
+		},
+	}
+}
+
+func NewNotFoundError(msg string, err error) *NotFoundError {
+	return &NotFoundError{
+		&baseError{
+			Err:     err,
+			status:  404,
+			message: msg,
+			code:    "NotFound",
 		},
 	}
 }

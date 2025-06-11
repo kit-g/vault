@@ -1,8 +1,11 @@
 package notes
 
 import (
+	e "errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"gorm.io/gorm"
 	"strconv"
 	"vault/internal/db"
 	"vault/internal/errors"
@@ -39,13 +42,13 @@ func CreateNote(c *gin.Context) (any, error) {
 		return nil, errors.NewValidationError(err)
 	}
 
-	note := models.NewNote(input, userID)
+	note := models.NewNote(&input, userID)
 
 	if err := db.DB.Create(&note).Error; err != nil {
 		return nil, errors.NewServerError(err)
 	}
 
-	return models.NewNoteOut(note), nil
+	return models.NewNoteOut(&note), nil
 }
 
 // GetNotes godoc
@@ -104,8 +107,48 @@ func GetNotes(c *gin.Context) (any, error) {
 
 	var out []models.NoteOut
 	for _, n := range notes {
-		out = append(out, models.NewNoteOut(n))
+		out = append(out, models.NewNoteOut(&n))
 	}
 
 	return out, nil
+}
+
+// GetNote godoc
+// @Summary      Get a single note
+// @Description  Retrieves a specific note owned by the authenticated user
+// @Tags         notes
+// @Produce      json
+// @Param        noteId  path      string  true  "Note UUID"
+// @Success      200     {object}  models.NoteOut
+// @Failure      400     {object}  models.ErrorResponse
+// @Failure      401     {object}  models.ErrorResponse
+// @Failure      404     {object}  models.ErrorResponse
+// @Failure      500     {object}  models.ErrorResponse
+// @Router       /notes/{noteId} [get]
+// @Security     BearerAuth
+func GetNote(c *gin.Context) (any, error) {
+	userID, exists := c.Get("userID")
+	if !exists {
+		return nil, errors.NewUnauthorizedError("User ID not found", nil)
+	}
+
+	noteIDStr := c.Param("noteId")
+	noteID, err := uuid.Parse(noteIDStr)
+
+	if err != nil {
+		return nil, errors.NewValidationError(err)
+	}
+
+	var note models.Note
+	if err := db.DB.
+		Where("user_id = ? AND id = ?", userID, noteID).
+		First(&note).Error; err != nil {
+
+		if e.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.NewNotFoundError("Note not found", err)
+		}
+		return nil, errors.NewServerError(err)
+	}
+
+	return models.NewNoteOut(&note), nil
 }

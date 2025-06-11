@@ -2,13 +2,14 @@ package models
 
 import (
 	"fmt"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"time"
 )
 
 // Note represents a secure user note
 type Note struct {
-	gorm.Model
+	ID          uuid.UUID    `json:"id" gorm:"type:uuid;primaryKey"`
 	UserID      uint         `json:"-"`
 	Title       string       `json:"title" binding:"required"`
 	Content     string       `json:"content" binding:"required"`
@@ -16,10 +17,18 @@ type Note struct {
 	Archived    bool         `json:"archived"`
 	Attachments []Attachment `json:"attachments" gorm:"foreignKey:NoteID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 	Shares      []NoteShare  `json:"shares" gorm:"foreignKey:NoteID"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	DeletedAt   gorm.DeletedAt
 }
 
-func (n Note) String() string {
+func (n *Note) String() string {
 	return fmt.Sprintf("Note #%d: %s", n.ID, n.Title)
+}
+
+func (n *Note) BeforeCreate(_ *gorm.DB) (err error) {
+	n.ID = uuid.New()
+	return
 }
 
 // Attachment represents a file attached to a note
@@ -46,7 +55,7 @@ type NoteIn struct {
 }
 
 type NoteOut struct {
-	ID        uint      `json:"id"`
+	ID        uuid.UUID `json:"id"`
 	Title     string    `json:"title"`
 	Content   string    `json:"content"`
 	Encrypted bool      `json:"encrypted"`
@@ -55,7 +64,7 @@ type NoteOut struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-func NewNote(n NoteIn, userID uint) Note {
+func NewNote(n *NoteIn, userID uint) Note {
 	return Note{
 		Title:   n.Title,
 		Content: n.Content,
@@ -63,7 +72,7 @@ func NewNote(n NoteIn, userID uint) Note {
 	}
 }
 
-func NewNoteOut(n Note) NoteOut {
+func NewNoteOut(n *Note) NoteOut {
 	return NoteOut{
 		ID:        n.ID,
 		Title:     n.Title,
