@@ -2,6 +2,7 @@ package errors
 
 import (
 	"encoding/json"
+	"errors"
 )
 
 type HTTPError interface {
@@ -42,6 +43,10 @@ func (e *baseError) JSON() []byte {
 	}
 	bytes, _ := json.Marshal(resp)
 	return bytes
+}
+
+func Is(err, target error) bool {
+	return errors.Is(err, target)
 }
 
 type ServerError struct {

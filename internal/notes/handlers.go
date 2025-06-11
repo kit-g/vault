@@ -1,7 +1,6 @@
 package notes
 
 import (
-	e "errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -144,7 +143,7 @@ func GetNote(c *gin.Context) (any, error) {
 		Where("user_id = ? AND id = ?", userID, noteID).
 		First(&note).Error; err != nil {
 
-		if e.Is(err, gorm.ErrRecordNotFound) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NewNotFoundError("Note not found", err)
 		}
 		return nil, errors.NewServerError(err)
@@ -188,7 +187,7 @@ func EditNote(c *gin.Context) (any, error) {
 
 	var note models.Note
 	if err := db.DB.Where("id = ? AND user_id = ?", noteID, userID).First(&note).Error; err != nil {
-		if e.Is(err, gorm.ErrRecordNotFound) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NewNotFoundError("Note not found", err)
 		}
 		return nil, errors.NewServerError(err)
@@ -202,4 +201,46 @@ func EditNote(c *gin.Context) (any, error) {
 	}
 
 	return models.NewNoteOut(&note), nil
+}
+
+// DeleteNote godoc
+// @Summary      Delete a note
+// @Description  Deletes a note owned by the authenticated user
+// @Tags         notes
+// @Produce      json
+// @Param        noteId  path      string  true  "Note ID"
+// @Success      204     "No Content"
+// @Failure      400     {object}  models.ErrorResponse
+// @Failure      401     {object}  models.ErrorResponse
+// @Failure      404     {object}  models.ErrorResponse
+// @Failure      500     {object}  models.ErrorResponse
+// @Router       /notes/{noteId} [delete]
+// @Security     BearerAuth
+func DeleteNote(c *gin.Context) (any, error) {
+	userIDValue, exists := c.Get("userID")
+	if !exists {
+		return nil, errors.NewUnauthorizedError("User ID not found", nil)
+	}
+	userID := userIDValue.(uint)
+
+	noteIDStr := c.Param("noteId")
+	noteID, err := uuid.Parse(noteIDStr)
+	if err != nil {
+		return nil, errors.NewValidationError(fmt.Errorf("invalid note ID: %w", err))
+	}
+
+	// Find the note
+	var note models.Note
+	if err := db.DB.Where("id = ? AND user_id = ?", noteID, userID).First(&note).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.NewNotFoundError("Note not found", err)
+		}
+		return nil, errors.NewServerError(err)
+	}
+
+	if err := db.DB.Delete(&note).Error; err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	return models.NoContent, nil
 }

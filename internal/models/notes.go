@@ -19,7 +19,7 @@ type Note struct {
 	Shares      []NoteShare  `json:"shares" gorm:"foreignKey:NoteID"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
-	DeletedAt   gorm.DeletedAt
+	DeletedAt   gorm.DeletedAt `gorm:"index"`
 }
 
 func (n *Note) String() string {
