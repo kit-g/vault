@@ -7,6 +7,7 @@ import (
 	"net/http"
 	_ "vault/docs"
 	"vault/internal/auth"
+	"vault/internal/notes"
 )
 
 func Router() *gin.Engine {
@@ -30,5 +31,9 @@ func Router() *gin.Engine {
 	authGroup := r.Group("/")
 	authGroup.Use(auth.AuthenticationMiddleware())
 	authGroup.GET("/me", Wrap(auth.Me))
+
+	vaultGroup := r.Group("/notes")
+	vaultGroup.Use(auth.AuthenticationMiddleware())
+	vaultGroup.POST("", Wrap(notes.CreateNote))
 	return r
 }
