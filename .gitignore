@@ -23,7 +23,9 @@ go.work.sum
 
 # Editor/IDE
 .idea/
- .vscode/
+.vscode/
 
- .aws-sam/
- ignored/
+.aws-sam/
+ignored/
+
+upload.sh
