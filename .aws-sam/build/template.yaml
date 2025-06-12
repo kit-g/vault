@@ -1,0 +1,193 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Vault app API
+Globals:
+  Function:
+    Timeout: 5
+Parameters:
+  DbHost:
+    Type: String
+    Description: Postgres host URL
+  DbPassword:
+    Type: String
+    Description: Postgres database password
+    NoEcho: true
+  DbUser:
+    Type: String
+    Description: Postgres database user
+    NoEcho: true
+Resources:
+  AttachmentBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName:
+        Fn::Sub: ${AWS::AccountId}-vault
+      NotificationConfiguration:
+        LambdaConfigurations:
+        - Event: s3:ObjectCreated:*
+          Filter:
+            S3Key:
+              Rules:
+              - Name: prefix
+                Value: attachments/
+          Function:
+            Fn::GetAtt:
+            - VaultIngestFunction
+            - Arn
+  VaultPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - s3:PutObject
+          - s3:GetObject
+          - s3:HeadObject
+          Resource:
+            Fn::Sub: arn:aws:s3:::${AWS::AccountId}-vault/*
+  VaultApiFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+      SamResourceId: VaultApiFunction
+    Properties:
+      CodeUri: VaultApiFunction
+      Description: 'Part of Vault: API app in Go'
+      Runtime: provided.al2023
+      Handler: bootstrap
+      Architectures:
+      - x86_64
+      Environment:
+        Variables:
+          AUTH_TOKEN_LIFESPAN: 10080
+          ATTACHMENT_BUCKET:
+            Ref: AttachmentBucket
+          DB_HOST:
+            Ref: DbHost
+          DB_NAME: vault
+          DB_USER:
+            Ref: DbUser
+          DB_PASSWORD:
+            Ref: DbPassword
+          DB_PORT: 5432
+          GIN_MODE: release
+          JWT_SECRET: 1
+          MODE: lambda
+          REGION:
+            Ref: AWS::Region
+      FunctionName: vault-api
+      Policies:
+      - AWSLambdaBasicExecutionRole
+      - Fn::GetAtt:
+        - VaultPolicy
+        - PolicyArn
+  VaultApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: vault-api
+      Description: Vault REST API
+      EndpointConfiguration:
+        Types:
+        - REGIONAL
+  VaultApiRootResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId:
+        Ref: VaultApi
+      ParentId:
+        Fn::GetAtt:
+        - VaultApi
+        - RootResourceId
+      PathPart: '{proxy+}'
+  VaultApiMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId:
+        Ref: VaultApi
+      ResourceId:
+        Ref: VaultApiRootResource
+      HttpMethod: ANY
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${VaultApiFunction.Arn}/invocations
+  VaultApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn: VaultApiMethod
+    Properties:
+      RestApiId:
+        Ref: VaultApi
+  VaultApiStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId:
+        Ref: VaultApi
+      DeploymentId:
+        Ref: VaultApiDeployment
+      StageName: v1
+      Description: v1 stage
+  VaultApiPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName:
+        Ref: VaultApiFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Sub: arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${VaultApi}/*/*/*
+  VaultIngestFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+      SamResourceId: VaultIngestFunction
+    Properties:
+      CodeUri: VaultIngestFunction
+      Description: Handles S3 object-created events
+      Runtime: provided.al2023
+      Handler: bootstrap
+      FunctionName: vault-ingest
+      Environment:
+        Variables:
+          ATTACHMENT_BUCKET:
+            Fn::Sub: ${AWS::AccountId}-vault
+          DB_HOST:
+            Ref: DbHost
+          DB_NAME: vault
+          DB_USER:
+            Ref: DbUser
+          DB_PASSWORD:
+            Ref: DbPassword
+          DB_PORT: 5432
+          GIN_MODE: release
+          REGION:
+            Ref: AWS::Region
+      Policies:
+      - Fn::GetAtt:
+        - VaultPolicy
+        - PolicyArn
+  VaultIngestFunctionS3InvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName:
+        Fn::GetAtt:
+        - VaultIngestFunction
+        - Arn
+      Action: lambda:InvokeFunction
+      Principal: s3.amazonaws.com
+Outputs:
+  VaultApiUrl:
+    Description: Invoke URL of the Vault API
+    Value:
+      Fn::Sub: https://${VaultApi}.execute-api.${AWS::Region}.amazonaws.com/${VaultApiStage}/
+    Export:
+      Name: vault-api-url
+  AttachmentBucket:
+    Description: S3 bucket for attachments
+    Value:
+      Ref: AttachmentBucket
+    Export:
+      Name: attachment-bucket
