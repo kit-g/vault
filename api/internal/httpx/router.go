@@ -39,5 +39,8 @@ func Router() *gin.Engine {
 	vaultGroup.GET("/:noteId", Wrap(notes.GetNote))
 	vaultGroup.PUT("/:noteId", Wrap(notes.EditNote))
 	vaultGroup.DELETE("/:noteId", Wrap(notes.DeleteNote))
+
+	vaultGroup.POST("/:noteId/attachments", Wrap(notes.GetUploadURL))
+
 	return r
 }

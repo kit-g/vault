@@ -23,9 +23,7 @@ go.work.sum
 
 # Editor/IDE
 .idea/
-.vscode/
-
+vscode/
 .aws-sam/
 ignored/
-
-upload.sh
+.junie/

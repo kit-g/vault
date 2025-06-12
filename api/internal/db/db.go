@@ -9,7 +9,7 @@ import (
 
 var DB *gorm.DB
 
-func Connect(cfg *config.Config) error {
+func Connect(cfg *config.DBConfig) error {
 	dsn := fmt.Sprintf("host=%s user='%s' password='%s' dbname=%s port=%s sslmode=%s application_name='%s'",
 		cfg.DBHost,
 		cfg.DBUser,

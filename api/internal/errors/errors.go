@@ -59,6 +59,9 @@ type ValidationError struct {
 type UnauthorizedError struct {
 	*baseError
 }
+type ForbiddenError struct {
+	*baseError
+}
 
 type NotFoundError struct {
 	*baseError
@@ -101,6 +104,17 @@ func NewUnauthorizedError(msg string, err error) *UnauthorizedError {
 			status:  401,
 			message: msg,
 			code:    "Unauthorized",
+		},
+	}
+}
+
+func NewForbiddenError(msg string, err error) *ForbiddenError {
+	return &ForbiddenError{
+		&baseError{
+			Err:     err,
+			status:  403,
+			message: msg,
+			code:    "Forbidden",
 		},
 	}
 }
