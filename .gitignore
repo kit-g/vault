@@ -27,3 +27,5 @@ vscode/
 .aws-sam/
 ignored/
 .junie/
+
+infrastructure/api.toml
