@@ -82,6 +82,23 @@ definitions:
       username:
         type: string
     type: object
+  notes.PresignUploadRequest:
+    properties:
+      content_type:
+        type: string
+      filename:
+        type: string
+    required:
+    - content_type
+    - filename
+    type: object
+  notes.PresignUploadResponse:
+    properties:
+      key:
+        type: string
+      url:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -349,6 +366,46 @@ paths:
       summary: Edit a note
       tags:
       - notes
+  /notes/{noteId}/attachments:
+    post:
+      consumes:
+      - application/json
+      description: Generates a presigned URL for uploading an attachment to a specific
+        note
+      parameters:
+      - description: Note ID
+        in: path
+        name: noteId
+        required: true
+        type: string
+      - description: Upload parameters
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/notes.PresignUploadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/notes.PresignUploadResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Generate a presigned S3 upload URL
+      tags:
+      - Attachments
   /refresh:
     post:
       consumes:
