@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"strconv"
+	"vault/internal/awsx"
 	"vault/internal/db"
 	"vault/internal/errors"
 	"vault/internal/models"
@@ -243,4 +244,68 @@ func DeleteNote(c *gin.Context) (any, error) {
 	}
 
 	return models.NoContent, nil
+}
+
+type PresignUploadRequest struct {
+	Filename    string `json:"filename" binding:"required"`
+	ContentType string `json:"content_type" binding:"required"`
+}
+
+type PresignUploadResponse struct {
+	URL string `json:"url"`
+	Key string `json:"key"`
+}
+
+// GetUploadURL handles presigned upload URL generation for a specific note.
+//
+// @Summary Generate a presigned S3 upload URL
+// @Description Generates a presigned URL for uploading an attachment to a specific note
+// @Tags Attachments
+// @Accept json
+// @Produce json
+// @Param noteId path string true "Note ID"
+// @Param body body PresignUploadRequest true "Upload parameters"
+// @Success 200 {object} PresignUploadResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 401 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /notes/{noteId}/attachments [post]
+func GetUploadURL(c *gin.Context) (any, error) {
+	userIDValue, exists := c.Get("userID")
+	if !exists {
+		return nil, errors.NewUnauthorizedError("User ID not found", nil)
+	}
+
+	userID := userIDValue.(uint)
+
+	var input PresignUploadRequest
+	if err := c.ShouldBindJSON(&input); err != nil {
+		return nil, errors.NewValidationError(err)
+	}
+
+	noteIDStr := c.Param("noteId")
+	noteID, err := uuid.Parse(noteIDStr)
+
+	var count int64
+	if err := db.DB.Model(&models.Note{}).
+		Where("id = ? AND user_id = ?", noteID, userID).
+		Count(&count).Error; err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	if count == 0 {
+		return nil, errors.NewForbiddenError("You do not have access to this note", err)
+	}
+
+	key := fmt.Sprintf("attachments/%s/%s", noteID, input.Filename)
+
+	url, err := awsx.GeneratePresignedPutURL(key, input.ContentType)
+	if err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	return PresignUploadResponse{
+		URL: url,
+		Key: key,
+	}, nil
 }
