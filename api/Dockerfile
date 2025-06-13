@@ -15,7 +15,7 @@ RUN go mod download
 COPY .. .
 
 # Build the binary
-RUN go build -o vault ./cmd/main.go
+RUN go build -o vault ./cmd/api/main.go
 
 
 # --- Stage 2: Run ---
