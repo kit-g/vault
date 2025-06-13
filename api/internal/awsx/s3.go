@@ -2,12 +2,11 @@ package awsx
 
 import (
 	"fmt"
-	"log"
-	"time"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"log"
+	"time"
 )
 
 var S3 *s3.S3
@@ -62,4 +61,17 @@ func GeneratePresignedGetURL(key string) (string, error) {
 	}
 
 	return url, nil
+}
+
+func DeleteObject(bucket string, key string) (*s3.DeleteObjectOutput, error) {
+	options := s3.DeleteObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(key),
+	}
+	return S3.DeleteObject(&options)
+}
+
+func DeleteAttachment(attachmentId string) error {
+	_, err := DeleteObject(Bucket, attachmentId)
+	return err
 }

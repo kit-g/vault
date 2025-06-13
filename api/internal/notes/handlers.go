@@ -363,3 +363,56 @@ func GetDownloadURL(c *gin.Context) (any, error) {
 		URL: url,
 	}, nil
 }
+
+// DeleteAttachment godoc
+// @Summary Delete an attachment
+// @Tags notes
+// @Param noteId path string true "Note ID"
+// @Param attachmentId path string true "Attachment ID"
+// @Success 204			 "No Content"
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 401 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Router /notes/{noteId}/attachments/{attachmentId} [delete]
+// @Security BearerAuth
+func DeleteAttachment(c *gin.Context) (any, error) {
+	noteID, err := uuid.Parse(c.Param("noteId"))
+	if err != nil {
+		return nil, errors.NewValidationError(fmt.Errorf("invalid note ID"))
+	}
+
+	attachmentID, err := uuid.Parse(c.Param("attachmentId"))
+	if err != nil {
+		return nil, errors.NewValidationError(fmt.Errorf("invalid attachment ID"))
+	}
+
+	var attachment models.Attachment
+	err = db.DB.
+		Joins("JOIN notes ON notes.id = attachments.note_id").
+		Where(
+			"notes.id = ? AND attachments.id = ? AND notes.user_id = ?",
+			noteID,
+			attachmentID,
+			c.GetUint("userID"),
+		).
+		First(&attachment).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.NewNotFoundError("Attachment not found", err)
+		}
+		return nil, errors.NewServerError(err)
+	}
+
+	// delete from S3
+	if err := awsx.DeleteAttachment(attachment.Key()); err != nil {
+		return nil, errors.NewServerError(fmt.Errorf("failed to delete attachment from S3: %w", err))
+	}
+
+	// delete from DB
+	if err := db.DB.Delete(&attachment).Error; err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	return models.NoContent, nil
+}
