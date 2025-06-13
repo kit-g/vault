@@ -536,6 +536,56 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "notes"
+                ],
+                "summary": "Delete an attachment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Note ID",
+                        "name": "noteId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Attachment ID",
+                        "name": "attachmentId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
             }
         },
         "/refresh": {
@@ -713,10 +763,12 @@ const docTemplate = `{
             ],
             "properties": {
                 "content": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Notes from the meeting with the client."
                 },
                 "title": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Meeting Notes"
                 }
             }
         },
@@ -733,7 +785,8 @@ const docTemplate = `{
                     }
                 },
                 "content": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Notes from the meeting with the client."
                 },
                 "created_at": {
                     "type": "string"
@@ -742,10 +795,12 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
                 },
                 "title": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Meeting Notes"
                 },
                 "updated_at": {
                     "type": "string"

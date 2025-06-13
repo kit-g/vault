@@ -42,8 +42,10 @@ definitions:
   models.NoteIn:
     properties:
       content:
+        example: Notes from the meeting with the client.
         type: string
       title:
+        example: Meeting Notes
         type: string
     required:
     - content
@@ -58,14 +60,17 @@ definitions:
           $ref: '#/definitions/models.AttachmentOut'
         type: array
       content:
+        example: Notes from the meeting with the client.
         type: string
       created_at:
         type: string
       encrypted:
         type: boolean
       id:
+        example: 123e4567-e89b-12d3-a456-426614174000
         type: string
       title:
+        example: Meeting Notes
         type: string
       updated_at:
         type: string
@@ -431,6 +436,38 @@ paths:
       tags:
       - notes
   /notes/{noteId}/attachments/{attachmentId}:
+    delete:
+      parameters:
+      - description: Note ID
+        in: path
+        name: noteId
+        required: true
+        type: string
+      - description: Attachment ID
+        in: path
+        name: attachmentId
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete an attachment
+      tags:
+      - notes
     get:
       description: Generates a temporary URL for securely downloading a note's attachment.
       parameters:
