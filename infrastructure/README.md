@@ -2,6 +2,8 @@
 
 This directory contains the infrastructure as code (IaC) configuration for deploying the Vault application to AWS using the Serverless Application Model (SAM).
 
+For a high-level overview of the entire project, please refer to the [main README](../README.md).
+
 ## Overview
 
 The Vault application is deployed as a serverless application on AWS with the following components:
@@ -23,6 +25,8 @@ The Vault application is deployed as a serverless application on AWS with the fo
 - [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html) installed
 - AWS account with appropriate permissions
 - PostgreSQL database accessible from AWS Lambda
+
+For details about the API application being deployed, please refer to the [API README](../api/README.md).
 
 ## Deployment
 
