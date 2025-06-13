@@ -2,6 +2,7 @@ package jwtx
 
 import (
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"time"
 )
 
@@ -15,7 +16,7 @@ func Init(s string, authTokenDuration int, refreshTokenDuration int) {
 	refreshTokenLifespan = refreshTokenDuration
 }
 
-func Generate(userID uint) (string, error) {
+func Generate(userID uuid.UUID) (string, error) {
 	claims := jwt.MapClaims{
 		"sub": userID,
 		"exp": time.Now().Add(time.Duration(authTokenLifespan) * time.Minute).Unix(),
@@ -38,7 +39,7 @@ func Parse(tokenString string) (jwt.MapClaims, error) {
 	}
 }
 
-func GenerateRefresh(userID uint) (string, error) {
+func GenerateRefresh(userID uuid.UUID) (string, error) {
 	claims := jwt.MapClaims{
 		"sub":  userID,
 		"exp":  time.Now().Add(time.Duration(refreshTokenLifespan) * time.Minute).Unix(), // 7 days

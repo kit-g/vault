@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"strconv"
 	"vault/internal/awsx"
 	"vault/internal/db"
@@ -25,17 +26,7 @@ import (
 // @Failure      500   {object}  models.ErrorResponse
 // @Router       /notes [post]
 // @Security     BearerAuth
-func CreateNote(c *gin.Context) (any, error) {
-	userIDParam, exists := c.Get("userID")
-	if !exists {
-		return nil, errors.NewUnauthorizedError("User ID not found", nil)
-	}
-
-	userID, ok := userIDParam.(uint)
-	if !ok {
-		return nil, errors.NewServerError(nil)
-	}
-
+func CreateNote(c *gin.Context, userID uuid.UUID) (any, error) {
 	var input models.NoteIn
 
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -66,12 +57,7 @@ func CreateNote(c *gin.Context) (any, error) {
 // @Failure      500        {object}  models.ErrorResponse  "Server error"
 // @Router       /notes [get]
 // @Security     BearerAuth
-func GetNotes(c *gin.Context) (any, error) {
-	userID, exists := c.Get("userID")
-	if !exists {
-		return nil, errors.NewUnauthorizedError("User ID not found", nil)
-	}
-
+func GetNotes(c *gin.Context, userID uuid.UUID) (any, error) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 	offset := (page - 1) * limit
@@ -127,12 +113,7 @@ func GetNotes(c *gin.Context) (any, error) {
 // @Failure      500     {object}  models.ErrorResponse
 // @Router       /notes/{noteId} [get]
 // @Security     BearerAuth
-func GetNote(c *gin.Context) (any, error) {
-	userID, exists := c.Get("userID")
-	if !exists {
-		return nil, errors.NewUnauthorizedError("User ID not found", nil)
-	}
-
+func GetNote(c *gin.Context, userID uuid.UUID) (any, error) {
 	noteIDStr := c.Param("noteId")
 	noteID, err := uuid.Parse(noteIDStr)
 
@@ -170,13 +151,7 @@ func GetNote(c *gin.Context) (any, error) {
 // @Failure      500     {object}  models.ErrorResponse
 // @Router       /notes/{noteId} [put]
 // @Security     BearerAuth
-func EditNote(c *gin.Context) (any, error) {
-	userIDValue, exists := c.Get("userID")
-	if !exists {
-		return nil, errors.NewUnauthorizedError("User ID not found", nil)
-	}
-	userID := userIDValue.(uint)
-
+func EditNote(c *gin.Context, userID uuid.UUID) (any, error) {
 	noteIDStr := c.Param("noteId")
 	noteID, err := uuid.Parse(noteIDStr)
 	if err != nil {
@@ -219,12 +194,7 @@ func EditNote(c *gin.Context) (any, error) {
 // @Failure      500     {object}  models.ErrorResponse
 // @Router       /notes/{noteId} [delete]
 // @Security     BearerAuth
-func DeleteNote(c *gin.Context) (any, error) {
-	userIDValue, exists := c.Get("userID")
-	if !exists {
-		return nil, errors.NewUnauthorizedError("User ID not found", nil)
-	}
-	userID := userIDValue.(uint)
+func DeleteNote(c *gin.Context, userID uuid.UUID) (any, error) {
 
 	noteIDStr := c.Param("noteId")
 	noteID, err := uuid.Parse(noteIDStr)
@@ -248,20 +218,6 @@ func DeleteNote(c *gin.Context) (any, error) {
 	return models.NoContent, nil
 }
 
-type PresignUploadRequest struct {
-	Filename    string `json:"filename" binding:"required"`
-	ContentType string `json:"content_type" binding:"required"`
-}
-
-type PresignUploadResponse struct {
-	URL string `json:"url"`
-	Key string `json:"key"`
-}
-
-type PresignDownloadResponse struct {
-	URL string `json:"url"`
-}
-
 // GetUploadURL handles presigned upload URL generation for a specific note.
 //
 // @Summary Generate a presigned S3 upload URL
@@ -270,21 +226,14 @@ type PresignDownloadResponse struct {
 // @Accept json
 // @Produce json
 // @Param noteId path string true "Note ID"
-// @Param body body PresignUploadRequest true "Upload parameters"
-// @Success 200 {object} PresignUploadResponse
+// @Param body body models.PresignUploadRequest true "Upload parameters"
+// @Success 200 {object} models.PresignUploadResponse
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 401 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
 // @Router /notes/{noteId}/attachments [post]
-func GetUploadURL(c *gin.Context) (any, error) {
-	userIDValue, exists := c.Get("userID")
-	if !exists {
-		return nil, errors.NewUnauthorizedError("User ID not found", nil)
-	}
-
-	userID := userIDValue.(uint)
-
-	var input PresignUploadRequest
+func GetUploadURL(c *gin.Context, userID uuid.UUID) (any, error) {
+	var input models.PresignUploadRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
 		return nil, errors.NewValidationError(err)
 	}
@@ -310,7 +259,7 @@ func GetUploadURL(c *gin.Context) (any, error) {
 		return nil, errors.NewServerError(err)
 	}
 
-	return PresignUploadResponse{
+	return models.PresignUploadResponse{
 		URL: url,
 		Key: key,
 	}, nil
@@ -323,13 +272,13 @@ func GetUploadURL(c *gin.Context) (any, error) {
 // @Security     BearerAuth
 // @Param        noteId        path      string  true  "Note ID (UUID)"
 // @Param        attachmentId  path      string  true  "Attachment ID (UUID)"
-// @Success      200  {object}  PresignDownloadResponse
+// @Success      200  {object}  models.PresignDownloadResponse
 // @Failure      400  {object}  models.ErrorResponse
 // @Failure      401  {object}  models.ErrorResponse
 // @Failure      404  {object}  models.ErrorResponse
 // @Failure      500  {object}  models.ErrorResponse
 // @Router       /notes/{noteId}/attachments/{attachmentId} [get]
-func GetDownloadURL(c *gin.Context) (any, error) {
+func GetDownloadURL(c *gin.Context, _ uuid.UUID) (any, error) {
 	noteID, err := uuid.Parse(c.Param("noteId"))
 	if err != nil {
 		return nil, errors.NewValidationError(fmt.Errorf("invalid note ID"))
@@ -359,9 +308,7 @@ func GetDownloadURL(c *gin.Context) (any, error) {
 		return nil, errors.NewServerError(err)
 	}
 
-	return PresignDownloadResponse{
-		URL: url,
-	}, nil
+	return models.PresignDownloadResponse{URL: url}, nil
 }
 
 // DeleteAttachment godoc
@@ -375,7 +322,7 @@ func GetDownloadURL(c *gin.Context) (any, error) {
 // @Failure 404 {object} models.ErrorResponse
 // @Router /notes/{noteId}/attachments/{attachmentId} [delete]
 // @Security BearerAuth
-func DeleteAttachment(c *gin.Context) (any, error) {
+func DeleteAttachment(c *gin.Context, _ uuid.UUID) (any, error) {
 	noteID, err := uuid.Parse(c.Param("noteId"))
 	if err != nil {
 		return nil, errors.NewValidationError(fmt.Errorf("invalid note ID"))
@@ -411,6 +358,52 @@ func DeleteAttachment(c *gin.Context) (any, error) {
 
 	// delete from DB
 	if err := db.DB.Delete(&attachment).Error; err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	return models.NoContent, nil
+}
+
+// ShareNoteToUser shares a note with another user.
+//
+// @Summary      Share note with user
+// @Description  Allows the authenticated user to share a note they own with another user, specifying read or write permissions.
+// @Tags         notes
+// @Accept       json
+// @Produce      json
+// @Param        noteId  path      string                    true  "Note ID (UUID)"
+// @Param        request body      models.ShareToUserRequest true  "Sharing request"
+// @Success      204     {string}                            "No Content"
+// @Failure      400     {object}  models.ErrorResponse      "Bad request (invalid UUID, payload, or permission)"
+// @Failure      404     {object}  models.ErrorResponse      "Note not found or not owned by user"
+// @Failure      500     {object}  models.ErrorResponse      "Internal server error"
+// @Security     BearerAuth
+// @Router       /notes/{noteId}/share [post]
+func ShareNoteToUser(c *gin.Context, userID uuid.UUID) (any, error) {
+	noteID, err := uuid.Parse(c.Param("noteId"))
+	if err != nil {
+		return nil, errors.NewValidationError(fmt.Errorf("invalid note ID: %w", err))
+	}
+
+	var req models.ShareToUserRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		return nil, errors.NewValidationError(err)
+	}
+
+	var note models.Note
+	if err := db.DB.First(&note, "id = ? AND user_id = ?", noteID, userID).Error; err != nil {
+		return nil, errors.NewNotFoundError("Note not found", err)
+	}
+
+	permission, err := models.NewPermission(req.Permission)
+
+	if err != nil {
+		return nil, errors.NewValidationError(err)
+	}
+
+	share := models.NewNoteShare(note.ID, req.SharedWith, permission)
+	onConflict := clause.OnConflict{UpdateAll: true}
+	if err := db.DB.Clauses(onConflict).Create(&share).Error; err != nil {
 		return nil, errors.NewServerError(err)
 	}
 

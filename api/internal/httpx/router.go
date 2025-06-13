@@ -23,26 +23,29 @@ func Router() *gin.Engine {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Public routes
-	r.POST("/register", Wrap(auth.Register))
-	r.POST("/login", Wrap(auth.Login))
-	r.POST("/refresh", Wrap(auth.Refresh))
+	r.POST("/register", Route(auth.Register))
+	r.POST("/login", Route(auth.Login))
+	r.POST("/refresh", Route(auth.Refresh))
 
 	// Protected routes
 	authGroup := r.Group("/")
 	authGroup.Use(auth.AuthenticationMiddleware())
-	authGroup.GET("/me", Wrap(auth.Me))
+	authGroup.GET("/me", Authenticated(auth.Me))
 
+	// notes
 	vaultGroup := r.Group("/notes")
 	vaultGroup.Use(auth.AuthenticationMiddleware())
-	vaultGroup.GET("", Wrap(notes.GetNotes))
-	vaultGroup.POST("", Wrap(notes.CreateNote))
-	vaultGroup.GET("/:noteId", Wrap(notes.GetNote))
-	vaultGroup.PUT("/:noteId", Wrap(notes.EditNote))
-	vaultGroup.DELETE("/:noteId", Wrap(notes.DeleteNote))
-
-	vaultGroup.POST("/:noteId/attachments", Wrap(notes.GetUploadURL))
-	vaultGroup.GET("/:noteId/attachments/:attachmentId", Wrap(notes.GetDownloadURL))
-	vaultGroup.DELETE("/:noteId/attachments/:attachmentId", Wrap(notes.DeleteAttachment))
+	vaultGroup.GET("", Authenticated(notes.GetNotes))
+	vaultGroup.POST("", Authenticated(notes.CreateNote))
+	vaultGroup.GET("/:noteId", Authenticated(notes.GetNote))
+	vaultGroup.PUT("/:noteId", Authenticated(notes.EditNote))
+	vaultGroup.DELETE("/:noteId", Authenticated(notes.DeleteNote))
+	// attachments
+	vaultGroup.POST("/:noteId/attachments", Authenticated(notes.GetUploadURL))
+	vaultGroup.GET("/:noteId/attachments/:attachmentId", Authenticated(notes.GetDownloadURL))
+	vaultGroup.DELETE("/:noteId/attachments/:attachmentId", Authenticated(notes.DeleteAttachment))
+	// share
+	vaultGroup.POST("/:noteId/share", Authenticated(notes.ShareNoteToUser))
 
 	return r
 }

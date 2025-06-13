@@ -61,7 +61,7 @@ func main() {
 	mode := os.Getenv("MODE")
 
 	if mode == "lambda" {
-		// Wrap Gin router with the Lambda adapter
+		// Route Gin router with the Lambda adapter
 		log.Println("Running in Lambda mode...")
 		lambda.Start(ginadapter.New(r).ProxyWithContext)
 	} else {

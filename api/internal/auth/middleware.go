@@ -2,6 +2,7 @@ package auth
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"net/http"
 	"strings"
 	"vault/internal/jwtx"
@@ -22,7 +23,14 @@ func AuthenticationMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		c.Set("userID", uint(claims["sub"].(float64))) // Save user ID to context
+		userId, err := uuid.Parse(claims["sub"].(string))
+
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID in token"})
+			return
+		}
+
+		c.Set("userID", userId) // Save user ID to context
 		c.Next()
 	}
 }

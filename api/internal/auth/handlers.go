@@ -3,6 +3,7 @@ package auth
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"vault/internal/db"
 	"vault/internal/errors"
@@ -120,11 +121,10 @@ func Refresh(c *gin.Context) (any, error) {
 		return nil, errors.NewUnauthorizedError("Invalid refresh token", err)
 	}
 
-	userIDFloat, ok := claims["sub"].(float64)
+	userID, ok := claims["sub"].(uuid.UUID)
 	if !ok {
 		return nil, errors.NewServerError(fmt.Errorf("invalid user ID in token"))
 	}
-	userID := uint(userIDFloat)
 
 	accessToken, err := jwtx.Generate(userID)
 	if err != nil {
@@ -149,17 +149,7 @@ func Refresh(c *gin.Context) (any, error) {
 // @Failure      401  {object}  models.ErrorResponse  "Unauthorized"
 // @Failure      500  {object}  models.ErrorResponse  "Server error"
 // @Router       /me [get]
-func Me(c *gin.Context) (any, error) {
-	userIDValue, exists := c.Get("userID")
-	if !exists {
-		return nil, errors.NewUnauthorizedError("User ID not found in context", nil)
-	}
-
-	userID, ok := userIDValue.(uint)
-	if !ok {
-		return nil, errors.NewServerError(fmt.Errorf("invalid user ID type"))
-	}
-
+func Me(_ *gin.Context, userID uuid.UUID) (any, error) {
 	var user models.User
 	if err := db.DB.First(&user, userID).Error; err != nil {
 		return nil, errors.NewServerError(err)
