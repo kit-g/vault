@@ -1,15 +1,17 @@
 package models
 
+import "github.com/google/uuid"
+
 type UserIn struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=6"`
-	Username string `json:"username" binding:"required,min=6"`
+	Email    string `json:"email" binding:"required,email" example:"jane@mail.com"`
+	Password string `json:"password" binding:"required,min=6" example:"password123"`
+	Username string `json:"username" binding:"required,min=1" example:"jane_doe"`
 }
 
 type UserOut struct {
-	ID       uint   `json:"id"`
-	Email    string `json:"email"`
-	Username string `json:"username"`
+	ID       uuid.UUID `json:"id" example:"123e4567-e89b-12d3-a456-426614174000"`
+	Email    string    `json:"email" example:"jane@mail.com"`
+	Username string    `json:"username" example:"jane_doe"`
 }
 
 type Session struct {
@@ -18,7 +20,7 @@ type Session struct {
 }
 
 type Login struct {
-	Email    string `json:"email" binding:"required,email"`
+	Email    string `json:"email" binding:"required,email" example:"jane@mail.com"`
 	Password string `json:"password" binding:"required"`
 }
 

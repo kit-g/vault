@@ -3,37 +3,28 @@ package models
 import (
 	"fmt"
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 	"time"
 )
 
 // Note represents a secure user note
 type Note struct {
-	ID          uuid.UUID    `json:"id" gorm:"type:uuid;primaryKey"`
-	UserID      uint         `json:"-"`
+	SoftDeleteModel
+	UserID      uuid.UUID    `json:"-"`
 	Title       string       `json:"title" binding:"required"`
 	Content     string       `json:"content" binding:"required"`
 	Encrypted   bool         `json:"encrypted"`
 	Archived    bool         `json:"archived"`
 	Attachments []Attachment `json:"attachments" gorm:"foreignKey:NoteID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 	Shares      []NoteShare  `json:"shares" gorm:"foreignKey:NoteID"`
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	DeletedAt   gorm.DeletedAt `gorm:"index"`
 }
 
 func (n *Note) String() string {
 	return fmt.Sprintf("Note #%d: %s", n.ID, n.Title)
 }
 
-func (n *Note) BeforeCreate(_ *gorm.DB) (err error) {
-	n.ID = uuid.New()
-	return
-}
-
 // Attachment represents a file attached to a note
 type Attachment struct {
-	ID        uuid.UUID `json:"id" gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
+	Model
 	NoteID    uuid.UUID `json:"note_id"`
 	FileName  string    `json:"file_name"`
 	MimeType  string    `json:"mime_type"`
@@ -64,12 +55,30 @@ func NewAttachment(noteId uuid.UUID, fileName string, mimeType string, size int6
 	}
 }
 
+type Permission string
+
+const (
+	ReadPermission  Permission = "read"
+	WritePermission Permission = "write"
+)
+
+func NewPermission(v string) (Permission, error) {
+	switch v {
+	case "read":
+		return ReadPermission, nil
+	case "write":
+		return WritePermission, nil
+	default:
+		return "", fmt.Errorf("invalid permission: %s", v)
+	}
+}
+
 // NoteShare represents a shared note and permission level
 type NoteShare struct {
-	gorm.Model
-	NoteID           uuid.UUID `json:"-"`
-	SharedWithUserID uint      `json:"shared_with"`
-	Permission       string    `json:"permission"` // "read", "write"
+	Model
+	NoteID           uuid.UUID  `json:"-"`
+	SharedWithUserID uuid.UUID  `json:"shared_with"`
+	Permission       Permission `json:"permission"` // "read", "write"
 }
 
 type NoteIn struct {
@@ -104,7 +113,7 @@ type NoteOut struct {
 	Attachments []AttachmentOut `json:"attachments"`
 }
 
-func NewNote(n *NoteIn, userID uint) Note {
+func NewNote(n *NoteIn, userID uuid.UUID) Note {
 	return Note{
 		Title:   n.Title,
 		Content: n.Content,
@@ -127,5 +136,13 @@ func NewNoteOut(n *Note) NoteOut {
 		CreatedAt:   n.CreatedAt,
 		UpdatedAt:   n.UpdatedAt,
 		Attachments: attachments,
+	}
+}
+
+func NewNoteShare(noteId uuid.UUID, userId uuid.UUID, permission Permission) NoteShare {
+	return NoteShare{
+		NoteID:           noteId,
+		SharedWithUserID: userId,
+		Permission:       permission,
 	}
 }

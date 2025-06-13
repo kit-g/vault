@@ -2,11 +2,10 @@ package models
 
 import (
 	"fmt"
-	"gorm.io/gorm"
 )
 
 type User struct {
-	gorm.Model
+	ModifiableModel
 	Username string `gorm:"uniqueIndex;not null"`
 	Email    string `gorm:"uniqueIndex;not null"`
 	Password string
