@@ -18,13 +18,16 @@ definitions:
   models.ErrorResponse:
     properties:
       code:
+        example: InternalError
         type: string
       error:
+        example: An unexpected error occurred
         type: string
     type: object
   models.Login:
     properties:
       email:
+        example: jane@mail.com
         type: string
       password:
         type: string
@@ -75,6 +78,32 @@ definitions:
       updated_at:
         type: string
     type: object
+  models.PresignDownloadResponse:
+    properties:
+      url:
+        type: string
+    type: object
+  models.PresignUploadRequest:
+    properties:
+      content_type:
+        example: text/plain
+        type: string
+      filename:
+        example: example.txt
+        type: string
+    required:
+    - content_type
+    - filename
+    type: object
+  models.PresignUploadResponse:
+    properties:
+      key:
+        example: attachments/123e4567-e89b-12d3-a456-426614174000/example.txt
+        type: string
+      url:
+        example: https://s3.com/upload?key=example.txt
+        type: string
+    type: object
   models.Session:
     properties:
       refresh:
@@ -82,15 +111,31 @@ definitions:
       token:
         type: string
     type: object
+  models.ShareToUserRequest:
+    properties:
+      permission:
+        description: '"read" or "write"'
+        example: read
+        type: string
+      shared_with:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        type: string
+    required:
+    - permission
+    - shared_with
+    type: object
   models.UserIn:
     properties:
       email:
+        example: jane@mail.com
         type: string
       password:
+        example: password123
         minLength: 6
         type: string
       username:
-        minLength: 6
+        example: jane_doe
+        minLength: 1
         type: string
     required:
     - email
@@ -100,32 +145,13 @@ definitions:
   models.UserOut:
     properties:
       email:
+        example: jane@mail.com
         type: string
       id:
-        type: integer
+        example: 123e4567-e89b-12d3-a456-426614174000
+        type: string
       username:
-        type: string
-    type: object
-  notes.PresignDownloadResponse:
-    properties:
-      url:
-        type: string
-    type: object
-  notes.PresignUploadRequest:
-    properties:
-      content_type:
-        type: string
-      filename:
-        type: string
-    required:
-    - content_type
-    - filename
-    type: object
-  notes.PresignUploadResponse:
-    properties:
-      key:
-        type: string
-      url:
+        example: jane_doe
         type: string
     type: object
 host: localhost:8080
@@ -412,14 +438,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/notes.PresignUploadRequest'
+          $ref: '#/definitions/models.PresignUploadRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/notes.PresignUploadResponse'
+            $ref: '#/definitions/models.PresignUploadResponse'
         "400":
           description: Bad Request
           schema:
@@ -485,7 +511,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/notes.PresignDownloadResponse'
+            $ref: '#/definitions/models.PresignDownloadResponse'
         "400":
           description: Bad Request
           schema:
@@ -507,6 +533,49 @@ paths:
       summary: Get presigned download URL for an attachment
       tags:
       - notes
+  /notes/{noteId}/share:
+    post:
+      consumes:
+      - application/json
+      description: Allows the authenticated user to share a note they own with another
+        user, specifying read or write permissions.
+      parameters:
+      - description: Note ID (UUID)
+        in: path
+        name: noteId
+        required: true
+        type: string
+      - description: Sharing request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.ShareToUserRequest'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Bad request (invalid UUID, payload, or permission)
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Note not found or not owned by user
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Share note with user
+      tags:
+      - notes
+      - sharing
   /refresh:
     post:
       consumes:

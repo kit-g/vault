@@ -444,7 +444,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/notes.PresignUploadRequest"
+                            "$ref": "#/definitions/models.PresignUploadRequest"
                         }
                     }
                 ],
@@ -452,7 +452,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/notes.PresignUploadResponse"
+                            "$ref": "#/definitions/models.PresignUploadResponse"
                         }
                     },
                     "400": {
@@ -508,7 +508,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/notes.PresignDownloadResponse"
+                            "$ref": "#/definitions/models.PresignDownloadResponse"
                         }
                     },
                     "400": {
@@ -581,6 +581,71 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/notes/{noteId}/share": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Allows the authenticated user to share a note they own with another user, specifying read or write permissions.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notes",
+                    "sharing"
+                ],
+                "summary": "Share note with user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Note ID (UUID)",
+                        "name": "noteId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Sharing request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ShareToUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request (invalid UUID, payload, or permission)",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Note not found or not owned by user",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -722,10 +787,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "code": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "InternalError"
                 },
                 "error": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "An unexpected error occurred"
                 }
             }
         },
@@ -737,7 +804,8 @@ const docTemplate = `{
             ],
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "jane@mail.com"
                 },
                 "password": {
                     "type": "string"
@@ -807,6 +875,44 @@ const docTemplate = `{
                 }
             }
         },
+        "models.PresignDownloadResponse": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.PresignUploadRequest": {
+            "type": "object",
+            "required": [
+                "content_type",
+                "filename"
+            ],
+            "properties": {
+                "content_type": {
+                    "type": "string",
+                    "example": "text/plain"
+                },
+                "filename": {
+                    "type": "string",
+                    "example": "example.txt"
+                }
+            }
+        },
+        "models.PresignUploadResponse": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string",
+                    "example": "attachments/123e4567-e89b-12d3-a456-426614174000/example.txt"
+                },
+                "url": {
+                    "type": "string",
+                    "example": "https://s3.com/upload?key=example.txt"
+                }
+            }
+        },
         "models.Session": {
             "type": "object",
             "properties": {
@@ -815,6 +921,24 @@ const docTemplate = `{
                 },
                 "token": {
                     "type": "string"
+                }
+            }
+        },
+        "models.ShareToUserRequest": {
+            "type": "object",
+            "required": [
+                "permission",
+                "shared_with"
+            ],
+            "properties": {
+                "permission": {
+                    "description": "\"read\" or \"write\"",
+                    "type": "string",
+                    "example": "read"
+                },
+                "shared_with": {
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
                 }
             }
         },
@@ -827,15 +951,18 @@ const docTemplate = `{
             ],
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "jane@mail.com"
                 },
                 "password": {
                     "type": "string",
-                    "minLength": 6
+                    "minLength": 6,
+                    "example": "password123"
                 },
                 "username": {
                     "type": "string",
-                    "minLength": 6
+                    "minLength": 1,
+                    "example": "jane_doe"
                 }
             }
         },
@@ -843,47 +970,16 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "jane@mail.com"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
                 },
                 "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "notes.PresignDownloadResponse": {
-            "type": "object",
-            "properties": {
-                "url": {
-                    "type": "string"
-                }
-            }
-        },
-        "notes.PresignUploadRequest": {
-            "type": "object",
-            "required": [
-                "content_type",
-                "filename"
-            ],
-            "properties": {
-                "content_type": {
-                    "type": "string"
-                },
-                "filename": {
-                    "type": "string"
-                }
-            }
-        },
-        "notes.PresignUploadResponse": {
-            "type": "object",
-            "properties": {
-                "key": {
-                    "type": "string"
-                },
-                "url": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "jane_doe"
                 }
             }
         }
