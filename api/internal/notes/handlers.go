@@ -256,11 +256,15 @@ type PresignUploadResponse struct {
 	Key string `json:"key"`
 }
 
+type PresignDownloadResponse struct {
+	URL string `json:"url"`
+}
+
 // GetUploadURL handles presigned upload URL generation for a specific note.
 //
 // @Summary Generate a presigned S3 upload URL
 // @Description Generates a presigned URL for uploading an attachment to a specific note
-// @Tags Attachments
+// @Tags notes
 // @Accept json
 // @Produce json
 // @Param noteId path string true "Note ID"
@@ -297,7 +301,7 @@ func GetUploadURL(c *gin.Context) (any, error) {
 		return nil, errors.NewForbiddenError("You do not have access to this note", err)
 	}
 
-	key := fmt.Sprintf("attachments/%s/%s", noteID, input.Filename)
+	key := models.AttachmentKey(noteIDStr, input.Filename)
 
 	url, err := awsx.GeneratePresignedPutURL(key, input.ContentType)
 	if err != nil {
@@ -307,5 +311,53 @@ func GetUploadURL(c *gin.Context) (any, error) {
 	return PresignUploadResponse{
 		URL: url,
 		Key: key,
+	}, nil
+}
+
+// GetDownloadURL godoc
+// @Summary      Get presigned download URL for an attachment
+// @Description  Generates a temporary URL for securely downloading a note's attachment.
+// @Tags         notes
+// @Security     BearerAuth
+// @Param        noteId        path      string  true  "Note ID (UUID)"
+// @Param        attachmentId  path      string  true  "Attachment ID (UUID)"
+// @Success      200  {object}  PresignDownloadResponse
+// @Failure      400  {object}  models.ErrorResponse
+// @Failure      401  {object}  models.ErrorResponse
+// @Failure      404  {object}  models.ErrorResponse
+// @Failure      500  {object}  models.ErrorResponse
+// @Router       /notes/{noteId}/attachments/{attachmentId} [get]
+func GetDownloadURL(c *gin.Context) (any, error) {
+	noteID, err := uuid.Parse(c.Param("noteId"))
+	if err != nil {
+		return nil, errors.NewValidationError(fmt.Errorf("invalid note ID"))
+	}
+
+	attachmentID, err := uuid.Parse(c.Param("attachmentId"))
+	if err != nil {
+		return nil, errors.NewValidationError(fmt.Errorf("invalid attachment ID"))
+	}
+
+	var attachment models.Attachment
+
+	err = db.DB.
+		Joins("JOIN notes ON notes.id = attachments.note_id").
+		Where(
+			"notes.id = ? AND attachments.id = ? AND notes.user_id = ?",
+			noteID,
+			attachmentID,
+			c.GetUint("userID"),
+		).
+		First(&attachment).Error
+
+	key := attachment.Key()
+
+	url, err := awsx.GeneratePresignedGetURL(key)
+	if err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	return PresignDownloadResponse{
+		URL: url,
 	}, nil
 }

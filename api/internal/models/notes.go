@@ -46,6 +46,14 @@ func (a *Attachment) String() string {
 	return fmt.Sprintf("Attachment #%s of type %s to note #%s", a.ID, a.MimeType, a.NoteID)
 }
 
+func AttachmentKey(noteId string, filename string) string {
+	return fmt.Sprintf("attachments/%s/%s", noteId, filename)
+}
+
+func (a *Attachment) Key() string {
+	return AttachmentKey(a.NoteID.String(), a.FileName)
+}
+
 func NewAttachment(noteId uuid.UUID, fileName string, mimeType string, size int64) Attachment {
 	return Attachment{
 		NoteID:    noteId,
