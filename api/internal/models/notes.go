@@ -73,18 +73,35 @@ type NoteShare struct {
 }
 
 type NoteIn struct {
-	Title   string `json:"title" binding:"required"`
-	Content string `json:"content" binding:"required"`
+	Title   string `json:"title" binding:"required" example:"Meeting Notes"`
+	Content string `json:"content" binding:"required" example:"Notes from the meeting with the client."`
+}
+
+type AttachmentOut struct {
+	ID       uuid.UUID `json:"id" example:"123e4567-e89b-12d3-a456-426614174000"`
+	Filename string    `json:"filename" example:"document.pdf"`
+	MimeType string    `json:"mime_type" example:"application/pdf"`
+	Size     int64     `json:"size" example:"123456"`
+}
+
+func NewAttachmentOut(a *Attachment) AttachmentOut {
+	return AttachmentOut{
+		ID:       a.ID,
+		Filename: a.FileName,
+		MimeType: a.MimeType,
+		Size:     a.Size,
+	}
 }
 
 type NoteOut struct {
-	ID        uuid.UUID `json:"id"`
-	Title     string    `json:"title"`
-	Content   string    `json:"content"`
-	Encrypted bool      `json:"encrypted"`
-	Archived  bool      `json:"archived"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID          uuid.UUID       `json:"id" example:"123e4567-e89b-12d3-a456-426614174000"`
+	Title       string          `json:"title" example:"Meeting Notes"`
+	Content     string          `json:"content" example:"Notes from the meeting with the client."`
+	Encrypted   bool            `json:"encrypted"`
+	Archived    bool            `json:"archived"`
+	CreatedAt   time.Time       `json:"created_at"`
+	UpdatedAt   time.Time       `json:"updated_at"`
+	Attachments []AttachmentOut `json:"attachments"`
 }
 
 func NewNote(n *NoteIn, userID uint) Note {
@@ -96,13 +113,19 @@ func NewNote(n *NoteIn, userID uint) Note {
 }
 
 func NewNoteOut(n *Note) NoteOut {
+	attachments := make([]AttachmentOut, len(n.Attachments))
+	for i, att := range n.Attachments {
+		attachments[i] = NewAttachmentOut(&att)
+	}
+
 	return NoteOut{
-		ID:        n.ID,
-		Title:     n.Title,
-		Content:   n.Content,
-		Encrypted: n.Encrypted,
-		Archived:  n.Archived,
-		CreatedAt: n.CreatedAt,
-		UpdatedAt: n.UpdatedAt,
+		ID:          n.ID,
+		Title:       n.Title,
+		Content:     n.Content,
+		Encrypted:   n.Encrypted,
+		Archived:    n.Archived,
+		CreatedAt:   n.CreatedAt,
+		UpdatedAt:   n.UpdatedAt,
+		Attachments: attachments,
 	}
 }

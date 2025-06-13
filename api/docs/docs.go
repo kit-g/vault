@@ -647,6 +647,27 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.AttachmentOut": {
+            "type": "object",
+            "properties": {
+                "filename": {
+                    "type": "string",
+                    "example": "document.pdf"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
+                },
+                "mime_type": {
+                    "type": "string",
+                    "example": "application/pdf"
+                },
+                "size": {
+                    "type": "integer",
+                    "example": 123456
+                }
+            }
+        },
         "models.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -704,6 +725,12 @@ const docTemplate = `{
             "properties": {
                 "archived": {
                     "type": "boolean"
+                },
+                "attachments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.AttachmentOut"
+                    }
                 },
                 "content": {
                     "type": "string"

@@ -1,5 +1,20 @@
 basePath: /
 definitions:
+  models.AttachmentOut:
+    properties:
+      filename:
+        example: document.pdf
+        type: string
+      id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        type: string
+      mime_type:
+        example: application/pdf
+        type: string
+      size:
+        example: 123456
+        type: integer
+    type: object
   models.ErrorResponse:
     properties:
       code:
@@ -38,6 +53,10 @@ definitions:
     properties:
       archived:
         type: boolean
+      attachments:
+        items:
+          $ref: '#/definitions/models.AttachmentOut'
+        type: array
       content:
         type: string
       created_at:

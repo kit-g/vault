@@ -84,6 +84,7 @@ func GetNotes(c *gin.Context) (any, error) {
 	query := db.DB.
 		Model(&models.Note{}).
 		Where("user_id = ?", userID).
+		Preload("Attachments").
 		Order("created_at desc").
 		Limit(limit).
 		Offset(offset)
@@ -142,6 +143,7 @@ func GetNote(c *gin.Context) (any, error) {
 	var note models.Note
 	if err := db.DB.
 		Where("user_id = ? AND id = ?", userID, noteID).
+		Preload("Attachments").
 		First(&note).Error; err != nil {
 
 		if errors.Is(err, gorm.ErrRecordNotFound) {
