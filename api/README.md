@@ -130,6 +130,8 @@ The `infrastructure` directory contains configuration files for deploying the ap
 - `api.yaml` - AWS SAM template
 - `api.toml` - Configuration file
 
+For detailed deployment instructions, configuration options, and infrastructure information, please refer to the [Infrastructure README](../infrastructure/README.md).
+
 ## License
 
 MIT
