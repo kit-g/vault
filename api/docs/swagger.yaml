@@ -170,6 +170,7 @@ paths:
     /login:
         post:
             description: Authenticates a user and returns a JWT token
+            operationId: login
             requestBody:
                 content:
                     application/json:
@@ -209,6 +210,7 @@ paths:
     /me:
         get:
             description: Returns the currently authenticated user's information
+            operationId: me
             responses:
                 "200":
                     content:
@@ -236,6 +238,7 @@ paths:
     /notes:
         get:
             description: Returns paginated notes for the authenticated user with optional filtering
+            operationId: getNotes
             parameters:
                 - description: Page number
                   in: query
@@ -287,6 +290,7 @@ paths:
                 - notes
         post:
             description: Creates a note for the authenticated user
+            operationId: createNote
             requestBody:
                 content:
                     application/json:
@@ -328,6 +332,7 @@ paths:
     /notes/{noteId}:
         delete:
             description: Deletes a note owned by the authenticated user
+            operationId: deleteNote
             parameters:
                 - description: Note ID
                   in: path
@@ -369,6 +374,7 @@ paths:
                 - notes
         get:
             description: Retrieves a specific note owned by the authenticated user
+            operationId: getNote
             parameters:
                 - description: Note UUID
                   in: path
@@ -414,6 +420,7 @@ paths:
                 - notes
         put:
             description: Updates the note fields for the authenticated user
+            operationId: editNote
             parameters:
                 - description: Note ID
                   in: path
@@ -468,6 +475,7 @@ paths:
     /notes/{noteId}/attachments:
         post:
             description: Generates a presigned URL for uploading an attachment to a specific note
+            operationId: getUploadURL
             parameters:
                 - description: Note ID
                   in: path
@@ -513,6 +521,7 @@ paths:
                 - notes
     /notes/{noteId}/attachments/{attachmentId}:
         delete:
+            operationId: deleteAttachment
             parameters:
                 - description: Note ID
                   in: path
@@ -554,6 +563,7 @@ paths:
                 - notes
         get:
             description: Generates a temporary URL for securely downloading a note's attachment.
+            operationId: getDownloadURL
             parameters:
                 - description: Note ID (UUID)
                   in: path
@@ -606,6 +616,7 @@ paths:
     /notes/{noteId}/share:
         post:
             description: Allows the authenticated user to share a note they own with another user, specifying read or write permissions.
+            operationId: shareNoteToUser
             parameters:
                 - description: Note ID (UUID)
                   in: path
@@ -650,6 +661,7 @@ paths:
     /refresh:
         post:
             description: Refreshes JWT access token using a refresh token
+            operationId: refresh
             requestBody:
                 content:
                     application/json:
@@ -691,6 +703,7 @@ paths:
     /register:
         post:
             description: Register using email, password, and username
+            operationId: register
             requestBody:
                 content:
                     application/json:

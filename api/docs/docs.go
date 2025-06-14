@@ -36,6 +36,7 @@ const docTemplate = `{
                     "auth"
                 ],
                 "summary": "Log in a user",
+                "operationId": "login",
                 "parameters": [
                     {
                         "description": "Login credentials",
@@ -90,6 +91,7 @@ const docTemplate = `{
                     "auth"
                 ],
                 "summary": "Get current user",
+                "operationId": "me",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -130,6 +132,7 @@ const docTemplate = `{
                     "notes"
                 ],
                 "summary": "List user notes",
+                "operationId": "getNotes",
                 "parameters": [
                     {
                         "type": "integer",
@@ -199,6 +202,7 @@ const docTemplate = `{
                     "notes"
                 ],
                 "summary": "Create a new note",
+                "operationId": "createNote",
                 "parameters": [
                     {
                         "description": "Note object",
@@ -253,6 +257,7 @@ const docTemplate = `{
                     "notes"
                 ],
                 "summary": "Get a single note",
+                "operationId": "getNote",
                 "parameters": [
                     {
                         "type": "string",
@@ -312,6 +317,7 @@ const docTemplate = `{
                     "notes"
                 ],
                 "summary": "Edit a note",
+                "operationId": "editNote",
                 "parameters": [
                     {
                         "type": "string",
@@ -377,6 +383,7 @@ const docTemplate = `{
                     "notes"
                 ],
                 "summary": "Delete a note",
+                "operationId": "deleteNote",
                 "parameters": [
                     {
                         "type": "string",
@@ -430,6 +437,7 @@ const docTemplate = `{
                     "notes"
                 ],
                 "summary": "Generate a presigned S3 upload URL",
+                "operationId": "getUploadURL",
                 "parameters": [
                     {
                         "type": "string",
@@ -488,6 +496,7 @@ const docTemplate = `{
                     "notes"
                 ],
                 "summary": "Get presigned download URL for an attachment",
+                "operationId": "getDownloadURL",
                 "parameters": [
                     {
                         "type": "string",
@@ -547,6 +556,7 @@ const docTemplate = `{
                     "notes"
                 ],
                 "summary": "Delete an attachment",
+                "operationId": "deleteAttachment",
                 "parameters": [
                     {
                         "type": "string",
@@ -606,6 +616,7 @@ const docTemplate = `{
                     "notes"
                 ],
                 "summary": "Share note with user",
+                "operationId": "shareNoteToUser",
                 "parameters": [
                     {
                         "type": "string",
@@ -662,6 +673,7 @@ const docTemplate = `{
                     "auth"
                 ],
                 "summary": "Refresh access token",
+                "operationId": "refresh",
                 "parameters": [
                     {
                         "description": "Refresh token payload",
@@ -717,6 +729,7 @@ const docTemplate = `{
                     "auth"
                 ],
                 "summary": "Register a new user",
+                "operationId": "register",
                 "parameters": [
                     {
                         "description": "user info",
