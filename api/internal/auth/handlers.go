@@ -12,16 +12,18 @@ import (
 )
 
 // Register godoc
-// @Summary Register a new user
-// @Description Register using email, password, and username
-// @Tags auth
-// @Accept json
-// @Produce json
-// @Param input body models.UserIn true "user info"
-// @Success 201 {object} models.UserOut
-// @Failure 400 {object} map[string]string
-// @Failure 409 {object} map[string]string
-// @Router /register [post]
+//
+//	@Summary		Register a new u
+//	@Summary		Register a new user
+//	@Description	Register using email, password, and username
+//	@Tags			auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			input	body		models.UserIn	true	"user info"
+//	@Success		201		{object}	models.UserOut
+//	@Failure		400		{object}	map[string]string
+//	@Failure		409		{object}	map[string]string
+//	@Router			/register [post]
 func Register(c *gin.Context) (any, error) {
 	var input models.UserIn
 
@@ -55,17 +57,18 @@ func Register(c *gin.Context) (any, error) {
 }
 
 // Login godoc
-// @Summary      Log in a user
-// @Description  Authenticates a user and returns a JWT token
-// @Tags         auth
-// @Accept       json
-// @Produce      json
-// @Param        credentials  body      models.Login  true  "Login credentials"
-// @Success      200          {object}  models.LoginOut
-// @Failure      400          {object}  models.ErrorResponse  "Bad request"
-// @Failure      401          {object}  models.ErrorResponse  "Unauthorized"
-// @Failure      500          {object}  models.ErrorResponse  "Server error"
-// @Router       /login [post]
+//
+//	@Summary		Log in a user
+//	@Description	Authenticates a user and returns a JWT token
+//	@Tags			auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			credentials	body		models.Login	true	"Login credentials"
+//	@Success		200			{object}	models.LoginOut
+//	@Failure		400			{object}	models.ErrorResponse	"Bad request"
+//	@Failure		401			{object}	models.ErrorResponse	"Unauthorized"
+//	@Failure		500			{object}	models.ErrorResponse	"Server error"
+//	@Router			/login [post]
 func Login(c *gin.Context) (any, error) {
 	var input models.Login
 
@@ -96,17 +99,18 @@ func Login(c *gin.Context) (any, error) {
 }
 
 // Refresh godoc
-// @Summary      Refresh access token
-// @Description  Refreshes JWT access token using a refresh token
-// @Tags         auth
-// @Accept       json
-// @Produce      json
-// @Param        refreshToken  body      map[string]string  true  "Refresh token payload"
-// @Success      200            {object}  models.Session
-// @Failure      400            {object}  models.ErrorResponse  "Bad request"
-// @Failure      401            {object}  models.ErrorResponse  "Unauthorized"
-// @Failure      500            {object}  models.ErrorResponse  "Server error"
-// @Router       /refresh [post]
+//
+//	@Summary		Refresh access token
+//	@Description	Refreshes JWT access token using a refresh token
+//	@Tags			auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			refreshToken	body		map[string]string	true	"Refresh token payload"
+//	@Success		200				{object}	models.Session
+//	@Failure		400				{object}	models.ErrorResponse	"Bad request"
+//	@Failure		401				{object}	models.ErrorResponse	"Unauthorized"
+//	@Failure		500				{object}	models.ErrorResponse	"Server error"
+//	@Router			/refresh [post]
 func Refresh(c *gin.Context) (any, error) {
 	var input struct {
 		RefreshToken string `json:"refresh_token" binding:"required"`
@@ -140,15 +144,16 @@ func Refresh(c *gin.Context) (any, error) {
 }
 
 // Me godoc
-// @Summary      Get current user
-// @Description  Returns the currently authenticated user's information
-// @Tags         auth
-// @Security     BearerAuth
-// @Produce      json
-// @Success      200  {object}  models.UserOut
-// @Failure      401  {object}  models.ErrorResponse  "Unauthorized"
-// @Failure      500  {object}  models.ErrorResponse  "Server error"
-// @Router       /me [get]
+//
+//	@Summary		Get current user
+//	@Description	Returns the currently authenticated user's information
+//	@Tags			auth
+//	@Security		BearerAuth
+//	@Produce		json
+//	@Success		200	{object}	models.UserOut
+//	@Failure		401	{object}	models.ErrorResponse	"Unauthorized"
+//	@Failure		500	{object}	models.ErrorResponse	"Server error"
+//	@Router			/me [get]
 func Me(_ *gin.Context, userID uuid.UUID) (any, error) {
 	var user models.User
 	if err := db.DB.First(&user, userID).Error; err != nil {
