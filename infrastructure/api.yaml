@@ -18,6 +18,10 @@ Parameters:
     Type: String
     Description: "Postgres database user"
     NoEcho: true
+  CorsOrigins:
+    Type: String
+    Description: "CORS origin for the API"
+    Default: "*"
 
 Resources:
   AttachmentBucket:
@@ -62,6 +66,7 @@ Resources:
         Variables:
           AUTH_TOKEN_LIFESPAN: 10080
           ATTACHMENT_BUCKET: !Ref AttachmentBucket
+          CORS_ORIGINS: !Ref CorsOrigins
           DB_HOST: !Ref DbHost
           DB_NAME: vault
           DB_USER: !Ref DbUser
