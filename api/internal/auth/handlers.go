@@ -17,6 +17,7 @@ import (
 //	@Summary		Register a new user
 //	@Description	Register using email, password, and username
 //	@Tags			auth
+//	@ID			    register
 //	@Accept			json
 //	@Produce		json
 //	@Param			input	body		UserIn	true	"user info"
@@ -61,6 +62,7 @@ func Register(c *gin.Context) (any, error) {
 //	@Summary		Log in a user
 //	@Description	Authenticates a user and returns a JWT token
 //	@Tags			auth
+//	@ID			    login
 //	@Accept			json
 //	@Produce		json
 //	@Param			credentials	body		Login	true	"Login credentials"
@@ -103,6 +105,7 @@ func Login(c *gin.Context) (any, error) {
 //	@Summary		Refresh access token
 //	@Description	Refreshes JWT access token using a refresh token
 //	@Tags			auth
+//	@ID			    refresh
 //	@Accept			json
 //	@Produce		json
 //	@Param			refreshToken	body		map[string]string	true	"Refresh token payload"
@@ -148,6 +151,7 @@ func Refresh(c *gin.Context) (any, error) {
 //	@Summary		Get current user
 //	@Description	Returns the currently authenticated user's information
 //	@Tags			auth
+//	@ID			    me
 //	@Security		BearerAuth
 //	@Produce		json
 //	@Success		200	{object}	UserOut

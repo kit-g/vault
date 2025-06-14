@@ -18,6 +18,7 @@ import (
 //	@Summary		Create a new n
 //	@Summary		Create a new note
 //	@Description	Creates a note for the authenticated user
+//	@ID				createNote
 //	@Tags			notes
 //	@Accept			json
 //	@Produce		json
@@ -51,6 +52,7 @@ func CreateNote(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@Tags			notes
 //	@Accept			json
 //	@Produce		json
+//	@ID				getNotes
 //	@Param			page		query		int		false	"Page number"		default(1)
 //	@Param			limit		query		int		false	"Items per page"	default(10)
 //	@Param			archived	query		bool	false	"Filter by archived status"
@@ -108,6 +110,7 @@ func GetNotes(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@Summary		Get a single note
 //	@Description	Retrieves a specific note owned by the authenticated user
 //	@Tags			notes
+//	@ID			    getNote
 //	@Produce		json
 //	@Param			noteId	path		string	true	"Note UUID"
 //	@Success		200		{object}	NoteOut
@@ -145,6 +148,7 @@ func GetNote(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@Summary		Edit a note
 //	@Description	Updates the note fields for the authenticated user
 //	@Tags			notes
+//	@ID				editNote
 //	@Accept			json
 //	@Produce		json
 //	@Param			noteId	path		string			true	"Note ID"
@@ -192,6 +196,7 @@ func EditNote(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@Description	Deletes a note owned by the authenticated user
 //	@Tags			notes
 //	@Produce		json
+//	@ID				deleteNote
 //	@Param			noteId	path	string	true	"Note ID"
 //	@Success		204		"No Content"
 //	@Failure		400		{object}	ErrorResponse
@@ -229,6 +234,7 @@ func DeleteNote(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@Summary		Generate a presigned S3 upload URL
 //	@Description	Generates a presigned URL for uploading an attachment to a specific note
 //	@Tags			notes
+//	@ID				getUploadURL
 //	@Accept			json
 //	@Produce		json
 //	@Param			noteId	path		string						true	"Note ID"
@@ -276,6 +282,7 @@ func GetUploadURL(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@Summary		Get presigned download URL for an attachment
 //	@Description	Generates a temporary URL for securely downloading a note's attachment.
 //	@Tags			notes
+//	@ID				getDownloadURL
 //	@Security		BearerAuth
 //	@Param			noteId			path		string	true	"Note ID (UUID)"
 //	@Param			attachmentId	path		string	true	"Attachment ID (UUID)"
@@ -322,6 +329,7 @@ func GetDownloadURL(c *gin.Context, _ uuid.UUID) (any, error) {
 //
 //	@Summary	Delete an attachment
 //	@Tags		notes
+//	@ID			deleteAttachment
 //	@Param		noteId			path	string	true	"Note ID"
 //	@Param		attachmentId	path	string	true	"Attachment ID"
 //	@Success	204				"No Content"
@@ -377,6 +385,7 @@ func DeleteAttachment(c *gin.Context, _ uuid.UUID) (any, error) {
 //	@Summary		Share note with user
 //	@Description	Allows the authenticated user to share a note they own with another user, specifying read or write permissions.
 //	@Tags			notes
+//	@ID				shareNoteToUser
 //	@Accept			json
 //	@Produce		json
 //	@Param			noteId	path		string						true	"Note ID (UUID)"
