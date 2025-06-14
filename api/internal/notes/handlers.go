@@ -21,11 +21,11 @@ import (
 //	@Tags			notes
 //	@Accept			json
 //	@Produce		json
-//	@Param			note	body		models.NoteIn	true	"Note object"
-//	@Success		201		{object}	models.NoteOut
-//	@Failure		400		{object}	models.ErrorResponse
-//	@Failure		401		{object}	models.ErrorResponse
-//	@Failure		500		{object}	models.ErrorResponse
+//	@Param			note	body		NoteIn	true	"Note object"
+//	@Success		201		{object}	NoteOut
+//	@Failure		400		{object}	ErrorResponse
+//	@Failure		401		{object}	ErrorResponse
+//	@Failure		500		{object}	ErrorResponse
 //	@Router			/notes [post]
 //	@Security		BearerAuth
 func CreateNote(c *gin.Context, userID uuid.UUID) (any, error) {
@@ -55,9 +55,9 @@ func CreateNote(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@Param			limit		query		int		false	"Items per page"	default(10)
 //	@Param			archived	query		bool	false	"Filter by archived status"
 //	@Param			encrypted	query		bool	false	"Filter by encrypted status"
-//	@Success		200			{array}		models.NoteOut
-//	@Failure		401			{object}	models.ErrorResponse	"Unauthorized"
-//	@Failure		500			{object}	models.ErrorResponse	"Server error"
+//	@Success		200			{array}		NoteOut
+//	@Failure		401			{object}	ErrorResponse	"Unauthorized"
+//	@Failure		500			{object}	ErrorResponse	"Server error"
 //	@Router			/notes [get]
 //	@Security		BearerAuth
 func GetNotes(c *gin.Context, userID uuid.UUID) (any, error) {
@@ -110,11 +110,11 @@ func GetNotes(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@Tags			notes
 //	@Produce		json
 //	@Param			noteId	path		string	true	"Note UUID"
-//	@Success		200		{object}	models.NoteOut
-//	@Failure		400		{object}	models.ErrorResponse
-//	@Failure		401		{object}	models.ErrorResponse
-//	@Failure		404		{object}	models.ErrorResponse
-//	@Failure		500		{object}	models.ErrorResponse
+//	@Success		200		{object}	NoteOut
+//	@Failure		400		{object}	ErrorResponse
+//	@Failure		401		{object}	ErrorResponse
+//	@Failure		404		{object}	ErrorResponse
+//	@Failure		500		{object}	ErrorResponse
 //	@Router			/notes/{noteId} [get]
 //	@Security		BearerAuth
 func GetNote(c *gin.Context, userID uuid.UUID) (any, error) {
@@ -148,12 +148,12 @@ func GetNote(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			noteId	path		string			true	"Note ID"
-//	@Param			note	body		models.NoteIn	true	"Note fields"
-//	@Success		200		{object}	models.NoteOut
-//	@Failure		400		{object}	models.ErrorResponse
-//	@Failure		401		{object}	models.ErrorResponse
-//	@Failure		404		{object}	models.ErrorResponse
-//	@Failure		500		{object}	models.ErrorResponse
+//	@Param			note	body		NoteIn	true	"Note fields"
+//	@Success		200		{object}	NoteOut
+//	@Failure		400		{object}	ErrorResponse
+//	@Failure		401		{object}	ErrorResponse
+//	@Failure		404		{object}	ErrorResponse
+//	@Failure		500		{object}	ErrorResponse
 //	@Router			/notes/{noteId} [put]
 //	@Security		BearerAuth
 func EditNote(c *gin.Context, userID uuid.UUID) (any, error) {
@@ -194,10 +194,10 @@ func EditNote(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@Produce		json
 //	@Param			noteId	path	string	true	"Note ID"
 //	@Success		204		"No Content"
-//	@Failure		400		{object}	models.ErrorResponse
-//	@Failure		401		{object}	models.ErrorResponse
-//	@Failure		404		{object}	models.ErrorResponse
-//	@Failure		500		{object}	models.ErrorResponse
+//	@Failure		400		{object}	ErrorResponse
+//	@Failure		401		{object}	ErrorResponse
+//	@Failure		404		{object}	ErrorResponse
+//	@Failure		500		{object}	ErrorResponse
 //	@Router			/notes/{noteId} [delete]
 //	@Security		BearerAuth
 func DeleteNote(c *gin.Context, userID uuid.UUID) (any, error) {
@@ -232,11 +232,11 @@ func DeleteNote(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			noteId	path		string						true	"Note ID"
-//	@Param			body	body		models.PresignUploadRequest	true	"Upload parameters"
-//	@Success		200		{object}	models.PresignUploadResponse
-//	@Failure		400		{object}	models.ErrorResponse
-//	@Failure		401		{object}	models.ErrorResponse
-//	@Failure		500		{object}	models.ErrorResponse
+//	@Param			body	body		PresignUploadRequest	true	"Upload parameters"
+//	@Success		200		{object}	PresignUploadResponse
+//	@Failure		400		{object}	ErrorResponse
+//	@Failure		401		{object}	ErrorResponse
+//	@Failure		500		{object}	ErrorResponse
 //	@Router			/notes/{noteId}/attachments [post]
 func GetUploadURL(c *gin.Context, userID uuid.UUID) (any, error) {
 	var input models.PresignUploadRequest
@@ -279,11 +279,11 @@ func GetUploadURL(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@Security		BearerAuth
 //	@Param			noteId			path		string	true	"Note ID (UUID)"
 //	@Param			attachmentId	path		string	true	"Attachment ID (UUID)"
-//	@Success		200				{object}	models.PresignDownloadResponse
-//	@Failure		400				{object}	models.ErrorResponse
-//	@Failure		401				{object}	models.ErrorResponse
-//	@Failure		404				{object}	models.ErrorResponse
-//	@Failure		500				{object}	models.ErrorResponse
+//	@Success		200				{object}	PresignDownloadResponse
+//	@Failure		400				{object}	ErrorResponse
+//	@Failure		401				{object}	ErrorResponse
+//	@Failure		404				{object}	ErrorResponse
+//	@Failure		500				{object}	ErrorResponse
 //	@Router			/notes/{noteId}/attachments/{attachmentId} [get]
 func GetDownloadURL(c *gin.Context, _ uuid.UUID) (any, error) {
 	noteID, err := uuid.Parse(c.Param("noteId"))
@@ -325,9 +325,9 @@ func GetDownloadURL(c *gin.Context, _ uuid.UUID) (any, error) {
 //	@Param		noteId			path	string	true	"Note ID"
 //	@Param		attachmentId	path	string	true	"Attachment ID"
 //	@Success	204				"No Content"
-//	@Failure	400				{object}	models.ErrorResponse
-//	@Failure	401				{object}	models.ErrorResponse
-//	@Failure	404				{object}	models.ErrorResponse
+//	@Failure	400				{object}	ErrorResponse
+//	@Failure	401				{object}	ErrorResponse
+//	@Failure	404				{object}	ErrorResponse
 //	@Router		/notes/{noteId}/attachments/{attachmentId} [delete]
 //	@Security	BearerAuth
 func DeleteAttachment(c *gin.Context, _ uuid.UUID) (any, error) {
@@ -380,11 +380,11 @@ func DeleteAttachment(c *gin.Context, _ uuid.UUID) (any, error) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			noteId	path		string						true	"Note ID (UUID)"
-//	@Param			request	body		models.ShareToUserRequest	true	"Sharing request"
-//	@Success		204		{string}	"No Content"
-//	@Failure		400		{object}	models.ErrorResponse	"Bad request (invalid UUID, payload, or permission)"
-//	@Failure		404		{object}	models.ErrorResponse	"Note not found or not owned by user"
-//	@Failure		500		{object}	models.ErrorResponse	"Internal server error"
+//	@Param			request	body		ShareToUserRequest	true	"Sharing request"
+//	@Success		204		        	"No Content"
+//	@Failure		400		{object}	ErrorResponse	"Bad request (invalid UUID, payload, or permission)"
+//	@Failure		404		{object}	ErrorResponse	"Note not found or not owned by user"
+//	@Failure		500		{object}	ErrorResponse	"Internal server error"
 //	@Security		BearerAuth
 //	@Router			/notes/{noteId}/share [post]
 func ShareNoteToUser(c *gin.Context, userID uuid.UUID) (any, error) {

@@ -19,8 +19,8 @@ import (
 //	@Tags			auth
 //	@Accept			json
 //	@Produce		json
-//	@Param			input	body		models.UserIn	true	"user info"
-//	@Success		201		{object}	models.UserOut
+//	@Param			input	body		UserIn	true	"user info"
+//	@Success		201		{object}	UserOut
 //	@Failure		400		{object}	map[string]string
 //	@Failure		409		{object}	map[string]string
 //	@Router			/register [post]
@@ -63,11 +63,11 @@ func Register(c *gin.Context) (any, error) {
 //	@Tags			auth
 //	@Accept			json
 //	@Produce		json
-//	@Param			credentials	body		models.Login	true	"Login credentials"
-//	@Success		200			{object}	models.LoginOut
-//	@Failure		400			{object}	models.ErrorResponse	"Bad request"
-//	@Failure		401			{object}	models.ErrorResponse	"Unauthorized"
-//	@Failure		500			{object}	models.ErrorResponse	"Server error"
+//	@Param			credentials	body		Login	true	"Login credentials"
+//	@Success		200			{object}	LoginOut
+//	@Failure		400			{object}	ErrorResponse	"Bad request"
+//	@Failure		401			{object}	ErrorResponse	"Unauthorized"
+//	@Failure		500			{object}	ErrorResponse	"Server error"
 //	@Router			/login [post]
 func Login(c *gin.Context) (any, error) {
 	var input models.Login
@@ -106,10 +106,10 @@ func Login(c *gin.Context) (any, error) {
 //	@Accept			json
 //	@Produce		json
 //	@Param			refreshToken	body		map[string]string	true	"Refresh token payload"
-//	@Success		200				{object}	models.Session
-//	@Failure		400				{object}	models.ErrorResponse	"Bad request"
-//	@Failure		401				{object}	models.ErrorResponse	"Unauthorized"
-//	@Failure		500				{object}	models.ErrorResponse	"Server error"
+//	@Success		200				{object}	Session
+//	@Failure		400				{object}	ErrorResponse	"Bad request"
+//	@Failure		401				{object}	ErrorResponse	"Unauthorized"
+//	@Failure		500				{object}	ErrorResponse	"Server error"
 //	@Router			/refresh [post]
 func Refresh(c *gin.Context) (any, error) {
 	var input struct {
@@ -150,9 +150,9 @@ func Refresh(c *gin.Context) (any, error) {
 //	@Tags			auth
 //	@Security		BearerAuth
 //	@Produce		json
-//	@Success		200	{object}	models.UserOut
-//	@Failure		401	{object}	models.ErrorResponse	"Unauthorized"
-//	@Failure		500	{object}	models.ErrorResponse	"Server error"
+//	@Success		200	{object}	UserOut
+//	@Failure		401	{object}	ErrorResponse	"Unauthorized"
+//	@Failure		500	{object}	ErrorResponse	"Server error"
 //	@Router			/me [get]
 func Me(_ *gin.Context, userID uuid.UUID) (any, error) {
 	var user models.User

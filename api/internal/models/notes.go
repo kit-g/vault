@@ -84,14 +84,14 @@ type NoteShare struct {
 type NoteIn struct {
 	Title   string `json:"title" binding:"required" example:"Meeting Notes"`
 	Content string `json:"content" binding:"required" example:"Notes from the meeting with the client."`
-}
+} // @name NoteIn
 
 type AttachmentOut struct {
 	ID       uuid.UUID `json:"id" example:"123e4567-e89b-12d3-a456-426614174000"`
 	Filename string    `json:"filename" example:"document.pdf"`
 	MimeType string    `json:"mime_type" example:"application/pdf"`
 	Size     int64     `json:"size" example:"123456"`
-}
+} // @name AttachmentOut
 
 func NewAttachmentOut(a *Attachment) AttachmentOut {
 	return AttachmentOut{
@@ -111,7 +111,7 @@ type NoteOut struct {
 	CreatedAt   time.Time       `json:"created_at"`
 	UpdatedAt   time.Time       `json:"updated_at"`
 	Attachments []AttachmentOut `json:"attachments"`
-}
+} // @name NoteOut
 
 func NewNote(n *NoteIn, userID uuid.UUID) Note {
 	return Note{
