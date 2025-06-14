@@ -1,383 +1,517 @@
 {
-    "swagger": "3.0",
+    "components": {
+        "schemas": {
+            "AttachmentOut": {
+                "properties": {
+                    "filename": {
+                        "example": "document.pdf",
+                        "type": "string"
+                    },
+                    "id": {
+                        "example": "123e4567-e89b-12d3-a456-426614174000",
+                        "type": "string"
+                    },
+                    "mime_type": {
+                        "example": "application/pdf",
+                        "type": "string"
+                    },
+                    "size": {
+                        "example": 123456,
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "ErrorResponse": {
+                "properties": {
+                    "code": {
+                        "example": "InternalError",
+                        "type": "string"
+                    },
+                    "error": {
+                        "example": "An unexpected error occurred",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "Login": {
+                "properties": {
+                    "email": {
+                        "example": "jane@mail.com",
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "email",
+                    "password"
+                ],
+                "type": "object"
+            },
+            "LoginOut": {
+                "properties": {
+                    "session": {
+                        "$ref": "#/components/schemas/Session"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/UserOut"
+                    }
+                },
+                "type": "object"
+            },
+            "NoteIn": {
+                "properties": {
+                    "content": {
+                        "example": "Notes from the meeting with the client.",
+                        "type": "string"
+                    },
+                    "title": {
+                        "example": "Meeting Notes",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "content",
+                    "title"
+                ],
+                "type": "object"
+            },
+            "NoteOut": {
+                "properties": {
+                    "archived": {
+                        "type": "boolean"
+                    },
+                    "attachments": {
+                        "items": {
+                            "$ref": "#/components/schemas/AttachmentOut"
+                        },
+                        "type": "array"
+                    },
+                    "content": {
+                        "example": "Notes from the meeting with the client.",
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "type": "string"
+                    },
+                    "encrypted": {
+                        "type": "boolean"
+                    },
+                    "id": {
+                        "example": "123e4567-e89b-12d3-a456-426614174000",
+                        "type": "string"
+                    },
+                    "title": {
+                        "example": "Meeting Notes",
+                        "type": "string"
+                    },
+                    "updated_at": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "PresignDownloadResponse": {
+                "properties": {
+                    "url": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "PresignUploadRequest": {
+                "properties": {
+                    "content_type": {
+                        "example": "text/plain",
+                        "type": "string"
+                    },
+                    "filename": {
+                        "example": "example.txt",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "content_type",
+                    "filename"
+                ],
+                "type": "object"
+            },
+            "PresignUploadResponse": {
+                "properties": {
+                    "key": {
+                        "example": "attachments/123e4567-e89b-12d3-a456-426614174000/example.txt",
+                        "type": "string"
+                    },
+                    "url": {
+                        "example": "https://s3.com/upload?key=example.txt",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "Session": {
+                "properties": {
+                    "refresh": {
+                        "type": "string"
+                    },
+                    "token": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "ShareToUserRequest": {
+                "properties": {
+                    "permission": {
+                        "description": "\"read\" or \"write\"",
+                        "example": "read",
+                        "type": "string"
+                    },
+                    "shared_with": {
+                        "example": "123e4567-e89b-12d3-a456-426614174000",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "permission",
+                    "shared_with"
+                ],
+                "type": "object"
+            },
+            "UserIn": {
+                "properties": {
+                    "email": {
+                        "example": "jane@mail.com",
+                        "type": "string"
+                    },
+                    "password": {
+                        "example": "password123",
+                        "minLength": 6,
+                        "type": "string"
+                    },
+                    "username": {
+                        "example": "jane_doe",
+                        "minLength": 1,
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "email",
+                    "password",
+                    "username"
+                ],
+                "type": "object"
+            },
+            "UserOut": {
+                "properties": {
+                    "email": {
+                        "example": "jane@mail.com",
+                        "type": "string"
+                    },
+                    "id": {
+                        "example": "123e4567-e89b-12d3-a456-426614174000",
+                        "type": "string"
+                    },
+                    "username": {
+                        "example": "jane_doe",
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
     "info": {
-        "description": "A simple Secrets storage API",
-        "title": "Vault API",
-        "termsOfService": "http://swagger.io/terms/",
         "contact": {
             "name": "Kit",
             "url": "https://github.com/kit-g"
         },
+        "description": "A simple Secrets storage API",
         "license": {
             "name": "MIT",
             "url": "https://opensource.org/licenses/MIT"
         },
+        "termsOfService": "http://swagger.io/terms/",
+        "title": "Vault API",
         "version": "1.0"
     },
-    "host": "localhost:8080",
-    "basePath": "/",
+    "openapi": "3.0.3",
     "paths": {
         "/login": {
             "post": {
                 "description": "Authenticates a user and returns a JWT token",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Log in a user",
-                "parameters": [
-                    {
-                        "description": "Login credentials",
-                        "name": "credentials",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.Login"
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Login"
+                            }
                         }
-                    }
-                ],
+                    },
+                    "description": "Login credentials",
+                    "required": true,
+                    "x-originalParamName": "credentials"
+                },
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.LoginOut"
-                        }
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoginOut"
+                                }
+                            }
+                        },
+                        "description": "OK"
                     },
                     "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad request"
                     },
                     "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
                     },
                     "500": {
-                        "description": "Server error",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Server error"
                     }
-                }
+                },
+                "summary": "Log in a user",
+                "tags": [
+                    "auth"
+                ]
             }
         },
         "/me": {
             "get": {
+                "description": "Returns the currently authenticated user's information",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserOut"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Server error"
+                    }
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Returns the currently authenticated user's information",
-                "produces": [
-                    "application/json"
-                ],
+                "summary": "Get current user",
                 "tags": [
                     "auth"
-                ],
-                "summary": "Get current user",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.UserOut"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Server error",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    }
-                }
+                ]
             }
         },
         "/notes": {
             "get": {
+                "description": "Returns paginated notes for the authenticated user with optional filtering",
+                "parameters": [
+                    {
+                        "description": "Page number",
+                        "in": "query",
+                        "name": "page",
+                        "schema": {
+                            "default": 1,
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "description": "Items per page",
+                        "in": "query",
+                        "name": "limit",
+                        "schema": {
+                            "default": 10,
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "description": "Filter by archived status",
+                        "in": "query",
+                        "name": "archived",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "description": "Filter by encrypted status",
+                        "in": "query",
+                        "name": "encrypted",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/NoteOut"
+                                    },
+                                    "type": "array"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Server error"
+                    }
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Returns paginated notes for the authenticated user with optional filtering",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
+                "summary": "List user notes",
                 "tags": [
                     "notes"
-                ],
-                "summary": "List user notes",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "default": 1,
-                        "description": "Page number",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "default": 10,
-                        "description": "Items per page",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Filter by archived status",
-                        "name": "archived",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Filter by encrypted status",
-                        "name": "encrypted",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.NoteOut"
+                ]
+            },
+            "post": {
+                "description": "Creates a note for the authenticated user",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NoteIn"
                             }
                         }
                     },
+                    "description": "Note object",
+                    "required": true,
+                    "x-originalParamName": "note"
+                },
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NoteOut"
+                                }
+                            }
+                        },
+                        "description": "Created"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
+                    },
                     "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
                     },
                     "500": {
-                        "description": "Server error",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal Server Error"
                     }
-                }
-            },
-            "post": {
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Creates a note for the authenticated user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
+                "summary": "Create a new note",
                 "tags": [
                     "notes"
-                ],
-                "summary": "Create a new note",
-                "parameters": [
-                    {
-                        "description": "Note object",
-                        "name": "note",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.NoteIn"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/models.NoteOut"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    }
-                }
+                ]
             }
         },
         "/notes/{noteId}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Retrieves a specific note owned by the authenticated user",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "notes"
-                ],
-                "summary": "Get a single note",
+            "delete": {
+                "description": "Deletes a note owned by the authenticated user",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Note UUID",
-                        "name": "noteId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.NoteOut"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Updates the note fields for the authenticated user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "notes"
-                ],
-                "summary": "Edit a note",
-                "parameters": [
-                    {
-                        "type": "string",
                         "description": "Note ID",
-                        "name": "noteId",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Note fields",
-                        "name": "note",
-                        "in": "body",
+                        "name": "noteId",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.NoteIn"
+                            "type": "string"
                         }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.NoteOut"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Deletes a note owned by the authenticated user",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "notes"
-                ],
-                "summary": "Delete a note",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Note ID",
-                        "name": "noteId",
-                        "in": "path",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -385,176 +519,313 @@
                         "description": "No Content"
                     },
                     "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
                     },
                     "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
                     },
                     "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Not Found"
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal Server Error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "summary": "Delete a note",
+                "tags": [
+                    "notes"
+                ]
+            },
+            "get": {
+                "description": "Retrieves a specific note owned by the authenticated user",
+                "parameters": [
+                    {
+                        "description": "Note UUID",
+                        "in": "path",
+                        "name": "noteId",
+                        "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "type": "string"
                         }
                     }
-                }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NoteOut"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal Server Error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "summary": "Get a single note",
+                "tags": [
+                    "notes"
+                ]
+            },
+            "put": {
+                "description": "Updates the note fields for the authenticated user",
+                "parameters": [
+                    {
+                        "description": "Note ID",
+                        "in": "path",
+                        "name": "noteId",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NoteIn"
+                            }
+                        }
+                    },
+                    "description": "Note fields",
+                    "required": true,
+                    "x-originalParamName": "note"
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NoteOut"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal Server Error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "summary": "Edit a note",
+                "tags": [
+                    "notes"
+                ]
             }
         },
         "/notes/{noteId}/attachments": {
             "post": {
                 "description": "Generates a presigned URL for uploading an attachment to a specific note",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "notes"
-                ],
-                "summary": "Generate a presigned S3 upload URL",
                 "parameters": [
                     {
-                        "type": "string",
                         "description": "Note ID",
-                        "name": "noteId",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Upload parameters",
-                        "name": "body",
-                        "in": "body",
+                        "name": "noteId",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.PresignUploadRequest"
+                            "type": "string"
                         }
                     }
                 ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PresignUploadRequest"
+                            }
+                        }
+                    },
+                    "description": "Upload parameters",
+                    "required": true,
+                    "x-originalParamName": "body"
+                },
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.PresignUploadResponse"
-                        }
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PresignUploadResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
                     },
                     "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
                     },
                     "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
                     },
                     "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal Server Error"
                     }
-                }
+                },
+                "summary": "Generate a presigned S3 upload URL",
+                "tags": [
+                    "notes"
+                ]
             }
         },
         "/notes/{noteId}/attachments/{attachmentId}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Generates a temporary URL for securely downloading a note's attachment.",
-                "tags": [
-                    "notes"
-                ],
-                "summary": "Get presigned download URL for an attachment",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Note ID (UUID)",
-                        "name": "noteId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Attachment ID (UUID)",
-                        "name": "attachmentId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.PresignDownloadResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    }
-                }
-            },
             "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "tags": [
-                    "notes"
-                ],
-                "summary": "Delete an attachment",
                 "parameters": [
                     {
-                        "type": "string",
                         "description": "Note ID",
-                        "name": "noteId",
                         "in": "path",
-                        "required": true
+                        "name": "noteId",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
                     },
                     {
-                        "type": "string",
                         "description": "Attachment ID",
-                        "name": "attachmentId",
                         "in": "path",
-                        "required": true
+                        "name": "attachmentId",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -562,420 +833,332 @@
                         "description": "No Content"
                     },
                     "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
                     },
                     "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
                     },
                     "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Not Found"
                     }
-                }
-            }
-        },
-        "/notes/{noteId}/share": {
-            "post": {
+                },
                 "security": [
                     {
                         "BearerAuth": []
                     }
                 ],
-                "description": "Allows the authenticated user to share a note they own with another user, specifying read or write permissions.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
+                "summary": "Delete an attachment",
                 "tags": [
-                    "notes",
-                    "sharing"
-                ],
-                "summary": "Share note with user",
+                    "notes"
+                ]
+            },
+            "get": {
+                "description": "Generates a temporary URL for securely downloading a note's attachment.",
                 "parameters": [
                     {
-                        "type": "string",
                         "description": "Note ID (UUID)",
-                        "name": "noteId",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Sharing request",
-                        "name": "request",
-                        "in": "body",
+                        "name": "noteId",
                         "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.ShareToUserRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content",
                         "schema": {
                             "type": "string"
                         }
                     },
-                    "400": {
-                        "description": "Bad request (invalid UUID, payload, or permission)",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Note not found or not owned by user",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/refresh": {
-            "post": {
-                "description": "Refreshes JWT access token using a refresh token",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Refresh access token",
-                "parameters": [
                     {
-                        "description": "Refresh token payload",
-                        "name": "refreshToken",
-                        "in": "body",
+                        "description": "Attachment ID (UUID)",
+                        "in": "path",
+                        "name": "attachmentId",
                         "required": true,
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "string"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.Session"
-                        }
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PresignDownloadResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
                     },
                     "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
                     },
                     "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Not Found"
                     },
                     "500": {
-                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal Server Error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "summary": "Get presigned download URL for an attachment",
+                "tags": [
+                    "notes"
+                ]
+            }
+        },
+        "/notes/{noteId}/share": {
+            "post": {
+                "description": "Allows the authenticated user to share a note they own with another user, specifying read or write permissions.",
+                "parameters": [
+                    {
+                        "description": "Note ID (UUID)",
+                        "in": "path",
+                        "name": "noteId",
+                        "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
+                            "type": "string"
                         }
                     }
-                }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ShareToUserRequest"
+                            }
+                        }
+                    },
+                    "description": "Sharing request",
+                    "required": true,
+                    "x-originalParamName": "request"
+                },
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad request (invalid UUID, payload, or permission)"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Note not found or not owned by user"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "summary": "Share note with user",
+                "tags": [
+                    "notes"
+                ]
+            }
+        },
+        "/refresh": {
+            "post": {
+                "description": "Refreshes JWT access token using a refresh token",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "additionalProperties": {
+                                    "type": "string"
+                                },
+                                "type": "object"
+                            }
+                        }
+                    },
+                    "description": "Refresh token payload",
+                    "required": true,
+                    "x-originalParamName": "refreshToken"
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Session"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Server error"
+                    }
+                },
+                "summary": "Refresh access token",
+                "tags": [
+                    "auth"
+                ]
             }
         },
         "/register": {
             "post": {
                 "description": "Register using email, password, and username",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Register a new user",
-                "parameters": [
-                    {
-                        "description": "user info",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.UserIn"
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserIn"
+                            }
                         }
-                    }
-                ],
+                    },
+                    "description": "user info",
+                    "required": true,
+                    "x-originalParamName": "input"
+                },
                 "responses": {
                     "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/models.UserOut"
-                        }
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserOut"
+                                }
+                            }
+                        },
+                        "description": "Created"
                     },
                     "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "additionalProperties": {
+                                        "type": "string"
+                                    },
+                                    "type": "object"
+                                }
                             }
-                        }
+                        },
+                        "description": "Bad Request"
                     },
                     "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "additionalProperties": {
+                                        "type": "string"
+                                    },
+                                    "type": "object"
+                                }
                             }
-                        }
+                        },
+                        "description": "Conflict"
                     }
-                }
+                },
+                "summary": "Register a new user",
+                "tags": [
+                    "auth"
+                ]
             }
         }
     },
-    "definitions": {
-        "models.AttachmentOut": {
-            "type": "object",
-            "properties": {
-                "filename": {
-                    "type": "string",
-                    "example": "document.pdf"
-                },
-                "id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174000"
-                },
-                "mime_type": {
-                    "type": "string",
-                    "example": "application/pdf"
-                },
-                "size": {
-                    "type": "integer",
-                    "example": 123456
-                }
-            }
-        },
-        "models.ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "string",
-                    "example": "InternalError"
-                },
-                "error": {
-                    "type": "string",
-                    "example": "An unexpected error occurred"
-                }
-            }
-        },
-        "models.Login": {
-            "type": "object",
-            "required": [
-                "email",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "jane@mail.com"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.LoginOut": {
-            "type": "object",
-            "properties": {
-                "session": {
-                    "$ref": "#/definitions/models.Session"
-                },
-                "user": {
-                    "$ref": "#/definitions/models.UserOut"
-                }
-            }
-        },
-        "models.NoteIn": {
-            "type": "object",
-            "required": [
-                "content",
-                "title"
-            ],
-            "properties": {
-                "content": {
-                    "type": "string",
-                    "example": "Notes from the meeting with the client."
-                },
-                "title": {
-                    "type": "string",
-                    "example": "Meeting Notes"
-                }
-            }
-        },
-        "models.NoteOut": {
-            "type": "object",
-            "properties": {
-                "archived": {
-                    "type": "boolean"
-                },
-                "attachments": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.AttachmentOut"
-                    }
-                },
-                "content": {
-                    "type": "string",
-                    "example": "Notes from the meeting with the client."
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "encrypted": {
-                    "type": "boolean"
-                },
-                "id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174000"
-                },
-                "title": {
-                    "type": "string",
-                    "example": "Meeting Notes"
-                },
-                "updated_at": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.PresignDownloadResponse": {
-            "type": "object",
-            "properties": {
-                "url": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.PresignUploadRequest": {
-            "type": "object",
-            "required": [
-                "content_type",
-                "filename"
-            ],
-            "properties": {
-                "content_type": {
-                    "type": "string",
-                    "example": "text/plain"
-                },
-                "filename": {
-                    "type": "string",
-                    "example": "example.txt"
-                }
-            }
-        },
-        "models.PresignUploadResponse": {
-            "type": "object",
-            "properties": {
-                "key": {
-                    "type": "string",
-                    "example": "attachments/123e4567-e89b-12d3-a456-426614174000/example.txt"
-                },
-                "url": {
-                    "type": "string",
-                    "example": "https://s3.com/upload?key=example.txt"
-                }
-            }
-        },
-        "models.Session": {
-            "type": "object",
-            "properties": {
-                "refresh": {
-                    "type": "string"
-                },
-                "token": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.ShareToUserRequest": {
-            "type": "object",
-            "required": [
-                "permission",
-                "shared_with"
-            ],
-            "properties": {
-                "permission": {
-                    "description": "\"read\" or \"write\"",
-                    "type": "string",
-                    "example": "read"
-                },
-                "shared_with": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174000"
-                }
-            }
-        },
-        "models.UserIn": {
-            "type": "object",
-            "required": [
-                "email",
-                "password",
-                "username"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "jane@mail.com"
-                },
-                "password": {
-                    "type": "string",
-                    "minLength": 6,
-                    "example": "password123"
-                },
-                "username": {
-                    "type": "string",
-                    "minLength": 1,
-                    "example": "jane_doe"
-                }
-            }
-        },
-        "models.UserOut": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "jane@mail.com"
-                },
-                "id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174000"
-                },
-                "username": {
-                    "type": "string",
-                    "example": "jane_doe"
-                }
-            }
+    "servers": [
+        {
+            "url": "https://localhost:8080/"
         }
-    }
+    ]
 }
