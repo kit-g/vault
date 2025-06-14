@@ -26,8 +26,11 @@ import (
 	"vault/internal/models"
 )
 
+var cfg *config.Config
+
 func Init() {
-	cfg, err := config.ApiConfig()
+	var err error
+	cfg, err = config.ApiConfig()
 
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
@@ -56,7 +59,7 @@ func Init() {
 
 func main() {
 	Init()
-	r := httpx.Router()
+	r := httpx.Router(cfg.CORSOrigins)
 
 	mode := os.Getenv("MODE")
 
