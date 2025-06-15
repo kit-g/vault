@@ -8,7 +8,7 @@ s3_prefix = "vault-web"
 region = "ca-central-1"
 profile = "personal"
 confirm_changeset = true
-capabilities = "CAPABILITY_IAM"
+capabilities = "CAPABILITY_IAM CAPABILITY_NAMED_IAM"
 parameter_overrides = """
     Environment=\"dev\"
 """
