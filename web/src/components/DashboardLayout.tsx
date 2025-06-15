@@ -1,6 +1,7 @@
 import {useEffect, useRef, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {useAuth} from "../features/AuthContext.tsx";
+import {Menu, MenuButton, MenuItem, MenuItems} from "@headlessui/react";
 
 export function DashboardLayout({children}: { children: React.ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -49,38 +50,51 @@ export function DashboardLayout({children}: { children: React.ReactNode }) {
             />
           </div>
 
-          <div className="relative" ref={menuRef}>
-            <div
-              className="rounded-full size-10 bg-cover bg-center bg-no-repeat cursor-pointer"
-              style={{backgroundImage: "url('https://i.pravatar.cc/40')"}}
-              onClick={() => setMenuOpen((v) => !v)}
-            />
-            {
-              menuOpen && (
-                <div className="absolute right-0 mt-2 w-40 bg-[#1d2b24] border border-[#2a4133] rounded shadow-md z-10">
-                  <button
-                    className="w-full text-left px-4 py-2 hover:bg-[#27352d]"
-                    onClick={() => {
-                      setMenuOpen(false);
-                      navigate("/account"); // placeholder route
-                    }}
-                  >
-                    Account
-                  </button>
-                  <button
-                    className="w-full text-left px-4 py-2 hover:bg-[#27352d] text-red-400"
-                    onClick={
-                      () => {
+          <Menu as="div" className="relative inline-block text-left">
+            <MenuButton className="flex items-center gap-2">
+              <div
+                className="rounded-full size-10 bg-cover bg-center bg-no-repeat cursor-pointer"
+                style={{ backgroundImage: "url('https://i.pravatar.cc/40')" }}
+              />
+              <svg
+                className="w-4 h-4 text-gray-400"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </MenuButton>
+
+            <MenuItems className="absolute right-0 mt-2 w-40 origin-top-right bg-[#1d2b24] border border-[#2a4133] rounded shadow-md z-50 focus:outline-none">
+              <div className="py-1">
+                <MenuItem>
+                  {({ focus }) => (
+                    <button
+                      className={`w-full text-left px-4 py-2 ${focus ? "bg-[#27352d]" : ""}`}
+                      onClick={() => navigate("/account")}
+                    >
+                      Account
+                    </button>
+                  )}
+                </MenuItem>
+                <MenuItem>
+                  {({ focus }) => (
+                    <button
+                      className={`w-full text-left px-4 py-2 text-red-400 ${focus ? "bg-[#27352d]" : ""}`}
+                      onClick={() => {
                         logout();
                         navigate("/login");
-                      }
-                    }
-                  >
-                    Logout
-                  </button>
-                </div>
-              )
-            }</div>
+                      }}
+                    >
+                      Logout
+                    </button>
+                  )}
+                </MenuItem>
+              </div>
+            </MenuItems>
+          </Menu>
         </div>
       </header>
 
