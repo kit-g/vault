@@ -1,0 +1,131 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "Vault web app"
+
+Parameters:
+  App:
+    Type: String
+    Description: A prefix for all resources created by this stack (e.g., 'Vault').
+    Default: "vault"
+  DomainName:
+    Type: String
+    Description: "(Optional) The custom domain name for the website (e.g., vault.example.com)."
+    Default: ''
+  AcmCertificateArn:
+    Type: String
+    Description: "(Optional) The ARN of the ACM certificate for the custom domain. Must be in us-east-1."
+    Default: ''
+
+Conditions:
+  HasCustomDomain: !Not [ !Equals [ !Ref DomainName, '' ] ]
+
+Resources:
+  HostingBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${AWS::AccountId}-${App}-web'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  BucketOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Description: "Vault app OAC"
+        Name: "vault-oac"
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Comment: 'Vault, web app'
+        Enabled: true
+        HttpVersion: 'http2'
+        PriceClass: 'PriceClass_100' # Use PriceClass_All for best performance globally
+
+        Origins:
+          - Id: !Ref HostingBucket
+            DomainName: !GetAtt HostingBucket.RegionalDomainName
+            S3OriginConfig:
+              # empty, as per
+              # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-s3originconfig.html#cfn-cloudfront-distribution-s3originconfig-originaccessidentity
+              OriginAccessIdentity: ""
+            OriginAccessControlId: !Ref BucketOriginAccessControl
+
+        DefaultCacheBehavior:
+          TargetOriginId: !Ref HostingBucket
+          ViewerProtocolPolicy: 'redirect-to-https'
+          AllowedMethods: [ 'GET', 'HEAD', 'OPTIONS' ]
+          CachedMethods: [ 'GET', 'HEAD', 'OPTIONS' ]
+          CachePolicyId: '658327ea-f89d-4fab-a63d-7e88639e58f6' # CachingOptimized
+          Compress: true
+          DefaultTTL: 86400 # 1 day
+          MinTTL: 0
+          MaxTTL: 31536000 # 1 year
+
+        # This section is KEY for Single-Page Applications (like React Router)
+        # It handles client-side routing by redirecting 403/404 errors to index.html
+        CustomErrorResponses:
+          - ErrorCode: 403 # Forbidden (happens when S3 can't find a sub-path)
+            ResponsePagePath: '/index.html'
+            ResponseCode: 200
+            ErrorCachingMinTTL: 10
+          - ErrorCode: 404 # Not Found
+            ResponsePagePath: '/index.html'
+            ResponseCode: 200
+            ErrorCachingMinTTL: 10
+
+        ViewerCertificate:
+         !If
+           - HasCustomDomain
+           - AcmCertificateArn: !Ref AcmCertificateArn
+             SslSupportMethod: 'sni-only'
+             MinimumProtocolVersion: 'TLSv1.2_2021'
+           - !Ref AWS::NoValue
+        Aliases:
+         !If
+           - HasCustomDomain
+           - - !Ref DomainName
+           - !Ref AWS::NoValue
+
+  ExerciseBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref HostingBucket
+      PolicyDocument:
+        Statement:
+          - Sid: AllowCloudFrontServicePrincipal
+            Effect: Allow
+            Action: "s3:GetObject"
+            Resource: !Sub "${HostingBucket.Arn}/*"
+            Principal:
+              Service: "cloudfront.amazonaws.com"
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
+
+
+Outputs:
+  HostingBucketName:
+    Description: 'The name of the S3 bucket for storing website files.'
+    Value: !Ref HostingBucket
+    Export:
+      Name: !Sub '${AWS::StackName}-hosting-bucket-name'
+
+  CloudFrontDistributionId:
+    Description: 'The ID of the CloudFront distribution.'
+    Value: !Ref CloudFrontDistribution
+    Export:
+      Name: !Sub '${AWS::StackName}-cloud-front-distribution-id'
+
+  CloudFrontDomainName:
+    Description: 'The domain name of the CloudFront distribution.'
+    Value: !GetAtt CloudFrontDistribution.DomainName
+    Export:
+      Name: !Sub '${AWS::StackName}-cloud-front-domain-name'
+
