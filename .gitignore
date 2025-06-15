@@ -29,5 +29,3 @@ ignored/
 .junie/
 
 infrastructure/api.toml
-
-web/src/docs/
