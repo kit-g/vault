@@ -1,15 +1,21 @@
 import Dashboard from "./pages/Dashboard";
 import LoginPage from "./pages/LoginPage.tsx";
-import {BrowserRouter, Route, Routes} from "react-router-dom";
+import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
+import {AuthProvider} from "./features/AuthContext.tsx";
+import {PrivateRoute} from "./routes/Private.tsx";
+import {PublicRoute} from "./routes/Public.tsx";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Dashboard/>}/>
-        <Route path="/login" element={<LoginPage/>}/>
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<PrivateRoute><Dashboard/></PrivateRoute>}/>
+          <Route path="/login" element={<PublicRoute><LoginPage/></PublicRoute>}/>
+          <Route path="*" element={<Navigate to="/" replace/>}/>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

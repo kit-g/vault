@@ -3,12 +3,14 @@ import {useNavigate} from "react-router-dom";
 import type {Login} from "../api";
 import {AuthService} from "../api";
 import * as React from "react";
+import {useAuth} from "../features/AuthContext.tsx";
 
 export default function LoginPage() {
   const [form, setForm] = useState<Login>({email: "", password: ""});
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({...form, [e.target.name]: e.target.value});
@@ -22,7 +24,7 @@ export default function LoginPage() {
     try {
       const res = await AuthService.login(form);
       if (res.session?.token) {
-        localStorage.setItem("access_token", res.session?.token); // or however your JWT is named
+        login(res.session?.token)
       }
       navigate("/dashboard");
     } catch (err) {
