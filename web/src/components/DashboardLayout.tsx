@@ -1,13 +1,41 @@
-import type {ReactNode} from "react";
+import {useEffect, useRef, useState} from "react";
+import {useNavigate} from "react-router-dom";
+import {useAuth} from "../features/AuthContext.tsx";
 
-export function DashboardLayout({children}: { children: ReactNode }) {
+export function DashboardLayout({children}: { children: React.ReactNode }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const {logout} = useAuth();
+  const navigate = useNavigate();
+  const menuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+
+    if (menuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [menuOpen]);
+
   return (
     <div className="min-h-screen bg-[#141f18] text-white flex flex-col">
       <header className="flex items-center justify-between border-b border-[#2a4133] px-10 py-3">
+        {/* Header */}
         <div className="flex items-center gap-4">
           <div className="text-green-500 font-bold text-xl">🔐 Vault</div>
         </div>
+
         <div className="flex gap-8 items-center">
+          {/* Search */}
           <div className="flex h-10 max-w-64 rounded-xl bg-[#2a4133] overflow-hidden">
             <div className="flex items-center justify-center pl-4 pr-2 text-[#9bbfa9]">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256">
@@ -20,9 +48,39 @@ export function DashboardLayout({children}: { children: ReactNode }) {
               className="bg-[#2a4133] text-white placeholder:text-[#9bbfa9] px-4 w-full outline-none"
             />
           </div>
-          <div className="rounded-full size-10 bg-cover bg-center bg-no-repeat"
-               style={{backgroundImage: "url('https://i.pravatar.cc/40')"}}
-          />
+
+          <div className="relative" ref={menuRef}>
+            <div
+              className="rounded-full size-10 bg-cover bg-center bg-no-repeat cursor-pointer"
+              style={{backgroundImage: "url('https://i.pravatar.cc/40')"}}
+              onClick={() => setMenuOpen((v) => !v)}
+            />
+            {
+              menuOpen && (
+                <div className="absolute right-0 mt-2 w-40 bg-[#1d2b24] border border-[#2a4133] rounded shadow-md z-10">
+                  <button
+                    className="w-full text-left px-4 py-2 hover:bg-[#27352d]"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      navigate("/account"); // placeholder route
+                    }}
+                  >
+                    Account
+                  </button>
+                  <button
+                    className="w-full text-left px-4 py-2 hover:bg-[#27352d] text-red-400"
+                    onClick={
+                      () => {
+                        logout();
+                        navigate("/login");
+                      }
+                    }
+                  >
+                    Logout
+                  </button>
+                </div>
+              )
+            }</div>
         </div>
       </header>
 
