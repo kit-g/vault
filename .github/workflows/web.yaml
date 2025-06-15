@@ -1,0 +1,54 @@
+name: "Deploy web app"
+
+on:
+  push:
+    branches:
+      - main
+      - gh-action
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_ROLE: "arn:aws:iam::583168578067:role/GitHubActionsDeployRole"
+  AWS_REGION: "ca-central-1"
+  VITE_API_URL: "https://vhpe6wcw73.execute-api.ca-central-1.amazonaws.com/v1"
+  HOSTING_BUCKET: "583168578067-vault-web"
+  DISTRIBUTION_ID: "E2EKJGBU83AOIP"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v3
+
+      - name: "Configure AWS Credentials"
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: $AWS_ROLE
+          aws-region: $AWS_REGION
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build React application
+        run: npm run build
+        env:
+          VITE_API_URL: $VITE_API_URL
+
+      - name: Deploy to S3
+        run: |
+          aws s3 sync ./dist s3://$HOSTING_BUCKET --delete
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths "/*"
