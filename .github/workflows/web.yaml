@@ -32,27 +32,31 @@ jobs:
           role-to-assume: ${{ env.AWS_ROLE }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Setup Node.js
+      - name: "Setup Node.js"
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: '${{ env.WORKING_DIRECTORY }}/package-lock.json'
 
-      - name: Install dependencies
+      - name: "Install dependencies"
         run: npm ci
         working-directory: ${{ env.WORKING_DIRECTORY }}
 
-      - name: Build React application
+      - name: "Build React application"
         run: npm run build
         working-directory: ${{ env.WORKING_DIRECTORY }}
         env:
           VITE_API_URL: ${{ env.VITE_API_URL }}
 
-      - name: Deploy to S3
+      - name: "Create Version File"
+        run: |
+          echo "{\"commit\":\"${{ github.sha }}\",\"deployedAt\":\"$(date -u --iso-8601=seconds)\"}" > ${{ env.WORKING_DIRECTORY }}/dist/version.json
+
+      - name: "Deploy to S3"
         run: |
           aws s3 sync ${{ env.WORKING_DIRECTORY }}/dist s3://${{ env.HOSTING_BUCKET }} --delete
 
-      - name: Invalidate CloudFront cache
+      - name: "Invalidate CloudFront cache"
         run: |
           aws cloudfront create-invalidation --distribution-id ${{ env.DISTRIBUTION_ID }} --paths "/*"
