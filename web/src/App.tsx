@@ -1,13 +1,13 @@
 import Dashboard from "./pages/Dashboard";
 import LoginPage from "./pages/LoginPage.tsx";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import {BrowserRouter, Route, Routes} from "react-router-dom";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/" element={<Dashboard/>}/>
+        <Route path="/login" element={<LoginPage/>}/>
       </Routes>
     </BrowserRouter>
   );
