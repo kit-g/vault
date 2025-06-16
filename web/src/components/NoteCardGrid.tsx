@@ -8,9 +8,9 @@ type NoteCardGridProps = {
 
 export function NoteCardGrid({notes}: NoteCardGridProps) {
   const navigate = useNavigate();
-  if (notes.length === 0) {
+  if (!notes || notes.length === 0) {
     return (
-      <p className="text-center text-gray-500 mt-10">No notes yet. Create one!</p>
+      <p className="text-center text-gray-200 mt-10">No notes yet. Create one!</p>
     );
   }
 

@@ -1,6 +1,6 @@
 import * as React from "react";
 import {useState} from "react";
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {AuthService, type Login} from "../api";
 import {useAuth} from "../features/AuthContext";
 
@@ -49,8 +49,8 @@ export default function LoginPage() {
         className="w-full max-w-[512px] px-6 py-10 flex flex-col"
       >
         <h2 className="text-[28px] font-bold text-center mb-6">
-        Welcome back
-      </h2>
+          Welcome back
+        </h2>
 
         <div className="space-y-4">
           <input
@@ -85,9 +85,12 @@ export default function LoginPage() {
             {loading ? "Signing in..." : "Sign In"}
           </button>
 
-          <p className="text-[#96c5a8] text-sm text-center underline mt-4 cursor-pointer">
+          <Link
+            to="/register"
+            className="block text-[#96c5a8] text-sm text-center underline mt-4"
+          >
             Don&apos;t have an account? Create one
-          </p>
+          </Link>
         </div>
       </form>
     </div>
