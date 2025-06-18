@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {createContext, useContext, useEffect, useState} from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 type Theme = 'light' | 'dark';
 
@@ -14,7 +14,7 @@ interface ThemeProviderProps {
   children: React.ReactNode;
 }
 
-export function ThemeProvider({children}: ThemeProviderProps) {
+export function ThemeProvider({ children }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(() => {
 
     const savedTheme = localStorage.getItem('theme') as Theme | null;
@@ -36,8 +36,8 @@ export function ThemeProvider({children}: ThemeProviderProps) {
   };
 
   return (
-    <ThemeContext.Provider value={{theme, toggleTheme}}>
-      {children}
+    <ThemeContext.Provider value={ { theme, toggleTheme } }>
+      { children }
     </ThemeContext.Provider>
   );
 }

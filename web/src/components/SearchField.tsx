@@ -1,4 +1,4 @@
-import type {ReactNode} from "react";
+import type { ReactNode } from "react";
 import * as React from "react";
 
 type SearchFieldProps = {
@@ -19,13 +19,13 @@ export function SearchField(
   }: SearchFieldProps
 ) {
   return (
-    <div className={`input-with-icon ${className}`}>
-      {icon && <div className="input-with-icon-icon">{icon}</div>}
+    <div className={ `input-with-icon ${ className }` }>
+      { icon && <div className="input-with-icon-icon">{ icon }</div> }
       <input
         type="text"
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
+        placeholder={ placeholder }
+        value={ value }
+        onChange={ onChange }
       />
     </div>
   );

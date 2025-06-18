@@ -1,9 +1,9 @@
 import * as React from "react";
-import {useState} from "react";
-import {Link, useNavigate} from "react-router-dom";
-import {AuthService, type Login} from "../api";
-import {useAuth} from "../features/AuthContext";
-import {ThemeSwitchButton} from "../components/ThemeSwitch.tsx";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { AuthService, type Login } from "../api";
+import { useAuth } from "../features/AuthContext";
+import { ThemeSwitchButton } from "../components/ThemeSwitch.tsx";
 
 export default function LoginPage() {
   const [form, setForm] = useState<Login>({
@@ -12,11 +12,11 @@ export default function LoginPage() {
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const {login} = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({...form, [e.target.name]: e.target.value});
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -51,7 +51,7 @@ export default function LoginPage() {
       </div>
 
       <form
-        onSubmit={handleSubmit}
+        onSubmit={ handleSubmit }
         className="w-full max-w-[512px] px-6 py-10 flex flex-col"
       >
         <h2 className="text-[28px] font-bold text-center mb-6">
@@ -64,8 +64,8 @@ export default function LoginPage() {
             type="email"
             placeholder="Email"
             className="input-field"
-            value={form.email}
-            onChange={handleChange}
+            value={ form.email }
+            onChange={ handleChange }
           />
 
           <input
@@ -73,18 +73,18 @@ export default function LoginPage() {
             type="password"
             placeholder="Password"
             className="input-field"
-            value={form.password}
-            onChange={handleChange}
+            value={ form.password }
+            onChange={ handleChange }
           />
 
           <p className="text-[#96c5a8] text-sm underline cursor-pointer">
             Forgot password?
           </p>
 
-          {error && <div className="text-red-400">{error}</div>}
+          { error && <div className="text-red-400">{ error }</div> }
 
-          <button type="submit" disabled={loading} className="btn">
-            {loading ? "Signing in..." : "Sign In"}
+          <button type="submit" disabled={ loading } className="btn">
+            { loading ? "Signing in..." : "Sign In" }
           </button>
 
           <Link

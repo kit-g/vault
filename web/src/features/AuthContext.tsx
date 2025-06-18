@@ -1,5 +1,5 @@
-import {createContext, useContext, useEffect, useState} from "react";
 import * as React from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 type AuthContextType = {
   token: string | null;
@@ -9,7 +9,7 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export const AuthProvider = ({children}: { children: React.ReactNode }) => {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
@@ -28,8 +28,8 @@ export const AuthProvider = ({children}: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{token, login, logout}}>
-      {children}
+    <AuthContext.Provider value={ { token, login, logout } }>
+      { children }
     </AuthContext.Provider>
   );
 };
