@@ -1,7 +1,72 @@
 @import "tailwindcss";
 
+
+/*
+  Define all theme variables here.
+  :root contains the default (light mode) values.
+*/
+:root {
+    --background: #f9fbfa;
+    --foreground: #101913;
+    --muted: #f9fbfa;
+    --muted-foreground: #5a8c6d;
+    --primary: #94e0b1;
+    --primary-foreground: #101913;
+    --border: #d3e3d9;
+    --placeholder: #5a8c6d;
+    --radius: 0.75rem; /* Corresponds to rounded-xl */
+    --font: "Lato";
+}
+
+/*
+  Dark mode.
+  When the <html> tag has the 'dark' class, these values will be used.
+*/
+.dark {
+    --background: #141f18;
+    --foreground: #ffffff;
+    --muted: #264532;
+    --primary: #94e0b1;
+    --border: transparent;
+    --placeholder: #96c5a8;
+}
+
 body {
-    background-color: #141f18;
-    color: white;
-    font-family: "Lato", sans-serif;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font), sans-serif;
+    transition: background-color 0.6s ease, color 0.6s ease;
+}
+
+@layer components {
+    .input-field {
+        @apply w-full h-14 rounded-xl p-4 text-base font-normal leading-normal;
+        background-color: var(--muted);
+        color: var(--foreground);
+        border: 1px solid var(--border);
+        transition: background-color 0.6s ease,
+        color 0.6s ease,
+        border-color 0.6s ease,
+        border-width 0.6s ease;
+    }
+
+    .input-field::placeholder {
+        color: var(--placeholder);
+        opacity: 1;
+        transition: color 0.6s ease;
+    }
+
+    .input-field:focus {
+        outline: none;
+        border-color: var(--border);
+        box-shadow: none;
+    }
+
+    .dark .input-field:focus {
+        border-color: var(--border);
+    }
+
+    :not(.dark) .input-field:focus {
+        border-width: 2px;
+    }
 }
