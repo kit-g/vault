@@ -19,6 +19,13 @@
     --placeholder: #5a8c6d;
     --radius: 0.75rem; /* Corresponds to rounded-xl */
     --font: "Lato";
+
+    --card-bg: #ffffff;
+    --card-text: var(--foreground);
+    --card-muted-text: var(--muted-foreground);
+    --card-hover-bg: #f5f5f5;
+    --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --card-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /*
@@ -35,6 +42,13 @@
     --border: transparent;
     --placeholder: #96c5a8;
     --icon-btn-hover-bg: rgba(255, 255, 255, 0.1);
+
+    --card-bg: #1d2b24;
+    --card-text: var(--foreground);
+    --card-muted-text: #9bbfa9;
+    --card-hover-bg: #27352d;
+    --card-shadow: none;
+    --card-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 body {
@@ -44,6 +58,7 @@ body {
     transition: background-color 0.6s ease, color 0.6s ease;
 }
 
+/* Text field */
 @layer components {
     .input-field {
         @apply w-full h-14 rounded-xl p-4 text-base font-normal leading-normal;
@@ -77,6 +92,7 @@ body {
     }
 }
 
+/* Text field with icon */
 @layer components {
     .input-with-icon {
         @apply flex items-center rounded-xl transition-all duration-300 w-full;
@@ -119,7 +135,7 @@ body {
     }
 }
 
-
+/* Buttons */
 @layer components {
     .btn {
         @apply w-full relative inline-flex items-center justify-center overflow-hidden h-12 px-5 text-base font-bold leading-normal tracking-[0.015em] rounded-xl transition-all duration-300 ease-in-out;
@@ -159,7 +175,6 @@ body {
     }
 }
 
-
 @layer components {
     .btn-icon {
         @apply inline-flex items-center justify-center
@@ -176,3 +191,27 @@ body {
     }
 }
 
+/* Cards */
+@layer components {
+    .note-card {
+        @apply h-40 p-4 rounded-lg cursor-pointer
+        flex flex-col justify-between
+        transition-all duration-200 ease-in-out;
+        background-color: var(--card-bg);
+        box-shadow: var(--card-shadow);
+    }
+
+    .note-card:hover {
+        background-color: var(--card-hover-bg);
+        box-shadow: var(--card-hover-shadow);
+        @apply -translate-y-1 scale-[1.01];
+    }
+
+    .text-card-foreground {
+        color: var(--card-text);
+    }
+
+    .text-card-muted-foreground {
+        color: var(--card-muted-text);
+    }
+}

@@ -9,15 +9,12 @@ interface NoteCardProps {
 export function NoteCard({note, onClick}: NoteCardProps) {
 
   return (
-    <div
-      onClick={onClick}
-      className="bg-[#1d2b24] hover:bg-[#27352d] p-4 rounded-lg cursor-pointer transition flex flex-col justify-between h-40"
-    >
+    <div onClick={onClick} className="note-card">
       <div>
-        <h3 className="text-white font-semibold text-lg mb-1">
+        <h3 className="font-semibold text-card-foreground">
           {note.title || "Untitled"}
         </h3>
-        <p className="text-sm text-gray-400 line-clamp-2">
+        <p className="text-sm line-clamp-2 text-card-muted-foreground">
           {note.content || "No content"}
         </p>
       </div>
