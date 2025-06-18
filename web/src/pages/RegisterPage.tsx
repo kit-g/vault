@@ -112,7 +112,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-12 rounded-xl bg-[#94e0b1] text-[#141f18] font-bold tracking-wide"
+            className="btn"
           >
             {loading ? "Creating..." : "Create Account"}
           </button>

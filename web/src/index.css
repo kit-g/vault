@@ -7,7 +7,9 @@
 */
 :root {
     --background: #f9fbfa;
+    --accent: #94e0b1;
     --foreground: #101913;
+    --button-text: #101913;
     --muted: #f9fbfa;
     --muted-foreground: #5a8c6d;
     --primary: #94e0b1;
@@ -24,6 +26,8 @@
 */
 .dark {
     --background: #141f18;
+    --button-text: #141f18;
+    --accent: #94e0b1;
     --foreground: #ffffff;
     --muted: #264532;
     --primary: #94e0b1;
@@ -68,5 +72,44 @@ body {
 
     :not(.dark) .input-field:focus {
         border-width: 2px;
+    }
+}
+
+@layer components {
+    .btn {
+        @apply w-full relative inline-flex items-center justify-center overflow-hidden h-12 px-5 text-base font-bold leading-normal tracking-[0.015em] rounded-xl transition-all duration-300 ease-in-out;
+        background: linear-gradient(
+                to right,
+                var(--accent) 0%,
+                color-mix(in srgb, var(--accent) 90%, black) 100%
+        );
+        color: var(--button-text);
+        min-width: 84px;
+    }
+
+    .btn::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 10%, transparent 10.01%) no-repeat center;
+        transform: scale(10);
+        opacity: 0;
+        transition: transform 0.5s, opacity 1s;
+        pointer-events: none;
+    }
+
+    .btn:active::before {
+        transform: scale(0);
+        opacity: 1;
+        transition: 0s;
+    }
+
+    .btn:hover {
+        filter: brightness(1.02);
+    }
+
+    .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
     }
 }

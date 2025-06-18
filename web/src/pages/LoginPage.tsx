@@ -80,11 +80,7 @@ export default function LoginPage() {
 
           {error && <div className="text-red-400">{error}</div>}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full h-12 rounded-lg bg-[#38e078] text-[#122118] font-bold tracking-wide"
-          >
+          <button type="submit" disabled={loading} className="btn">
             {loading ? "Signing in..." : "Sign In"}
           </button>
 
