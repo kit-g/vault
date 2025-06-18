@@ -3,6 +3,8 @@ import {useNavigate} from "react-router-dom";
 import {useAuth} from "../features/AuthContext.tsx";
 import {Menu, MenuButton, MenuItem, MenuItems} from "@headlessui/react";
 import {ThemeSwitchButton} from "./ThemeSwitch.tsx";
+import {SearchField} from "./SearchField.tsx";
+import * as React from "react";
 
 export function DashboardLayout({children}: { children: React.ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -37,19 +39,21 @@ export function DashboardLayout({children}: { children: React.ReactNode }) {
         </div>
 
         <div className="flex gap-8 items-center">
-          {/* Search */}
-          <div className="flex h-10 max-w-64 rounded-xl bg-[#2a4133] overflow-hidden">
-            <div className="flex items-center justify-center pl-4 pr-2 text-[#9bbfa9]">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256">
+          <SearchField
+            icon={
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                fill="currentColor"
+                viewBox="0 0 256 256"
+              >
                 <path
                   d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/>
               </svg>
-            </div>
-            <input
-              placeholder="Search"
-              className="bg-[#2a4133] text-white placeholder:text-[#9bbfa9] px-4 w-full outline-none"
-            />
-          </div>
+            }
+            placeholder="Search notes..."
+          />
 
           <ThemeSwitchButton/>
           <Menu as="div" className="relative inline-block text-left">

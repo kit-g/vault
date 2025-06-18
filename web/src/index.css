@@ -76,6 +76,49 @@ body {
 }
 
 @layer components {
+    .input-with-icon {
+        @apply flex items-center rounded-xl transition-all duration-300 w-full;
+        background-color: var(--muted);
+        border: 1px solid var(--border);
+        height: 40px;
+        padding: 0 1rem;
+    }
+
+    .input-with-icon:focus-within {
+        border-color: var(--border);
+    }
+
+    :not(.dark) .input-with-icon:focus-within {
+        border-width: 2px;
+    }
+
+    .dark .input-with-icon {
+        border: none;
+    }
+
+    .input-with-icon-icon {
+        @apply mr-3 text-[var(--placeholder)];
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .input-with-icon input {
+        @apply flex-1 bg-transparent border-none outline-none text-base font-normal leading-normal;
+        color: var(--foreground);
+        padding: 0;
+
+    }
+
+    .input-with-icon input::placeholder {
+        color: var(--placeholder);
+        opacity: 1;
+        transition: color 0.6s ease;
+    }
+}
+
+
+@layer components {
     .btn {
         @apply w-full relative inline-flex items-center justify-center overflow-hidden h-12 px-5 text-base font-bold leading-normal tracking-[0.015em] rounded-xl transition-all duration-300 ease-in-out;
         background: linear-gradient(
