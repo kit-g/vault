@@ -14,6 +14,7 @@
     --muted-foreground: #5a8c6d;
     --primary: #94e0b1;
     --primary-foreground: #101913;
+    --icon-btn-hover-bg: rgba(0, 0, 0, 0.05);
     --border: #d3e3d9;
     --placeholder: #5a8c6d;
     --radius: 0.75rem; /* Corresponds to rounded-xl */
@@ -33,6 +34,7 @@
     --primary: #94e0b1;
     --border: transparent;
     --placeholder: #96c5a8;
+    --icon-btn-hover-bg: rgba(255, 255, 255, 0.1);
 }
 
 body {
@@ -156,3 +158,21 @@ body {
         cursor: not-allowed;
     }
 }
+
+
+@layer components {
+    .btn-icon {
+        @apply inline-flex items-center justify-center
+        h-10 w-10 rounded-full
+        text-xl
+        transition-all duration-200;
+        @apply
+        focus:outline-none
+        focus-visible:ring-2 focus-visible:ring-offset-2;
+
+        @apply
+        active:scale-90;
+        @apply hover:bg-[var(--icon-btn-hover-bg)];
+    }
+}
+

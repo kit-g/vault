@@ -1,10 +1,10 @@
+import * as React from "react";
 import {useEffect, useRef, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {useAuth} from "../features/AuthContext.tsx";
 import {Menu, MenuButton, MenuItem, MenuItems} from "@headlessui/react";
 import {ThemeSwitchButton} from "./ThemeSwitch.tsx";
 import {SearchField} from "./SearchField.tsx";
-import * as React from "react";
 
 export function DashboardLayout({children}: { children: React.ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -55,7 +55,7 @@ export function DashboardLayout({children}: { children: React.ReactNode }) {
             placeholder="Search notes..."
           />
 
-          <ThemeSwitchButton/>
+          <ThemeSwitchButton className="flex-shrink-0"/>
           <Menu as="div" className="relative inline-block text-left">
             <MenuButton className="flex items-center gap-2">
               <div
@@ -118,7 +118,7 @@ export function DashboardLayout({children}: { children: React.ReactNode }) {
           </div>
 
           <div className="flex flex-col gap-4">
-            <button className="rounded-full h-10 px-4 bg-[#94e0b1] text-[#141f18] font-bold">
+            <button className="btn">
               New Note
             </button>
             <div className="flex items-center gap-3 px-3 py-2">
