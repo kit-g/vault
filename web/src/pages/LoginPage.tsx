@@ -6,7 +6,10 @@ import {useAuth} from "../features/AuthContext";
 import {ThemeSwitchButton} from "../components/ThemeSwitch.tsx";
 
 export default function LoginPage() {
-  const [form, setForm] = useState<Login>({email: "", password: ""});
+  const [form, setForm] = useState<Login>({
+    email: import.meta.env.DEV ? import.meta.env.VITE_EMAIL ?? "" : "",
+    password: import.meta.env.DEV ? import.meta.env.VITE_PASSWORD ?? "" : "",
+  });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const {login} = useAuth();
