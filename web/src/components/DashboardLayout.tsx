@@ -1,7 +1,10 @@
+import * as React from "react";
 import {useEffect, useRef, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {useAuth} from "../features/AuthContext.tsx";
 import {Menu, MenuButton, MenuItem, MenuItems} from "@headlessui/react";
+import {ThemeSwitchButton} from "./ThemeSwitch.tsx";
+import {SearchField} from "./SearchField.tsx";
 
 export function DashboardLayout({children}: { children: React.ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -28,7 +31,7 @@ export function DashboardLayout({children}: { children: React.ReactNode }) {
   }, [menuOpen]);
 
   return (
-    <div className="min-h-screen bg-[#141f18] text-white flex flex-col">
+    <div className="min-h-screen flex flex-col">
       <header className="flex items-center justify-between border-b border-[#2a4133] px-10 py-3">
         {/* Header */}
         <div className="flex items-center gap-4">
@@ -36,25 +39,28 @@ export function DashboardLayout({children}: { children: React.ReactNode }) {
         </div>
 
         <div className="flex gap-8 items-center">
-          {/* Search */}
-          <div className="flex h-10 max-w-64 rounded-xl bg-[#2a4133] overflow-hidden">
-            <div className="flex items-center justify-center pl-4 pr-2 text-[#9bbfa9]">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 256 256">
+          <SearchField
+            icon={
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                fill="currentColor"
+                viewBox="0 0 256 256"
+              >
                 <path
                   d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/>
               </svg>
-            </div>
-            <input
-              placeholder="Search"
-              className="bg-[#2a4133] text-white placeholder:text-[#9bbfa9] px-4 w-full outline-none"
-            />
-          </div>
+            }
+            placeholder="Search notes..."
+          />
 
+          <ThemeSwitchButton className="flex-shrink-0"/>
           <Menu as="div" className="relative inline-block text-left">
             <MenuButton className="flex items-center gap-2">
               <div
                 className="rounded-full size-10 bg-cover bg-center bg-no-repeat cursor-pointer"
-                style={{ backgroundImage: "url('https://i.pravatar.cc/40')" }}
+                style={{backgroundImage: "url('https://i.pravatar.cc/40')"}}
               />
               <svg
                 className="w-4 h-4 text-gray-400"
@@ -63,14 +69,15 @@ export function DashboardLayout({children}: { children: React.ReactNode }) {
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/>
               </svg>
             </MenuButton>
 
-            <MenuItems className="absolute right-0 mt-2 w-40 origin-top-right bg-[#1d2b24] border border-[#2a4133] rounded shadow-md z-50 focus:outline-none">
+            <MenuItems
+              className="absolute right-0 mt-2 w-40 origin-top-right bg-[#1d2b24] border border-[#2a4133] rounded shadow-md z-50 focus:outline-none">
               <div className="py-1">
                 <MenuItem>
-                  {({ focus }) => (
+                  {({focus}) => (
                     <button
                       className={`w-full text-left px-4 py-2 ${focus ? "bg-[#27352d]" : ""}`}
                       onClick={() => navigate("/account")}
@@ -80,7 +87,7 @@ export function DashboardLayout({children}: { children: React.ReactNode }) {
                   )}
                 </MenuItem>
                 <MenuItem>
-                  {({ focus }) => (
+                  {({focus}) => (
                     <button
                       className={`w-full text-left px-4 py-2 text-red-400 ${focus ? "bg-[#27352d]" : ""}`}
                       onClick={() => {
@@ -102,16 +109,25 @@ export function DashboardLayout({children}: { children: React.ReactNode }) {
         {/* Sidebar */}
         <aside className="w-80 p-4 flex flex-col justify-between border-r border-[#2a4133]">
           <div className="flex flex-col gap-2">
-            {["Notes", "Shared with Me", "Attachments", "Trash"].map((label) => (
-              <div key={label} className="flex items-center gap-3 px-3 py-2 rounded-full bg-[#2a4133]">
-                <div className="w-5 h-5 bg-white rounded-full"/>
-                <p className="text-sm font-medium">{label}</p>
-              </div>
-            ))}
+            {
+              [
+                "Notes",
+                "Shared with Me",
+                "Attachments",
+                "Trash"
+              ].map(
+                (label) => (
+                  <div key={label} className="nav-item hover-elevate">
+                    <div className="w-5 h-5 bg-white rounded-full"/>
+                    <p className="text-sm font-medium">{label}</p>
+                  </div>
+                )
+              )
+            }
           </div>
 
           <div className="flex flex-col gap-4">
-            <button className="rounded-full h-10 px-4 bg-[#94e0b1] text-[#141f18] font-bold">
+            <button className="btn">
               New Note
             </button>
             <div className="flex items-center gap-3 px-3 py-2">

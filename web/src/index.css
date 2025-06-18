@@ -1,5 +1,260 @@
 @import "tailwindcss";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+
+/*
+  Define all theme variables here.
+  :root contains the default (light mode) values.
+*/
+:root {
+    --background: #f9fbfa;
+    --accent: #94e0b1;
+    --foreground: #101913;
+    --button-text: #101913;
+    --muted: #f9fbfa;
+    --muted-foreground: #5a8c6d;
+    --primary: #94e0b1;
+    --primary-foreground: #101913;
+    --icon-btn-hover-bg: rgba(0, 0, 0, 0.05);
+    --border: #d3e3d9;
+    --placeholder: #5a8c6d;
+    --radius: 0.75rem; /* Corresponds to rounded-xl */
+    --font: "Lato";
+
+    --card-bg: #ffffff;
+    --card-text: var(--foreground);
+    --card-muted-text: var(--muted-foreground);
+    --card-hover-bg: #f5f5f5;
+    --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --card-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+    /*--nav-bg: #2a4133;*/
+
+    --nav-bg: var(--border);
+    --nav-text: var(--foreground);
+    --nav-hover-bg: rgba(0, 0, 0, 0.05);
+    --nav-active-bg: #cce8d6; /* A light, muted green for active state */
+    --nav-active-text: var(--foreground);
+}
+
+/*
+  Dark mode.
+  When the <html> tag has the 'dark' class, these values will be used.
+*/
+.dark {
+    --background: #141f18;
+    --button-text: #141f18;
+    --accent: #94e0b1;
+    --foreground: #ffffff;
+    --muted: #264532;
+    --primary: #94e0b1;
+    --border: transparent;
+    --placeholder: #96c5a8;
+    --icon-btn-hover-bg: rgba(255, 255, 255, 0.1);
+
+    --card-bg: #1d2b24;
+    --card-text: var(--foreground);
+    --card-muted-text: #9bbfa9;
+    --card-hover-bg: #27352d;
+    --card-shadow: none;
+    --card-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+    --nav-bg: #2a4133;
+    --nav-text: var(--foreground);
+    --nav-hover-bg: rgba(255, 255, 255, 0.05);
+    --nav-active-bg: #3a5a40; /* A slightly lighter green for dark active state */
+    --nav-active-text: var(--foreground);
+}
+
+body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font), sans-serif;
+    transition: background-color 0.6s ease, color 0.6s ease;
+}
+
+/* Text field */
+@layer components {
+    .input-field {
+        @apply w-full h-14 rounded-xl p-4 text-base font-normal leading-normal;
+        background-color: var(--muted);
+        color: var(--foreground);
+        border: 1px solid var(--border);
+        transition: background-color 0.6s ease,
+        color 0.6s ease,
+        border-color 0.6s ease,
+        border-width 0.6s ease;
+    }
+
+    .input-field::placeholder {
+        color: var(--placeholder);
+        opacity: 1;
+        transition: color 0.6s ease;
+    }
+
+    .input-field:focus {
+        outline: none;
+        border-color: var(--border);
+        box-shadow: none;
+    }
+
+    .dark .input-field:focus {
+        border-color: var(--border);
+    }
+
+    :not(.dark) .input-field:focus {
+        border-width: 2px;
+    }
+}
+
+/* Text field with icon */
+@layer components {
+    .input-with-icon {
+        @apply flex items-center rounded-xl transition-all duration-300 w-full;
+        background-color: var(--muted);
+        border: 1px solid var(--border);
+        height: 40px;
+        padding: 0 1rem;
+    }
+
+    .input-with-icon:focus-within {
+        border-color: var(--border);
+    }
+
+    :not(.dark) .input-with-icon:focus-within {
+        border-width: 2px;
+    }
+
+    .dark .input-with-icon {
+        border: none;
+    }
+
+    .input-with-icon-icon {
+        @apply mr-3 text-[var(--placeholder)];
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .input-with-icon input {
+        @apply flex-1 bg-transparent border-none outline-none text-base font-normal leading-normal;
+        color: var(--foreground);
+        padding: 0;
+
+    }
+
+    .input-with-icon input::placeholder {
+        color: var(--placeholder);
+        opacity: 1;
+        transition: color 0.6s ease;
+    }
+}
+
+/* Buttons */
+@layer components {
+    .btn {
+        @apply w-full relative inline-flex items-center justify-center overflow-hidden h-12 px-5 text-base font-bold leading-normal tracking-[0.015em] rounded-xl transition-all duration-300 ease-in-out;
+        background: linear-gradient(
+                to right,
+                var(--accent) 0%,
+                color-mix(in srgb, var(--accent) 90%, black) 100%
+        );
+        color: var(--button-text);
+        min-width: 84px;
+    }
+
+    .btn::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 10%, transparent 10.01%) no-repeat center;
+        transform: scale(10);
+        opacity: 0;
+        transition: transform 0.5s, opacity 1s;
+        pointer-events: none;
+    }
+
+    .btn:active::before {
+        transform: scale(0);
+        opacity: 1;
+        transition: 0s;
+    }
+
+    .btn:hover {
+        filter: brightness(1.02);
+    }
+
+    .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+@layer components {
+    .btn-icon {
+        @apply inline-flex items-center justify-center
+        h-10 w-10 rounded-full
+        text-xl
+        transition-all duration-200;
+        @apply
+        focus:outline-none
+        focus-visible:ring-2 focus-visible:ring-offset-2;
+
+        @apply
+        active:scale-90;
+        @apply hover:bg-[var(--icon-btn-hover-bg)];
+    }
+}
+
+/* Cards */
+@layer components {
+    .note-card {
+        @apply p-4 rounded-lg cursor-pointer h-40
+        flex flex-col justify-between;
+
+        background-color: var(--card-bg);
+        box-shadow: var(--card-shadow);
+
+        /* The base transition has been moved to .hover-elevate */
+        @apply transition-colors duration-200;
+    }
+
+    .note-card:hover {
+        /* The transform and box-shadow are now handled by .hover-elevate */
+        background-color: var(--card-hover-bg);
+    }
+
+    .text-card-foreground {
+        color: var(--card-text);
+    }
+
+    .text-card-muted-foreground {
+        color: var(--card-muted-text);
+    }
+}
+
+.hover-elevate {
+    @apply transition-all duration-200 ease-in-out;
+}
+
+.hover-elevate:hover {
+    @apply -translate-y-1 scale-[1.01];
+    box-shadow: var(--card-hover-shadow);
+}
+
+@layer components {
+    .nav-item {
+        @apply flex items-center gap-3 px-3 py-2 rounded-full cursor-pointer transition-colors duration-200;
+        background-color: var(--nav-bg);
+        color: var(--foreground);
+    }
+
+    .nav-item:hover {
+        background-color: var(--nav-hover-bg);
+    }
+
+    .nav-item.active {
+        background-color: var(--nav-active-bg);
+        /*color: var(--nav-item-active-text);*/
+        font-weight: 500;
+    }
+}

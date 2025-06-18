@@ -62,10 +62,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div
-      className="min-h-screen bg-[#141f18] flex items-center justify-center text-white"
-      style={{fontFamily: "Inter, Noto Sans, sans-serif"}}
-    >
+    <div className="min-h-screen flex items-center justify-center">
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-[512px] px-6 py-10 flex flex-col"
@@ -78,7 +75,7 @@ export default function RegisterPage() {
           <input
             name="username"
             placeholder="Username"
-            className="w-full rounded-xl bg-[#2a4133] text-white placeholder:text-[#9bbfa9] h-14 p-4 text-base focus:outline-none"
+            className="input-field"
             value={form.username}
             onChange={handleChange}
           />
@@ -87,7 +84,7 @@ export default function RegisterPage() {
             name="email"
             type="email"
             placeholder="Email"
-            className="w-full rounded-xl bg-[#2a4133] text-white placeholder:text-[#9bbfa9] h-14 p-4 text-base focus:outline-none"
+            className="input-field"
             value={form.email}
             onChange={handleChange}
           />
@@ -96,7 +93,7 @@ export default function RegisterPage() {
             name="password"
             type="password"
             placeholder="Password"
-            className="w-full rounded-xl bg-[#2a4133] text-white placeholder:text-[#9bbfa9] h-14 p-4 text-base focus:outline-none"
+            className="input-field"
             value={form.password}
             onChange={handleChange}
           />
@@ -105,7 +102,7 @@ export default function RegisterPage() {
             name="passwordConfirm"
             type="password"
             placeholder="Confirm Password"
-            className="w-full rounded-xl bg-[#2a4133] text-white placeholder:text-[#9bbfa9] h-14 p-4 text-base focus:outline-none"
+            className="input-field"
             value={form.passwordConfirm}
             onChange={handleChange}
           />
@@ -115,7 +112,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-12 rounded-xl bg-[#94e0b1] text-[#141f18] font-bold tracking-wide"
+            className="btn"
           >
             {loading ? "Creating..." : "Create Account"}
           </button>

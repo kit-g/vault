@@ -3,9 +3,13 @@ import {useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import {AuthService, type Login} from "../api";
 import {useAuth} from "../features/AuthContext";
+import {ThemeSwitchButton} from "../components/ThemeSwitch.tsx";
 
 export default function LoginPage() {
-  const [form, setForm] = useState<Login>({email: "", password: ""});
+  const [form, setForm] = useState<Login>({
+    email: import.meta.env.DEV ? import.meta.env.VITE_EMAIL ?? "" : "",
+    password: import.meta.env.DEV ? import.meta.env.VITE_PASSWORD ?? "" : "",
+  });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const {login} = useAuth();
@@ -40,10 +44,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div
-      className="min-h-screen bg-[#122118] flex items-center justify-center text-white"
-      style={{fontFamily: "Inter, Noto Sans, sans-serif"}}
-    >
+    <div className="relative min-h-screen flex items-center justify-center">
+
+      <div className="absolute top-0 right-0 p-4">
+        <ThemeSwitchButton/>
+      </div>
+
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-[512px] px-6 py-10 flex flex-col"
@@ -57,7 +63,7 @@ export default function LoginPage() {
             name="email"
             type="email"
             placeholder="Email"
-            className="w-full rounded-lg bg-[#264532] text-white placeholder:text-[#96c5a8] h-14 p-4 text-base focus:outline-none"
+            className="input-field"
             value={form.email}
             onChange={handleChange}
           />
@@ -66,7 +72,7 @@ export default function LoginPage() {
             name="password"
             type="password"
             placeholder="Password"
-            className="w-full rounded-lg bg-[#264532] text-white placeholder:text-[#96c5a8] h-14 p-4 text-base focus:outline-none"
+            className="input-field"
             value={form.password}
             onChange={handleChange}
           />
@@ -77,11 +83,7 @@ export default function LoginPage() {
 
           {error && <div className="text-red-400">{error}</div>}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full h-12 rounded-lg bg-[#38e078] text-[#122118] font-bold tracking-wide"
-          >
+          <button type="submit" disabled={loading} className="btn">
             {loading ? "Signing in..." : "Sign In"}
           </button>
 
