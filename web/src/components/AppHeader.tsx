@@ -1,17 +1,22 @@
-import {useNavigate} from "react-router-dom";
-import {useAuth} from "../features/AuthContext.tsx";
-import {Menu, MenuButton, MenuItem, MenuItems} from "@headlessui/react";
-import {ThemeSwitchButton} from "./ThemeSwitch.tsx";
-import {SearchField} from "./SearchField.tsx";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../features/AuthContext.tsx";
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import { ThemeSwitchButton } from "./ThemeSwitch.tsx";
+import { SearchField } from "./SearchField.tsx";
+import { MenuIcon } from "lucide-react";
+import Logo from "./Logo.tsx";
 
-export function AppHeader() {
-  const {logout} = useAuth();
+export function AppHeader({ onMenuClick }: { onMenuClick: () => void }) {
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
   return (
     <header className="flex items-center justify-between border-b border-[var(--border)] px-10 py-3">
       <div className="flex items-center gap-4">
-        <div className="text-green-500 font-bold text-xl">🔐 Vault</div>
+        <button onClick={ onMenuClick } className="lg:hidden p-1 btn-icon flex-shrink-0">
+          <MenuIcon/>
+        </button>
+        <Logo className="hidden lg:block"/>
       </div>
 
       <div className="flex gap-8 items-center">
@@ -37,7 +42,7 @@ export function AppHeader() {
           <MenuButton className="flex items-center gap-2">
             <div
               className="rounded-full size-10 bg-cover bg-center"
-              style={{backgroundImage: "url('https://i.pravatar.cc/40')"}}
+              style={ { backgroundImage: "url('https://i.pravatar.cc/40')" } }
             />
           </MenuButton>
 
@@ -45,25 +50,25 @@ export function AppHeader() {
             className="absolute right-0 mt-2 w-40 origin-top-right bg-[var(--card-bg)] border border-[var(--border)] rounded shadow-md z-50 focus:outline-none">
             <div className="py-1">
               <MenuItem>
-                {({focus}) => (
+                { ({ focus }) => (
                   <button
-                    className={`w-full text-left px-4 py-2 ${focus ? "bg-[var(--card-hover-bg)]" : ""}`}
-                    onClick={() => navigate("/account")}
+                    className={ `w-full text-left px-4 py-2 ${ focus ? "bg-[var(--card-hover-bg)]" : "" }` }
+                    onClick={ () => navigate("/account") }
                   >
                     Account
                   </button>
-                )}
+                ) }
               </MenuItem>
               <MenuItem>
-                {({focus}) => (
+                { ({ focus }) => (
                   <button
-                    className={`w-full text-left px-4 py-2 text-red-400 ${focus ? "bg-[var(--card-hover-bg)]" : ""}`}
-                    onClick={() => {
+                    className={ `w-full text-left px-4 py-2 text-red-400 ${ focus ? "bg-[var(--card-hover-bg)]" : "" }` }
+                    onClick={ () => {
                       logout();
                       navigate("/login");
-                    }}
+                    } }
                   >Logout</button>
-                )}
+                ) }
               </MenuItem>
             </div>
           </MenuItems>
