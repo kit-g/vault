@@ -9,6 +9,10 @@ import {PrivateRoute} from "./routes/Private.tsx";
 import {PublicRoute} from "./routes/Public.tsx";
 import {PageTransition} from "./components/PageTransition.tsx";
 import {NoteCardGrid} from "./components/NoteCardGrid.tsx";
+import SharedWithMePage from "./pages/SharedWithMePage.tsx";
+import AttachmentsPage from "./pages/AttachmentsPage.tsx";
+import BinPage from "./pages/BinPage.tsx";
+import SettingsPage from "./pages/SettingsPage.tsx";
 
 const router = createBrowserRouter([
     {
@@ -35,7 +39,47 @@ const router = createBrowserRouter([
               </PageTransition>
             </PrivateRoute>
           ),
-        }
+        },
+        {
+          path: "/shared",
+          element: (
+            <PrivateRoute>
+              <PageTransition>
+                <SharedWithMePage/>
+              </PageTransition>
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: "/attachments",
+          element: (
+            <PrivateRoute>
+              <PageTransition>
+                <AttachmentsPage/>
+              </PageTransition>
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: "/trash",
+          element: (
+            <PrivateRoute>
+              <PageTransition>
+                <BinPage/>
+              </PageTransition>
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: "/settings",
+          element: (
+            <PrivateRoute>
+              <PageTransition>
+                <SettingsPage/>
+              </PageTransition>
+            </PrivateRoute>
+          ),
+        },
       ],
     },
     {

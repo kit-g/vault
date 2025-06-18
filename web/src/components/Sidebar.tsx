@@ -12,16 +12,20 @@ export function Sidebar() {
   return (
     <aside className="w-80 p-4 flex flex-col justify-between border-r border-[var(--border)]">
       <div className="flex flex-col gap-2">
-        {navItems.map(({label, path, icon}) => (
-          <NavLink
-            key={label}
-            to={path}
-            className={({isActive}) => `nav-item ${isActive ? "active" : ""} hover-elevate`}
-          >
-            {icon}
-            <p className="text-sm font-medium">{label}</p>
-          </NavLink>
-        ))}
+        {
+          navItems.map(
+            ({label, path, icon}) => (
+              <NavLink
+                key={label}
+                to={path}
+                className={({isActive}) => `nav-item ${isActive ? "active" : ""} hover-elevate`}
+              >
+                {icon}
+                <p className="text-sm font-medium">{label}</p>
+              </NavLink>
+            )
+          )
+        }
       </div>
 
       <div className="flex flex-col gap-4">
@@ -30,10 +34,14 @@ export function Sidebar() {
           New Note
         </button>
 
-        <div className="nav-item hover-elevate">
+        <NavLink
+          key='Settings'
+          to={"/settings"}
+          className={({isActive}) => `nav-item ${isActive ? "active" : ""} hover-elevate`}
+        >
           <Settings size={20}/>
           <p className="text-sm font-medium">Settings</p>
-        </div>
+        </NavLink>
       </div>
     </aside>
   );
