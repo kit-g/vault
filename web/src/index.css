@@ -26,6 +26,14 @@
     --card-hover-bg: #f5f5f5;
     --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     --card-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+    /*--nav-bg: #2a4133;*/
+
+    --nav-bg: var(--border);
+    --nav-text: var(--foreground);
+    --nav-hover-bg: rgba(0, 0, 0, 0.05);
+    --nav-active-bg: #cce8d6; /* A light, muted green for active state */
+    --nav-active-text: var(--foreground);
 }
 
 /*
@@ -49,6 +57,12 @@
     --card-hover-bg: #27352d;
     --card-shadow: none;
     --card-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+    --nav-bg: #2a4133;
+    --nav-text: var(--foreground);
+    --nav-hover-bg: rgba(255, 255, 255, 0.05);
+    --nav-active-bg: #3a5a40; /* A slightly lighter green for dark active state */
+    --nav-active-text: var(--foreground);
 }
 
 body {
@@ -194,17 +208,19 @@ body {
 /* Cards */
 @layer components {
     .note-card {
-        @apply h-40 p-4 rounded-lg cursor-pointer
-        flex flex-col justify-between
-        transition-all duration-200 ease-in-out;
+        @apply p-4 rounded-lg cursor-pointer h-40
+        flex flex-col justify-between;
+
         background-color: var(--card-bg);
         box-shadow: var(--card-shadow);
+
+        /* The base transition has been moved to .hover-elevate */
+        @apply transition-colors duration-200;
     }
 
     .note-card:hover {
+        /* The transform and box-shadow are now handled by .hover-elevate */
         background-color: var(--card-hover-bg);
-        box-shadow: var(--card-hover-shadow);
-        @apply -translate-y-1 scale-[1.01];
     }
 
     .text-card-foreground {
@@ -213,5 +229,32 @@ body {
 
     .text-card-muted-foreground {
         color: var(--card-muted-text);
+    }
+}
+
+.hover-elevate {
+    @apply transition-all duration-200 ease-in-out;
+}
+
+.hover-elevate:hover {
+    @apply -translate-y-1 scale-[1.01];
+    box-shadow: var(--card-hover-shadow);
+}
+
+@layer components {
+    .nav-item {
+        @apply flex items-center gap-3 px-3 py-2 rounded-full cursor-pointer transition-colors duration-200;
+        background-color: var(--nav-bg);
+        color: var(--foreground);
+    }
+
+    .nav-item:hover {
+        background-color: var(--nav-hover-bg);
+    }
+
+    .nav-item.active {
+        background-color: var(--nav-active-bg);
+        /*color: var(--nav-item-active-text);*/
+        font-weight: 500;
     }
 }

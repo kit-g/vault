@@ -109,12 +109,21 @@ export function DashboardLayout({children}: { children: React.ReactNode }) {
         {/* Sidebar */}
         <aside className="w-80 p-4 flex flex-col justify-between border-r border-[#2a4133]">
           <div className="flex flex-col gap-2">
-            {["Notes", "Shared with Me", "Attachments", "Trash"].map((label) => (
-              <div key={label} className="flex items-center gap-3 px-3 py-2 rounded-full bg-[#2a4133]">
-                <div className="w-5 h-5 bg-white rounded-full"/>
-                <p className="text-sm font-medium">{label}</p>
-              </div>
-            ))}
+            {
+              [
+                "Notes",
+                "Shared with Me",
+                "Attachments",
+                "Trash"
+              ].map(
+                (label) => (
+                  <div key={label} className="nav-item hover-elevate">
+                    <div className="w-5 h-5 bg-white rounded-full"/>
+                    <p className="text-sm font-medium">{label}</p>
+                  </div>
+                )
+              )
+            }
           </div>
 
           <div className="flex flex-col gap-4">

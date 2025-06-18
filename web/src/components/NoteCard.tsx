@@ -7,9 +7,8 @@ interface NoteCardProps {
 
 
 export function NoteCard({note, onClick}: NoteCardProps) {
-
   return (
-    <div onClick={onClick} className="note-card">
+    <div onClick={onClick} className="note-card hover-elevate">
       <div>
         <h3 className="font-semibold text-card-foreground">
           {note.title || "Untitled"}
