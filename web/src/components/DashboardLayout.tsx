@@ -2,6 +2,7 @@ import {useEffect, useRef, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {useAuth} from "../features/AuthContext.tsx";
 import {Menu, MenuButton, MenuItem, MenuItems} from "@headlessui/react";
+import {ThemeSwitchButton} from "./ThemeSwitch.tsx";
 
 export function DashboardLayout({children}: { children: React.ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -28,7 +29,7 @@ export function DashboardLayout({children}: { children: React.ReactNode }) {
   }, [menuOpen]);
 
   return (
-    <div className="min-h-screen bg-[#141f18] text-white flex flex-col">
+    <div className="min-h-screen flex flex-col">
       <header className="flex items-center justify-between border-b border-[#2a4133] px-10 py-3">
         {/* Header */}
         <div className="flex items-center gap-4">
@@ -50,11 +51,12 @@ export function DashboardLayout({children}: { children: React.ReactNode }) {
             />
           </div>
 
+          <ThemeSwitchButton/>
           <Menu as="div" className="relative inline-block text-left">
             <MenuButton className="flex items-center gap-2">
               <div
                 className="rounded-full size-10 bg-cover bg-center bg-no-repeat cursor-pointer"
-                style={{ backgroundImage: "url('https://i.pravatar.cc/40')" }}
+                style={{backgroundImage: "url('https://i.pravatar.cc/40')"}}
               />
               <svg
                 className="w-4 h-4 text-gray-400"
@@ -63,14 +65,15 @@ export function DashboardLayout({children}: { children: React.ReactNode }) {
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/>
               </svg>
             </MenuButton>
 
-            <MenuItems className="absolute right-0 mt-2 w-40 origin-top-right bg-[#1d2b24] border border-[#2a4133] rounded shadow-md z-50 focus:outline-none">
+            <MenuItems
+              className="absolute right-0 mt-2 w-40 origin-top-right bg-[#1d2b24] border border-[#2a4133] rounded shadow-md z-50 focus:outline-none">
               <div className="py-1">
                 <MenuItem>
-                  {({ focus }) => (
+                  {({focus}) => (
                     <button
                       className={`w-full text-left px-4 py-2 ${focus ? "bg-[#27352d]" : ""}`}
                       onClick={() => navigate("/account")}
@@ -80,7 +83,7 @@ export function DashboardLayout({children}: { children: React.ReactNode }) {
                   )}
                 </MenuItem>
                 <MenuItem>
-                  {({ focus }) => (
+                  {({focus}) => (
                     <button
                       className={`w-full text-left px-4 py-2 text-red-400 ${focus ? "bg-[#27352d]" : ""}`}
                       onClick={() => {

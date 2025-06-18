@@ -6,19 +6,22 @@ import {AuthProvider} from "./features/AuthContext.tsx";
 import {PrivateRoute} from "./routes/Private.tsx";
 import {PublicRoute} from "./routes/Public.tsx";
 import RegisterPage from "./pages/RegisterPage.tsx";
+import {ThemeProvider} from "./features/ThemeContext.tsx";
 
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<PrivateRoute><Dashboard/></PrivateRoute>}/>
-          <Route path="/note/:id" element={<PrivateRoute><NoteDetail/></PrivateRoute>}/>
-          <Route path="/login" element={<PublicRoute><LoginPage/></PublicRoute>}/>
-          <Route path="/register" element={<PublicRoute><RegisterPage/></PublicRoute>}/>
-          <Route path="*" element={<Navigate to="/" replace/>}/>
-        </Routes>
-      </BrowserRouter>
+      <ThemeProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<PrivateRoute><Dashboard/></PrivateRoute>}/>
+            <Route path="/note/:id" element={<PrivateRoute><NoteDetail/></PrivateRoute>}/>
+            <Route path="/login" element={<PublicRoute><LoginPage/></PublicRoute>}/>
+            <Route path="/register" element={<PublicRoute><RegisterPage/></PublicRoute>}/>
+            <Route path="*" element={<Navigate to="/" replace/>}/>
+          </Routes>
+        </BrowserRouter>
+      </ThemeProvider>
     </AuthProvider>
   );
 }
