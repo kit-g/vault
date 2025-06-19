@@ -12,12 +12,12 @@ type UserOut struct {
 	ID       uuid.UUID `json:"id" example:"123e4567-e89b-12d3-a456-426614174000"`
 	Email    string    `json:"email" example:"jane@mail.com"`
 	Username string    `json:"username" example:"jane_doe"`
-} //@name UserOut
+} // @name UserOut
 
 type Session struct {
 	Token   string `json:"token"`
 	Refresh string `json:"refresh"`
-} //@name Session
+} // @name Session
 
 type Login struct {
 	Email    string `json:"email" binding:"required,email" example:"jane@mail.com"`
@@ -27,7 +27,7 @@ type Login struct {
 type LoginOut struct {
 	Session Session `json:"session"`
 	User    UserOut `json:"user"`
-} //@name LoginOut
+} // @name LoginOut
 
 func NewSession(token string, refresh string) Session {
 	return Session{
