@@ -23,6 +23,10 @@ const router = createBrowserRouter([
           element: <PageTransition><NoteCardGrid/></PageTransition>,
         },
         {
+          path: "/notes/new",
+          element: <PageTransition><NoteDetail/></PageTransition>,
+        },
+        {
           path: "/notes/:id",
           element: <PageTransition><NoteDetail/></PageTransition>,
         },

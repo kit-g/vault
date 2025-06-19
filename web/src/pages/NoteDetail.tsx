@@ -1,35 +1,74 @@
-import { useParams } from "react-router-dom";
-import { Seo } from "../components/Seo.tsx";
+import * as React from "react";
 import { useEffect, useState } from "react";
-import { type NoteOut, NotesService } from "../api";
+import { useNavigate, useParams } from "react-router-dom";
+import { type NoteIn, NotesService } from "../api";
+import { Seo } from "../components/Seo";
+import { RichTextEditor } from "../components/RichTextEditor.tsx";
 
 export default function NoteDetail() {
-  const [note, setNote] = useState<NoteOut | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { id } = useParams();
+  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const isNewNote = !id;
+
+  const [note, setNote] = useState<NoteIn>({ title: '', content: '' });
+  const [loading, setLoading] = useState(!isNewNote); // Only load if we are editing
 
   useEffect(() => {
-    if (id != null) {
+    // If this is an existing note, fetch its data
+    if (id) {
       NotesService.getNote(id)
-        .then(setNote)
-        .catch(() => setError("Failed to load note"))
+        .then((note) => {
+          setNote({ title: note.title!, content: note.content || '' });
+        })
+        .catch(err => console.error("Failed to fetch note", err))
         .finally(() => setLoading(false));
     }
   }, [id]);
 
-  if (loading) return <div className="p-4 text-white">Loading...</div>;
-  if (error) return <div className="p-4 text-red-500">{ error }</div>;
+  const toNotes = () => navigate("/", { replace: true });
+
+  const handleSave = () => {
+    if (isNewNote) {
+      NotesService.createNote(note)
+        .then(() => toNotes())
+        .catch(err => console.error("Failed to create note", err));
+    } else {
+      NotesService.editNote(id!, note)
+        .then(() => toNotes())
+        .catch(err => console.error("Failed to update note", err));
+    }
+  };
+
+  const handleContentChange = (htmlContent: string) => {
+    setNote(prev => ({ ...prev, content: htmlContent }));
+  };
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNote(prev => ({ ...prev, title: e.target.value }));
+  };
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <>
-      <Seo
-        title={ note?.title || "Note Detail" }
-        description={ note?.content?.substring(0, 150) || "Viewing note details." }
-      />
-      <div>
-        <h1>{ note?.title || "" }</h1>
-        <p>{ note?.content }</p>
+      <Seo title={ isNewNote ? "New Note" : note.title }/>
+      <div className="flex w-full h-full p-6 gap-6">
+        <div className="flex-1 flex flex-col gap-4">
+          <input
+            name="title"
+            placeholder="Note Title"
+            value={ note.title }
+            onChange={ handleTitleChange }
+            className="w-full h-14 p-4 text-2xl font-bold bg-transparent focus:outline-none"
+          />
+          <RichTextEditor
+            content={ note.content }
+            onChange={ handleContentChange }
+          />
+          <button onClick={ handleSave } className="btn self-start">
+            { isNewNote ? 'Create Note' : 'Save Changes' }
+          </button>
+        </div>
       </div>
     </>
   );
