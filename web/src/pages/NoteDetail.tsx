@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { type NoteIn, NotesService } from "../api";
 import { Seo } from "../components/Seo";
-import { RichTextEditor } from "../components/RichTextEditor.tsx";
+import { RichTextEditor } from "../components/editor/RichTextEditor.tsx";
 
 export default function NoteDetail() {
   const navigate = useNavigate();
@@ -52,12 +52,15 @@ export default function NoteDetail() {
   return (
     <>
       <Seo title={ isNewNote ? "New Note" : note.title }/>
-      <div className="flex w-full h-full p-6 gap-6">
-        <div className="flex-1 flex flex-col gap-4">
+
+      <div className="flex flex-1">
+
+        <div className="flex-1 flex flex-col p-6 gap-4">
           <input
             name="title"
             placeholder="Note Title"
             value={ note.title }
+            maxLength={ 120 }
             onChange={ handleTitleChange }
             className="w-full h-14 p-4 text-2xl font-bold bg-transparent focus:outline-none"
           />
@@ -69,6 +72,12 @@ export default function NoteDetail() {
             { isNewNote ? 'Create Note' : 'Save Changes' }
           </button>
         </div>
+
+        <aside className="w-80 border-l border-[var(--border)] p-4 hidden xl:block">
+          <h3 className="font-bold">Attachments</h3>
+          {/* ... Your attachments UI will go here ... */ }
+        </aside>
+
       </div>
     </>
   );

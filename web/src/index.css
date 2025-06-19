@@ -1,4 +1,5 @@
 @import "tailwindcss";
+
 @plugin "@tailwindcss/typography";
 
 /*
@@ -251,7 +252,19 @@ body {
 
     .nav-item.active {
         background-color: var(--nav-active-bg);
-        /*color: var(--nav-item-active-text);*/
         font-weight: 500;
     }
+}
+
+.toolbar-btn {
+    @apply p-1.5 rounded-md transition-colors duration-150;
+}
+
+.toolbar-btn:hover {
+    background-color: var(--icon-btn-hover-bg);
+}
+
+.toolbar-btn.is-active {
+    background-color: var(--nav-bg, #e8f2ec);
+    color: var(--primary-foreground, #94e0b1);
 }

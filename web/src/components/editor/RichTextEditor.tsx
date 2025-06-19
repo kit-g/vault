@@ -1,6 +1,6 @@
-// src/components/RichTextEditor.tsx
 import { EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import { PersistentToolbar } from "./PersistentToolbar.tsx";
 
 interface RichTextEditorProps {
   content: string;
@@ -13,7 +13,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
     content: content,
     editorProps: {
       attributes: {
-        class: 'prose prose-stone dark:prose-invert focus:outline-none max-w-none',
+        class: 'prose dark:prose-invert focus:outline-none max-w-none p-4 min-h-[40vh]',
       },
     },
     onUpdate: ({ editor }) => {
@@ -22,7 +22,8 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
   });
 
   return (
-    <div className="w-full p-4 border rounded-xl" style={ { borderColor: 'var(--border)' } }>
+    <div className="relative border rounded-xl border-[var(--border)] bg-[var(--background)]">
+      <PersistentToolbar editor={ editor }/>
       <EditorContent editor={ editor }/>
     </div>
   );

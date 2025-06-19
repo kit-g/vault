@@ -7,7 +7,7 @@ export function Dashboard() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--background)] text-[var(--foreground)]">
+    <div className="h-screen flex flex-col bg-[var(--background)] text-[var(--foreground)]">
       <AppHeader onMenuClick={ () => setSidebarOpen(true) }/>
       <div className="flex flex-1 overflow-hidden">
         <Sidebar className="hidden lg:flex"/>
