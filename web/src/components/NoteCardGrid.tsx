@@ -35,7 +35,7 @@ export function NoteCardGrid() {
             <NoteCard
               key={ note.id }
               note={ note }
-              onClick={ () => navigate(`/note/${ note.id }`) }
+              onClick={ () => navigate(`/notes/${ note.id }`) }
             />
           )
         )

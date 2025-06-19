@@ -1,20 +1,24 @@
-import * as React from "react";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
 
-type AuthContextType = {
+interface AuthContextType {
   token: string | null;
+  isLoading: boolean;
   login: (token: string) => void;
   logout: () => void;
-};
+}
 
-const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem("access_token");
-    if (stored) setToken(stored);
+    const storedToken = localStorage.getItem('access_token');
+    if (storedToken) {
+      setToken(storedToken);
+    }
+    setIsLoading(false);
   }, []);
 
   const login = (newToken: string) => {
@@ -27,11 +31,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setToken(null);
   };
 
+  const value = { token, isLoading, login, logout };
+
   return (
-    <AuthContext.Provider value={ { token, login, logout } }>
+    <AuthContext.Provider value={ value }>
       { children }
     </AuthContext.Provider>
   );
-};
+}
 
 export const useAuth = () => useContext(AuthContext)!;

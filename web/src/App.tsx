@@ -23,24 +23,24 @@ const router = createBrowserRouter([
           element: <PageTransition><NoteCardGrid/></PageTransition>,
         },
         {
-          path: "/note/:id",
-          element: <PrivateRoute><PageTransition><NoteDetail/></PageTransition></PrivateRoute>,
+          path: "/notes/:id",
+          element: <PageTransition><NoteDetail/></PageTransition>,
         },
         {
           path: "/shared",
-          element: <PrivateRoute><PageTransition><SharedWithMePage/></PageTransition></PrivateRoute>,
+          element: <PageTransition><SharedWithMePage/></PageTransition>,
         },
         {
           path: "/attachments",
-          element: <PrivateRoute><PageTransition><AttachmentsPage/></PageTransition></PrivateRoute>,
+          element: <PageTransition><AttachmentsPage/></PageTransition>,
         },
         {
           path: "/trash",
-          element: <PrivateRoute><PageTransition><BinPage/></PageTransition></PrivateRoute>,
+          element: <PageTransition><BinPage/></PageTransition>,
         },
         {
           path: "/settings",
-          element: <PrivateRoute><PageTransition><SettingsPage/></PageTransition></PrivateRoute>,
+          element: <PageTransition><SettingsPage/></PageTransition>,
         },
       ],
     },

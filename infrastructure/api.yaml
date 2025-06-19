@@ -57,7 +57,7 @@ Resources:
       BuildMethod: makefile
     Properties:
       CodeUri: ../api/ # where Makefile is
-      Description: "Part of Vault: API app in Go"
+      Description: "Part of Vault: API app"
       Runtime: provided.al2023
       Handler: bootstrap
       Architectures:
@@ -139,7 +139,7 @@ Resources:
       BuildMethod: makefile
     Properties:
       CodeUri: ../api/
-      Description: "Handles S3 object-created events"
+      Description: "Part of Vault: handles S3 object-created events"
       Runtime: provided.al2023
       Handler: bootstrap
       FunctionName: "vault-ingest"
