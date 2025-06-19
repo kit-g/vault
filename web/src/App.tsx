@@ -13,7 +13,6 @@ import SharedWithMePage from "./pages/SharedWithMePage.tsx";
 import AttachmentsPage from "./pages/AttachmentsPage.tsx";
 import BinPage from "./pages/BinPage.tsx";
 import SettingsPage from "./pages/SettingsPage.tsx";
-import { HelmetProvider } from "react-helmet-async";
 
 const router = createBrowserRouter([
     {
@@ -60,9 +59,7 @@ function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <HelmetProvider>
-          <RouterProvider router={ router }/>
-        </HelmetProvider>
+        <RouterProvider router={ router }/>
       </ThemeProvider>
     </AuthProvider>
   );

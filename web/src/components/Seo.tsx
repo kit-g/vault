@@ -1,5 +1,3 @@
-import { Helmet } from 'react-helmet-async';
-
 interface SeoProps {
   title?: string;
   description?: string;
@@ -19,23 +17,21 @@ export function Seo({ title, description, imageUrl, favicon }: SeoProps) {
   const pageFavicon = favicon || DEFAULT_FAVICON;
 
   return (
-    <Helmet>
+    <>
       <title>{ pageTitle }</title>
       <meta name="description" content={ pageDescription }/>
       <link rel="icon" href={ pageFavicon }/>
 
-      {/* --- Open Graph (OG) Tags for Social Media --- */ }
       <meta property="og:title" content={ pageTitle }/>
       <meta property="og:description" content={ pageDescription }/>
       <meta property="og:image" content={ pageImageUrl }/>
       <meta property="og:type" content="website"/>
       <meta property="og:url" content={ window.location.href }/>
 
-      {/* --- Twitter Card Tags --- */ }
       <meta name="twitter:card" content="summary_large_image"/>
       <meta name="twitter:title" content={ pageTitle }/>
       <meta name="twitter:description" content={ pageDescription }/>
       <meta name="twitter:image" content={ pageImageUrl }/>
-    </Helmet>
+    </>
   );
 }
