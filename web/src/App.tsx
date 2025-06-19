@@ -4,7 +4,7 @@ import { ThemeProvider } from "./features/ThemeContext.tsx";
 import LoginPage from "./pages/LoginPage.tsx";
 import NoteDetail from "./pages/NoteDetail.tsx";
 import RegisterPage from "./pages/RegisterPage.tsx";
-import { DashboardLayout } from "./components/DashboardLayout.tsx";
+import { Dashboard } from "./components/Dashboard.tsx";
 import { PrivateRoute } from "./routes/Private.tsx";
 import { PublicRoute } from "./routes/Public.tsx";
 import { PageTransition } from "./components/PageTransition.tsx";
@@ -13,10 +13,11 @@ import SharedWithMePage from "./pages/SharedWithMePage.tsx";
 import AttachmentsPage from "./pages/AttachmentsPage.tsx";
 import BinPage from "./pages/BinPage.tsx";
 import SettingsPage from "./pages/SettingsPage.tsx";
+import { HelmetProvider } from "react-helmet-async";
 
 const router = createBrowserRouter([
     {
-      element: <PrivateRoute><DashboardLayout/></PrivateRoute>,
+      element: <PrivateRoute><Dashboard/></PrivateRoute>,
       children: [
         {
           path: "/",
@@ -59,7 +60,9 @@ function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <RouterProvider router={ router }/>
+        <HelmetProvider>
+          <RouterProvider router={ router }/>
+        </HelmetProvider>
       </ThemeProvider>
     </AuthProvider>
   );

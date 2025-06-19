@@ -3,7 +3,7 @@ import { Outlet } from "react-router-dom";
 import { AppHeader } from "./AppHeader";
 import { Sidebar } from "./Sidebar";
 
-export function DashboardLayout() {
+export function Dashboard() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -16,7 +16,6 @@ export function DashboardLayout() {
           <Outlet/>
         </main>
       </div>
-
       <Sidebar
         isDrawer={ true }
         isOpen={ isSidebarOpen }
