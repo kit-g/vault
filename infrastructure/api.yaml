@@ -22,6 +22,12 @@ Parameters:
     Type: String
     Description: "CORS origin for the API"
     Default: "*"
+  ApiDomainName:
+    Type: String
+    Description: "Custom domain name for the API"
+  ApiCertificateArn:
+    Type: String
+    Description: "ACM certificate ARN for the API domain"
 
 Resources:
   AttachmentBucket:
@@ -86,6 +92,7 @@ Resources:
     Properties:
       Name: vault-api
       Description: "Vault REST API"
+      DisableExecuteApiEndpoint: true
       EndpointConfiguration:
         Types:
           - REGIONAL
@@ -133,6 +140,23 @@ Resources:
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${VaultApi}/*/*/*"
 
+  CustomDomainName:
+    Type: AWS::ApiGateway::DomainName
+    Properties:
+      DomainName: !Ref ApiDomainName
+      RegionalCertificateArn: !Ref ApiCertificateArn
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+
+  ApiBasePathMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    DependsOn: VaultApiStage
+    Properties:
+      DomainName: !Ref ApiDomainName
+      RestApiId: !Ref VaultApi
+      Stage: !Ref VaultApiStage
+
   VaultIngestFunction:
     Type: AWS::Serverless::Function
     Metadata:
@@ -169,6 +193,11 @@ Outputs:
     Value: !Sub "https://${VaultApi}.execute-api.${AWS::Region}.amazonaws.com/${VaultApiStage}/"
     Export:
       Name: "vault-api-url"
+  VaultApiCustomDomainUrl:
+    Description: "Custom domain URL of the Vault API"
+    Value: !Sub "https://${ApiDomainName}/"
+    Export:
+      Name: "vault-api-custom-domain-url"
   AttachmentBucket:
     Description: "S3 bucket for attachments"
     Value: !Ref AttachmentBucket

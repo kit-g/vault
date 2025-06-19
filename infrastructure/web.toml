@@ -11,5 +11,11 @@ confirm_changeset = true
 capabilities = "CAPABILITY_IAM CAPABILITY_NAMED_IAM"
 parameter_overrides = """
     Environment=\"dev\"
+    DomainName=\"vault.awry.me\"
+    AcmCertificateArn=\"arn:aws:acm:us-east-1:583168578067:certificate/22429f0f-1f56-4842-b560-56d159145eca\"
 """
 image_repositories = []
+tags = """
+    application=\"vault-web\"
+    AppManagerCFNStackKey=\"vault-web\"
+"""

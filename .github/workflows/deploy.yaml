@@ -36,7 +36,7 @@ jobs:
       DISTRIBUTION_ID: "E2EKJGBU83AOIP"
       HOSTING_BUCKET: "583168578067-vault-web"
       WORKING_DIRECTORY: "./web"
-      VITE_API_URL: "https://vhpe6wcw73.execute-api.ca-central-1.amazonaws.com/v1"
+      VITE_API_URL: "https://dev.api.vault.awry.me"
 
     steps:
       - uses: actions/checkout@v3
