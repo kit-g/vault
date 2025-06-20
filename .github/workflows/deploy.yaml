@@ -56,7 +56,7 @@ jobs:
           aws lambda update-function-code \
             --function-name ${{ env.FUNCTION_NAME }} \
             --zip-file fileb://api/function.zip \
-            --region ${{ env.AWS_REGION }}
+            --region ${{ env.AWS_REGION }} > /dev/null
 
   web-deploy:
     name: Deploy Web App
