@@ -5,9 +5,10 @@ import { PersistentToolbar } from "./PersistentToolbar.tsx";
 interface RichTextEditorProps {
   content: string;
   onChange: (htmlContent: string) => void;
+  status?: 'idle' | 'saving' | 'saved' | 'error';
 }
 
-export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
+export function RichTextEditor({ content, onChange, status }: RichTextEditorProps) {
   const editor = useEditor({
     extensions: [StarterKit],
     content: content,
@@ -23,7 +24,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
 
   return (
     <div className="relative border rounded-xl border-[var(--border)] bg-[var(--background)]">
-      <PersistentToolbar editor={ editor }/>
+      <PersistentToolbar editor={ editor } status={ status }/>
       <EditorContent editor={ editor }/>
     </div>
   );

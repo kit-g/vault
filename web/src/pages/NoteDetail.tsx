@@ -4,9 +4,7 @@ import { type NoteIn, NotesService } from "../api";
 import { Seo } from "../components/Seo";
 import { RichTextEditor } from "../components/editor/RichTextEditor.tsx";
 import { useDebounce } from "use-debounce";
-import { SaveStatusIndicator } from "../components/editor/SaveStatusIndicator.tsx";
-
-type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
+import { type SaveStatus } from "../components/editor/SaveStatusIndicator.tsx";
 
 export default function NoteDetail() {
   const navigate = useNavigate();
@@ -50,7 +48,7 @@ export default function NoteDetail() {
           }
         );
 
-      } else { // This is an existing note
+      } else { // this is an existing note
         await NotesService.editNote(noteId, note);
       }
       setSaveStatus('saved');
@@ -93,11 +91,11 @@ export default function NoteDetail() {
               onChange={ (e) => handleChange('title', e.target.value) }
               className="w-full h-14 text-2xl bg-transparent focus:outline-none"
             />
-            <SaveStatusIndicator status={ saveStatus }/>
           </div>
           <RichTextEditor
             content={ note.content }
             onChange={ (htmlContent) => handleChange('content', htmlContent) }
+            status={ saveStatus }
           />
           <button onClick={ handleSave } className="btn self-start">
             { isNewNote ? 'Create Note' : 'Save Changes' }

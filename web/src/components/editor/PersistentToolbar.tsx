@@ -11,8 +11,14 @@ import {
   ListOrdered,
   Strikethrough
 } from 'lucide-react';
+import { type SaveStatus, SaveStatusIndicator } from "./SaveStatusIndicator.tsx";
 
-export function PersistentToolbar({ editor }: { editor: Editor | null }) {
+type PersistentToolbarProps = {
+  editor: Editor | null;
+  status?: SaveStatus;
+}
+
+export function PersistentToolbar({ editor, status }: PersistentToolbarProps) {
   if (!editor) return null;
 
   return (
@@ -77,6 +83,12 @@ export function PersistentToolbar({ editor }: { editor: Editor | null }) {
       >
         <ListOrdered size={ 18 }/>
       </button>
+
+      <div className="flex-grow"/>
+
+      <div className="pr-2">
+        <SaveStatusIndicator status={ status }/>
+      </div>
     </div>
   );
 }
