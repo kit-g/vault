@@ -268,3 +268,17 @@ body {
     background-color: var(--nav-bg, #e8f2ec);
     color: var(--primary-foreground, #94e0b1);
 }
+
+/* Rich text editor styles */
+html.dark .tiptap h1,
+html.dark .tiptap h2,
+html.dark .tiptap h3,
+html.dark .tiptap h4,
+html.dark .tiptap p,
+html.dark .tiptap strong,
+html.dark .tiptap em,
+html.dark .tiptap li,
+html.dark .tiptap li::marker,
+html.dark .tiptap blockquote {
+    color: var(--foreground);
+}

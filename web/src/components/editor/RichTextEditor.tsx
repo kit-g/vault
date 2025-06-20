@@ -13,7 +13,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
     content: content,
     editorProps: {
       attributes: {
-        class: 'prose dark:prose-invert focus:outline-none max-w-none p-4 min-h-[40vh]',
+        class: 'prose focus:outline-none max-w-none p-4 min-h-[40vh]',
       },
     },
     onUpdate: ({ editor }) => {
