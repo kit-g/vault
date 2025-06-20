@@ -365,6 +365,44 @@ func GetDeletedNotes(c *gin.Context, userID uuid.UUID) (any, error) {
 	return out, nil
 }
 
+// RestoreNote godoc
+//
+//	@Summary		Restore a deleted note
+//	@Description	Restores a soft-deleted note owned by the authenticated user
+//	@Tags			notes
+//	@ID				restoreNote
+//	@Param			noteId	path		string	true	"Note ID"
+//	@Success		204		"No Content"
+//	@Failure		400		{object}	ErrorResponse
+//	@Failure		401		{object}	ErrorResponse
+//	@Failure		404		{object}	ErrorResponse
+//	@Failure		500		{object}	ErrorResponse
+//	@Router			/notes/{noteId}/restore [post]
+//	@Security		BearerAuth
+func RestoreNote(c *gin.Context, userID uuid.UUID) (any, error) {
+	noteIDStr := c.Param("noteId")
+	noteID, err := uuid.Parse(noteIDStr)
+	if err != nil {
+		return nil, errors.NewValidationError(fmt.Errorf("invalid note ID: %w", err))
+	}
+
+	var note models.Note
+	if err := db.DB.Unscoped().
+		Where("id = ? AND user_id = ? AND deleted_at IS NOT NULL", noteID, userID).
+		First(&note).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.NewNotFoundError("Note not found", err)
+		}
+		return nil, errors.NewServerError(err)
+	}
+
+	if err := db.DB.Model(&note).Unscoped().Update("deleted_at", nil).Error; err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	return models.NewNoteOut(&note), nil
+}
+
 // DeleteAttachment godoc
 //
 //	@Summary	Delete an attachment

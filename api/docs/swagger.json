@@ -1038,6 +1038,77 @@
                 ]
             }
         },
+        "/notes/{noteId}/restore": {
+            "post": {
+                "description": "Restores a soft-deleted note owned by the authenticated user",
+                "operationId": "restoreNote",
+                "parameters": [
+                    {
+                        "description": "Note ID",
+                        "in": "path",
+                        "name": "noteId",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal Server Error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "summary": "Restore a deleted note",
+                "tags": [
+                    "notes"
+                ]
+            }
+        },
         "/notes/{noteId}/share": {
             "post": {
                 "description": "Allows the authenticated user to share a note they own with another user, specifying read or write permissions.",
