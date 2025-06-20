@@ -8,11 +8,12 @@ import { Dashboard } from "./pages/Dashboard.tsx";
 import { PrivateRoute } from "./routes/Private.tsx";
 import { PublicRoute } from "./routes/Public.tsx";
 import { PageTransition } from "./components/PageTransition.tsx";
-import { NoteCardGrid } from "./pages/NoteCardGrid.tsx";
 import SharedWithMePage from "./pages/SharedWithMePage.tsx";
 import AttachmentsPage from "./pages/AttachmentsPage.tsx";
 import BinPage from "./pages/BinPage.tsx";
 import SettingsPage from "./pages/SettingsPage.tsx";
+import MyNotes from "./pages/MyNotes.tsx";
+
 
 const router = createBrowserRouter([
     {
@@ -20,7 +21,7 @@ const router = createBrowserRouter([
       children: [
         {
           path: "/",
-          element: <PageTransition><NoteCardGrid/></PageTransition>,
+          element: <PageTransition><MyNotes/></PageTransition>,
         },
         {
           path: "/notes/new",

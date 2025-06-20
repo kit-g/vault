@@ -198,6 +198,7 @@ func EditNote(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@Produce		json
 //	@ID				deleteNote
 //	@Param			noteId	path	string	true	"Note ID"
+//	@Param			hard	query	boolean	false	"Hard delete flag" default(false)
 //	@Success		204		"No Content"
 //	@Failure		400		{object}	ErrorResponse
 //	@Failure		401		{object}	ErrorResponse
@@ -213,16 +214,23 @@ func DeleteNote(c *gin.Context, userID uuid.UUID) (any, error) {
 		return nil, errors.NewValidationError(fmt.Errorf("invalid note ID: %w", err))
 	}
 
+	hard, _ := strconv.ParseBool(c.DefaultQuery("hard", "false"))
+
+	tx := db.DB
+	if hard {
+		tx = tx.Unscoped()
+	}
+
 	// Find the note
 	var note models.Note
-	if err := db.DB.Where("id = ? AND user_id = ?", noteID, userID).First(&note).Error; err != nil {
+	if err := tx.Where("id = ? AND user_id = ?", noteID, userID).First(&note).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NewNotFoundError("Note not found", err)
 		}
 		return nil, errors.NewServerError(err)
 	}
 
-	if err := db.DB.Delete(&note).Error; err != nil {
+	if err := tx.Delete(&note).Error; err != nil {
 		return nil, errors.NewServerError(err)
 	}
 
@@ -323,6 +331,84 @@ func GetDownloadURL(c *gin.Context, _ uuid.UUID) (any, error) {
 	}
 
 	return models.PresignDownloadResponse{URL: url}, nil
+}
+
+// GetDeletedNotes godoc
+//
+//	@Summary		List deleted notes
+//	@Description	Returns paginated soft-deleted notes for the authenticated user
+//	@Tags			notes
+//	@Accept			json
+//	@Produce		json
+//	@ID				getDeletedNotes
+//	@Param			page	query		int	false	"Page number"		default(1)
+//	@Param			limit	query		int	false	"Items per page"	default(10)
+//	@Success		200		{array}		NoteOut
+//	@Failure		401		{object}	ErrorResponse	"Unauthorized"
+//	@Failure		500		{object}	ErrorResponse	"Server error"
+//	@Router			/notes/deleted [get]
+//	@Security		BearerAuth
+func GetDeletedNotes(c *gin.Context, userID uuid.UUID) (any, error) {
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	offset := (page - 1) * limit
+
+	var notes []models.Note
+	if err := db.DB.
+		Unscoped().
+		Where("user_id = ? AND deleted_at IS NOT NULL", userID).
+		Preload("Attachments").
+		Order("deleted_at desc").
+		Limit(limit).
+		Offset(offset).
+		Find(&notes).Error; err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	var out []models.NoteOut
+	for _, n := range notes {
+		out = append(out, models.NewNoteOut(&n))
+	}
+
+	return out, nil
+}
+
+// RestoreNote godoc
+//
+//	@Summary		Restore a deleted note
+//	@Description	Restores a soft-deleted note owned by the authenticated user
+//	@Tags			notes
+//	@ID				restoreNote
+//	@Param			noteId	path		string	true	"Note ID"
+//	@Success		204		"No Content"
+//	@Failure		400		{object}	ErrorResponse
+//	@Failure		401		{object}	ErrorResponse
+//	@Failure		404		{object}	ErrorResponse
+//	@Failure		500		{object}	ErrorResponse
+//	@Router			/notes/{noteId}/restore [post]
+//	@Security		BearerAuth
+func RestoreNote(c *gin.Context, userID uuid.UUID) (any, error) {
+	noteIDStr := c.Param("noteId")
+	noteID, err := uuid.Parse(noteIDStr)
+	if err != nil {
+		return nil, errors.NewValidationError(fmt.Errorf("invalid note ID: %w", err))
+	}
+
+	var note models.Note
+	if err := db.DB.Unscoped().
+		Where("id = ? AND user_id = ? AND deleted_at IS NOT NULL", noteID, userID).
+		First(&note).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.NewNotFoundError("Note not found", err)
+		}
+		return nil, errors.NewServerError(err)
+	}
+
+	if err := db.DB.Model(&note).Unscoped().Update("deleted_at", nil).Error; err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	return models.NewNoteOut(&note), nil
 }
 
 // DeleteAttachment godoc

@@ -98,9 +98,6 @@ export default function NoteDetail() {
             onChange={ (htmlContent) => handleChange('content', htmlContent) }
             status={ saveStatus }
           />
-          <button onClick={ handleSave } className="btn self-start">
-            { isNewNote ? 'Create Note' : 'Save Changes' }
-          </button>
         </div>
 
         <aside className="w-80 border-l border-[var(--border)] p-4 hidden xl:block">

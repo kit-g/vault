@@ -22,6 +22,13 @@ func Router(origins string) *gin.Engine {
 		},
 	)
 
+	r.GET(
+		"/version",
+		func(c *gin.Context) {
+			c.JSON(http.StatusOK, Info())
+		},
+	)
+
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Public routes
@@ -39,9 +46,11 @@ func Router(origins string) *gin.Engine {
 	vaultGroup.Use(auth.AuthenticationMiddleware())
 	vaultGroup.GET("", Authenticated(notes.GetNotes))
 	vaultGroup.POST("", Authenticated(notes.CreateNote))
+	vaultGroup.GET("deleted", Authenticated(notes.GetDeletedNotes))
 	vaultGroup.GET("/:noteId", Authenticated(notes.GetNote))
 	vaultGroup.PUT("/:noteId", Authenticated(notes.EditNote))
 	vaultGroup.DELETE("/:noteId", Authenticated(notes.DeleteNote))
+	vaultGroup.POST("/:noteId/restore", Authenticated(notes.RestoreNote))
 	// attachments
 	vaultGroup.POST("/:noteId/attachments", Authenticated(notes.GetUploadURL))
 	vaultGroup.GET("/:noteId/attachments/:attachmentId", Authenticated(notes.GetDownloadURL))

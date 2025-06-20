@@ -83,6 +83,38 @@ export class NotesService {
         });
     }
     /**
+     * List deleted notes
+     * Returns paginated soft-deleted notes for the authenticated user
+     * @returns NoteOut OK
+     * @throws ApiError
+     */
+    public static getDeletedNotes({
+        page = 1,
+        limit = 10,
+    }: {
+        /**
+         * Page number
+         */
+        page?: number,
+        /**
+         * Items per page
+         */
+        limit?: number,
+    }): CancelablePromise<Array<NoteOut>> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/notes/deleted',
+            query: {
+                'page': page,
+                'limit': limit,
+            },
+            errors: {
+                401: `Unauthorized`,
+                500: `Server error`,
+            },
+        });
+    }
+    /**
      * Delete a note
      * Deletes a note owned by the authenticated user
      * @returns void
@@ -90,17 +122,25 @@ export class NotesService {
      */
     public static deleteNote({
         noteId,
+        hard = false,
     }: {
         /**
          * Note ID
          */
         noteId: string,
+        /**
+         * Hard delete flag
+         */
+        hard?: boolean,
     }): CancelablePromise<void> {
         return __request(OpenAPI, {
             method: 'DELETE',
             url: '/notes/{noteId}',
             path: {
                 'noteId': noteId,
+            },
+            query: {
+                'hard': hard,
             },
             errors: {
                 400: `Bad Request`,
@@ -264,6 +304,34 @@ export class NotesService {
             path: {
                 'noteId': noteId,
                 'attachmentId': attachmentId,
+            },
+            errors: {
+                400: `Bad Request`,
+                401: `Unauthorized`,
+                404: `Not Found`,
+                500: `Internal Server Error`,
+            },
+        });
+    }
+    /**
+     * Restore a deleted note
+     * Restores a soft-deleted note owned by the authenticated user
+     * @returns void
+     * @throws ApiError
+     */
+    public static restoreNote({
+        noteId,
+    }: {
+        /**
+         * Note ID
+         */
+        noteId: string,
+    }): CancelablePromise<void> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/notes/{noteId}/restore',
+            path: {
+                'noteId': noteId,
             },
             errors: {
                 400: `Bad Request`,

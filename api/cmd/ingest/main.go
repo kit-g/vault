@@ -5,10 +5,14 @@ import (
 	"vault/internal/awsx"
 	"vault/internal/config"
 	"vault/internal/db"
+	"vault/internal/httpx"
 	"vault/internal/ingest"
 )
 
 func main() {
+
+	log.Printf("Starting Vault Ingest - version: %s", httpx.String())
+
 	cfg, err := config.NewIngestConfig()
 
 	if err != nil {
