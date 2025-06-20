@@ -340,6 +340,12 @@ paths:
                   required: true
                   schema:
                     type: string
+                - description: Hard delete flag
+                  in: query
+                  name: hard
+                  schema:
+                    default: false
+                    type: boolean
             responses:
                 "204":
                     description: No Content

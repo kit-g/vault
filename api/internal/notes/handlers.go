@@ -198,6 +198,7 @@ func EditNote(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@Produce		json
 //	@ID				deleteNote
 //	@Param			noteId	path	string	true	"Note ID"
+//	@Param			hard	query	boolean	false	"Hard delete flag" default(false)
 //	@Success		204		"No Content"
 //	@Failure		400		{object}	ErrorResponse
 //	@Failure		401		{object}	ErrorResponse
@@ -213,16 +214,23 @@ func DeleteNote(c *gin.Context, userID uuid.UUID) (any, error) {
 		return nil, errors.NewValidationError(fmt.Errorf("invalid note ID: %w", err))
 	}
 
+	hard, _ := strconv.ParseBool(c.DefaultQuery("hard", "false"))
+
+	tx := db.DB
+	if hard {
+		tx = tx.Unscoped()
+	}
+
 	// Find the note
 	var note models.Note
-	if err := db.DB.Where("id = ? AND user_id = ?", noteID, userID).First(&note).Error; err != nil {
+	if err := tx.Where("id = ? AND user_id = ?", noteID, userID).First(&note).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NewNotFoundError("Note not found", err)
 		}
 		return nil, errors.NewServerError(err)
 	}
 
-	if err := db.DB.Delete(&note).Error; err != nil {
+	if err := tx.Delete(&note).Error; err != nil {
 		return nil, errors.NewServerError(err)
 	}
 

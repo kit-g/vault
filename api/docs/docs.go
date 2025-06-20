@@ -451,6 +451,13 @@ const docTemplate = `{
                         "name": "noteId",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "default": false,
+                        "description": "Hard delete flag",
+                        "name": "hard",
+                        "in": "query"
                     }
                 ],
                 "responses": {

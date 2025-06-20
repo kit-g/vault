@@ -587,6 +587,15 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "description": "Hard delete flag",
+                        "in": "query",
+                        "name": "hard",
+                        "schema": {
+                            "default": false,
+                            "type": "boolean"
+                        }
                     }
                 ],
                 "responses": {
