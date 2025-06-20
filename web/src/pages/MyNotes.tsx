@@ -18,9 +18,9 @@ export default function MyNotes() {
   );
 }
 
-const deleteNote = async (noteIdToDelete: string) => {
+const deleteNote = async ({ noteId }: { noteId: string }) => {
   if (!window.confirm("Are you sure you want to delete this note?")) {
     return;
   }
-  await NotesService.deleteNote({ noteId: noteIdToDelete });
+  await NotesService.deleteNote({ noteId: noteId });
 };

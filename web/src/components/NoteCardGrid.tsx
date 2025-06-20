@@ -6,8 +6,8 @@ import { useCallback, useEffect, useState } from "react";
 
 type NoteCardGridProps = {
   hydrate: (params: { page?: number, limit?: number }) => Promise<NoteOut[]>;
-  onDelete?: (noteId: string) => Promise<void>;
-  onRestore?: (params: { noteId: string }) => Promise<void>;
+  onDelete?: ({ noteId }: { noteId: string }) => Promise<void>;
+  onRestore?: ({ noteId }: { noteId: string }) => Promise<void>;
 }
 
 export function NoteCardGrid({ hydrate, onDelete, onRestore }: NoteCardGridProps) {
@@ -51,7 +51,7 @@ export function NoteCardGrid({ hydrate, onDelete, onRestore }: NoteCardGridProps
                 onClick={ () => navigate(`/notes/${ note.id }`) }
                 onDelete={
                   onDelete
-                    ? async (noteId: string) => onDelete(noteId).then(fetchNotes)
+                    ? async ({ noteId }) => onDelete({ noteId }).then(fetchNotes)
                     : undefined
                 }
                 onRestore={

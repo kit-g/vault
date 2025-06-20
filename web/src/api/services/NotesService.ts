@@ -122,17 +122,25 @@ export class NotesService {
      */
     public static deleteNote({
         noteId,
+        hard = false,
     }: {
         /**
          * Note ID
          */
         noteId: string,
+        /**
+         * Hard delete flag
+         */
+        hard?: boolean,
     }): CancelablePromise<void> {
         return __request(OpenAPI, {
             method: 'DELETE',
             url: '/notes/{noteId}',
             path: {
                 'noteId': noteId,
+            },
+            query: {
+                'hard': hard,
             },
             errors: {
                 400: `Bad Request`,

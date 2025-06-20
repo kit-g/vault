@@ -6,8 +6,8 @@ import { Trash2, Undo2 } from "lucide-react";
 interface NoteCardProps {
   note: NoteOut;
   onClick: () => void;
-  onDelete?: (noteId: string) => Promise<void>;
-  onRestore?: (params: { noteId: string }) => Promise<void>;
+  onDelete?: ({ noteId }: { noteId: string }) => Promise<void>;
+  onRestore?: ({ noteId }: { noteId: string }) => Promise<void>;
 }
 
 
@@ -16,40 +16,37 @@ export function NoteCard({ note, onClick, onDelete, onRestore }: NoteCardProps) 
   const onClickDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (onDelete && note.id) {
-      await onDelete(note.id);
+      await onDelete({ noteId: note.id });
     }
   }
 
   return (
     <div onClick={ onClick } className="note-card hover-elevate relative group">
-      {
-        onRestore && note?.id && (
-          <button
-            onClick={ async (e) => {
-              e.stopPropagation();
-              await onRestore({ noteId: note.id! });
-            } }
-            aria-label="Restore note"
-            className="absolute top-2 right-2 p-1.5 rounded-full bg-white/10
-                 opacity-0 group-hover:opacity-100 transition-opacity duration-200
-                 hover:bg-white/20"
-          >
-            <Undo2 size={ 18 }/>
-          </button>
-        )
-      }
-      { onDelete && (
-        <button
-          onClick={ onClickDelete }
-          aria-label="Delete note"
-          className="absolute top-2 right-2 p-1.5 rounded-full error bg-black/10
-               opacity-0 group-hover:opacity-100 transition-opacity duration-200
-               hover:bg-black/20"
-        >
-          <Trash2 size={ 18 }/>
-        </button>
+      { (onRestore || onDelete) && (
+        <div className="absolute top-2 right-2 flex flex-row-reverse items-center gap-x-2">
+          { onDelete && (
+            <button
+              onClick={ onClickDelete }
+              aria-label="Delete note"
+              className="icon-button error"
+            >
+              <Trash2 size={ 18 }/>
+            </button>
+          ) }
+          { onRestore && note?.id && (
+            <button
+              onClick={ async (e) => {
+                e.stopPropagation();
+                await onRestore({ noteId: note.id! });
+              } }
+              aria-label="Restore note"
+              className="icon-button"
+            >
+              <Undo2 size={ 18 }/>
+            </button>
+          ) }
+        </div>
       ) }
-
       <div>
         <h3 className="font-semibold text-card-foreground">
           { note.title || "Untitled" }

@@ -8,8 +8,16 @@ export default function BinPage() {
       <NoteCardGrid
         hydrate={ NotesService.getDeletedNotes }
         onRestore={ NotesService.restoreNote }
+        onDelete={ deleteNote }
       >
       </NoteCardGrid>
     </div>
   );
 }
+
+const deleteNote = async ({ noteId }: { noteId: string }) => {
+  if (!window.confirm("Are you sure you want to delete this note? This action cannot be undone.")) {
+    return;
+  }
+  await NotesService.deleteNote({ noteId: noteId, hard: true });
+};

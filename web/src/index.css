@@ -296,3 +296,15 @@ html.dark .tiptap blockquote {
 .error {
     color: var(--error);
 }
+
+@layer components {
+    .icon-button {
+        @apply p-1.5 rounded-full transition-opacity duration-200 opacity-0 group-hover:opacity-100;
+        background-color: transparent;
+        transition: background-color 0.2s ease, opacity 0.2s ease;
+    }
+
+    .icon-button:hover {
+        background-color: var(--icon-btn-hover-bg);
+    }
+}
