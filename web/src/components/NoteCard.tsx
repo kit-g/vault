@@ -1,16 +1,17 @@
 import type { NoteOut } from "../api";
 import { stripHtml } from "../utils/text.ts";
 import * as React from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2, Undo2 } from "lucide-react";
 
 interface NoteCardProps {
   note: NoteOut;
   onClick: () => void;
   onDelete?: (noteId: string) => Promise<void>;
+  onRestore?: (params: { noteId: string }) => Promise<void>;
 }
 
 
-export function NoteCard({ note, onClick, onDelete }: NoteCardProps) {
+export function NoteCard({ note, onClick, onDelete, onRestore }: NoteCardProps) {
 
   const onClickDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -21,6 +22,22 @@ export function NoteCard({ note, onClick, onDelete }: NoteCardProps) {
 
   return (
     <div onClick={ onClick } className="note-card hover-elevate relative group">
+      {
+        onRestore && note?.id && (
+          <button
+            onClick={ async (e) => {
+              e.stopPropagation();
+              await onRestore({ noteId: note.id! });
+            } }
+            aria-label="Restore note"
+            className="absolute top-2 right-2 p-1.5 rounded-full bg-white/10
+                 opacity-0 group-hover:opacity-100 transition-opacity duration-200
+                 hover:bg-white/20"
+          >
+            <Undo2 size={ 18 }/>
+          </button>
+        )
+      }
       { onDelete && (
         <button
           onClick={ onClickDelete }

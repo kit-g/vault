@@ -1,5 +1,5 @@
 import { type NoteOut } from "../api";
-import { NoteCard } from "../components/NoteCard.tsx";
+import { NoteCard } from "./NoteCard.tsx";
 import { useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 
@@ -7,9 +7,10 @@ import { useCallback, useEffect, useState } from "react";
 type NoteCardGridProps = {
   hydrate: (params: { page?: number, limit?: number }) => Promise<NoteOut[]>;
   onDelete?: (noteId: string) => Promise<void>;
+  onRestore?: (params: { noteId: string }) => Promise<void>;
 }
 
-export function NoteCardGrid({ hydrate, onDelete }: NoteCardGridProps) {
+export function NoteCardGrid({ hydrate, onDelete, onRestore }: NoteCardGridProps) {
   const navigate = useNavigate();
   const [notes, setNotes] = useState<NoteOut[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,7 +41,6 @@ export function NoteCardGrid({ hydrate, onDelete }: NoteCardGridProps) {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">My Notes</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {
           notes.map(
@@ -52,6 +52,11 @@ export function NoteCardGrid({ hydrate, onDelete }: NoteCardGridProps) {
                 onDelete={
                   onDelete
                     ? async (noteId: string) => onDelete(noteId).then(fetchNotes)
+                    : undefined
+                }
+                onRestore={
+                  onRestore
+                    ? async (params: { noteId: string }) => onRestore(params).then(fetchNotes)
                     : undefined
                 }
               />

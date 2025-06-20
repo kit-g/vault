@@ -306,6 +306,34 @@ export class NotesService {
         });
     }
     /**
+     * Restore a deleted note
+     * Restores a soft-deleted note owned by the authenticated user
+     * @returns void
+     * @throws ApiError
+     */
+    public static restoreNote({
+        noteId,
+    }: {
+        /**
+         * Note ID
+         */
+        noteId: string,
+    }): CancelablePromise<void> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/notes/{noteId}/restore',
+            path: {
+                'noteId': noteId,
+            },
+            errors: {
+                400: `Bad Request`,
+                401: `Unauthorized`,
+                404: `Not Found`,
+                500: `Internal Server Error`,
+            },
+        });
+    }
+    /**
      * Share note with user
      * Allows the authenticated user to share a note they own with another user, specifying read or write permissions.
      * @returns void
