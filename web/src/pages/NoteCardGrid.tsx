@@ -4,7 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 
 
-export function NoteCardGrid() {
+type NoteCardGridProps = {
+  hydrate: (params: { page?: number, limit?: number }) => Promise<NoteOut[]>;
+}
+
+export function NoteCardGrid({ hydrate }: NoteCardGridProps) {
   const navigate = useNavigate();
   const [notes, setNotes] = useState<NoteOut[]>([]);
   const [loading, setLoading] = useState(true);
@@ -13,7 +17,7 @@ export function NoteCardGrid() {
 
   const fetchNotes = useCallback(() => {
     setLoading(true);
-    NotesService.getNotes({ page: currentPage, limit: 10 })
+    hydrate({ page: currentPage, limit: 10 })
       .then(setNotes)
       .catch(() => setError("Failed to load notes"))
       .finally(() => setLoading(false));
@@ -33,7 +37,6 @@ export function NoteCardGrid() {
   }
 
   const deleteNote = (noteIdToDelete: string) => {
-    // Optional: Add a confirmation dialog
     if (!window.confirm("Are you sure you want to delete this note?")) {
       return;
     }

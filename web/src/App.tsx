@@ -13,6 +13,7 @@ import SharedWithMePage from "./pages/SharedWithMePage.tsx";
 import AttachmentsPage from "./pages/AttachmentsPage.tsx";
 import BinPage from "./pages/BinPage.tsx";
 import SettingsPage from "./pages/SettingsPage.tsx";
+import { NotesService } from "./api";
 
 const router = createBrowserRouter([
     {
@@ -20,7 +21,9 @@ const router = createBrowserRouter([
       children: [
         {
           path: "/",
-          element: <PageTransition><NoteCardGrid/></PageTransition>,
+          element: <PageTransition>
+            <NoteCardGrid hydrate={ NotesService.getNotes }/>
+          </PageTransition>,
         },
         {
           path: "/notes/new",
