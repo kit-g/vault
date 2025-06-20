@@ -21,15 +21,17 @@ export function NoteCard({ note, onClick, onDelete }: NoteCardProps) {
 
   return (
     <div onClick={ onClick } className="note-card hover-elevate relative group">
-      <button
-        onClick={ onClickDelete }
-        aria-label="Delete note"
-        className="absolute top-2 right-2 p-1.5 rounded-full error bg-black/10
-                   opacity-0 group-hover:opacity-100 transition-opacity duration-200
-                   hover:bg-black/20"
-      >
-        <Trash2 size={ 18 }/>
-      </button>
+      { onDelete && (
+        <button
+          onClick={ onClickDelete }
+          aria-label="Delete note"
+          className="absolute top-2 right-2 p-1.5 rounded-full error bg-black/10
+               opacity-0 group-hover:opacity-100 transition-opacity duration-200
+               hover:bg-black/20"
+        >
+          <Trash2 size={ 18 }/>
+        </button>
+      ) }
 
       <div>
         <h3 className="font-semibold text-card-foreground">
