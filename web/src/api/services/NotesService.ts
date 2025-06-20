@@ -83,6 +83,38 @@ export class NotesService {
         });
     }
     /**
+     * List deleted notes
+     * Returns paginated soft-deleted notes for the authenticated user
+     * @returns NoteOut OK
+     * @throws ApiError
+     */
+    public static getDeletedNotes({
+        page = 1,
+        limit = 10,
+    }: {
+        /**
+         * Page number
+         */
+        page?: number,
+        /**
+         * Items per page
+         */
+        limit?: number,
+    }): CancelablePromise<Array<NoteOut>> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/notes/deleted',
+            query: {
+                'page': page,
+                'limit': limit,
+            },
+            errors: {
+                401: `Unauthorized`,
+                500: `Server error`,
+            },
+        });
+    }
+    /**
      * Delete a note
      * Deletes a note owned by the authenticated user
      * @returns void

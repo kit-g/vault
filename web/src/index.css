@@ -288,3 +288,11 @@ html.dark .tiptap li::marker,
 html.dark .tiptap blockquote {
     color: var(--foreground);
 }
+
+.success {
+    color: var(--success);
+}
+
+.error {
+    color: var(--error);
+}

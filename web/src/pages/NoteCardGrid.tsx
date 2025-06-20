@@ -1,7 +1,7 @@
 import { type NoteOut, NotesService } from "../api";
 import { NoteCard } from "../components/NoteCard.tsx";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 
 export function NoteCardGrid() {
@@ -9,13 +9,19 @@ export function NoteCardGrid() {
   const [notes, setNotes] = useState<NoteOut[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(() => {
-    NotesService.getNotes({ limit: 20 })
+  const fetchNotes = useCallback(() => {
+    setLoading(true);
+    NotesService.getNotes({ page: currentPage, limit: 10 })
       .then(setNotes)
       .catch(() => setError("Failed to load notes"))
       .finally(() => setLoading(false));
-  }, []);
+  }, [currentPage]);
+
+  useEffect(() => {
+    fetchNotes();
+  }, [fetchNotes]);
 
   if (loading) return <div className="p-4 text-white">Loading...</div>;
   if (error) return <div className="p-4 text-red-500">{ error }</div>;
@@ -25,6 +31,16 @@ export function NoteCardGrid() {
       <p className="text-center text-gray-200 mt-10">No notes yet. Create one!</p>
     );
   }
+
+  const deleteNote = (noteIdToDelete: string) => {
+    // Optional: Add a confirmation dialog
+    if (!window.confirm("Are you sure you want to delete this note?")) {
+      return;
+    }
+
+    NotesService.deleteNote({ noteId: noteIdToDelete })
+      .then(fetchNotes);
+  };
 
 
   return (
@@ -38,6 +54,7 @@ export function NoteCardGrid() {
                 key={ note.id }
                 note={ note }
                 onClick={ () => navigate(`/notes/${ note.id }`) }
+                onDelete={ deleteNote }
               />
             )
           )
