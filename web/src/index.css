@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+@plugin "@tailwindcss/typography";
 
 /*
   Light mode
@@ -31,6 +32,9 @@
     --nav-hover-bg: rgba(0, 0, 0, 0.05);
     --nav-active-bg: #cce8d6; /* A light, muted green for active state */
     --nav-active-text: var(--foreground);
+
+    --success: #16a34a;
+    --error: #dc2626;
 }
 
 /*
@@ -60,6 +64,9 @@
     --nav-hover-bg: rgba(255, 255, 255, 0.05);
     --nav-active-bg: #3a5a40; /* A slightly lighter green for dark active state */
     --nav-active-text: var(--foreground);
+
+    --success: #4ade80;
+    --error: #f87171;
 }
 
 body {
@@ -251,7 +258,33 @@ body {
 
     .nav-item.active {
         background-color: var(--nav-active-bg);
-        /*color: var(--nav-item-active-text);*/
         font-weight: 500;
     }
+}
+
+.toolbar-btn {
+    @apply p-1.5 rounded-md transition-colors duration-150;
+}
+
+.toolbar-btn:hover {
+    background-color: var(--icon-btn-hover-bg);
+}
+
+.toolbar-btn.is-active {
+    background-color: var(--nav-bg, #e8f2ec);
+    color: var(--primary-foreground, #94e0b1);
+}
+
+/* Rich text editor styles */
+html.dark .tiptap h1,
+html.dark .tiptap h2,
+html.dark .tiptap h3,
+html.dark .tiptap h4,
+html.dark .tiptap p,
+html.dark .tiptap strong,
+html.dark .tiptap em,
+html.dark .tiptap li,
+html.dark .tiptap li::marker,
+html.dark .tiptap blockquote {
+    color: var(--foreground);
 }

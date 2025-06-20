@@ -1,4 +1,5 @@
 import type { NoteOut } from "../api";
+import { stripHtml } from "../utils/text.ts";
 
 interface NoteCardProps {
   note: NoteOut;
@@ -13,8 +14,8 @@ export function NoteCard({ note, onClick }: NoteCardProps) {
         <h3 className="font-semibold text-card-foreground">
           { note.title || "Untitled" }
         </h3>
-        <p className="text-sm line-clamp-2 text-card-muted-foreground">
-          { note.content || "No content" }
+        <p className="text-sm line-clamp-2 text-card-muted-foreground max-h-24 overflow-ellipsis whitespace-pre-line">
+          { note.content ? stripHtml(note.content) : "..." }
         </p>
       </div>
 

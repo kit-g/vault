@@ -15,19 +15,32 @@ export class NotesService {
     /**
      * List user notes
      * Returns paginated notes for the authenticated user with optional filtering
-     * @param page Page number
-     * @param limit Items per page
-     * @param archived Filter by archived status
-     * @param encrypted Filter by encrypted status
      * @returns NoteOut OK
      * @throws ApiError
      */
-    public static getNotes(
-        page: number = 1,
-        limit: number = 10,
+    public static getNotes({
+        page = 1,
+        limit = 10,
+        archived,
+        encrypted,
+    }: {
+        /**
+         * Page number
+         */
+        page?: number,
+        /**
+         * Items per page
+         */
+        limit?: number,
+        /**
+         * Filter by archived status
+         */
         archived?: boolean,
+        /**
+         * Filter by encrypted status
+         */
         encrypted?: boolean,
-    ): CancelablePromise<Array<NoteOut>> {
+    }): CancelablePromise<Array<NoteOut>> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/notes',
@@ -46,13 +59,17 @@ export class NotesService {
     /**
      * Create a new note
      * Creates a note for the authenticated user
-     * @param requestBody Note object
      * @returns NoteOut Created
      * @throws ApiError
      */
-    public static createNote(
+    public static createNote({
+        requestBody,
+    }: {
+        /**
+         * Note object
+         */
         requestBody: NoteIn,
-    ): CancelablePromise<NoteOut> {
+    }): CancelablePromise<NoteOut> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/notes',
@@ -68,13 +85,17 @@ export class NotesService {
     /**
      * Delete a note
      * Deletes a note owned by the authenticated user
-     * @param noteId Note ID
      * @returns void
      * @throws ApiError
      */
-    public static deleteNote(
+    public static deleteNote({
+        noteId,
+    }: {
+        /**
+         * Note ID
+         */
         noteId: string,
-    ): CancelablePromise<void> {
+    }): CancelablePromise<void> {
         return __request(OpenAPI, {
             method: 'DELETE',
             url: '/notes/{noteId}',
@@ -92,13 +113,17 @@ export class NotesService {
     /**
      * Get a single note
      * Retrieves a specific note owned by the authenticated user
-     * @param noteId Note UUID
      * @returns NoteOut OK
      * @throws ApiError
      */
-    public static getNote(
+    public static getNote({
+        noteId,
+    }: {
+        /**
+         * Note UUID
+         */
         noteId: string,
-    ): CancelablePromise<NoteOut> {
+    }): CancelablePromise<NoteOut> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/notes/{noteId}',
@@ -116,15 +141,22 @@ export class NotesService {
     /**
      * Edit a note
      * Updates the note fields for the authenticated user
-     * @param noteId Note ID
-     * @param requestBody Note fields
      * @returns NoteOut OK
      * @throws ApiError
      */
-    public static editNote(
+    public static editNote({
+        noteId,
+        requestBody,
+    }: {
+        /**
+         * Note ID
+         */
         noteId: string,
+        /**
+         * Note fields
+         */
         requestBody: NoteIn,
-    ): CancelablePromise<NoteOut> {
+    }): CancelablePromise<NoteOut> {
         return __request(OpenAPI, {
             method: 'PUT',
             url: '/notes/{noteId}',
@@ -144,15 +176,22 @@ export class NotesService {
     /**
      * Generate a presigned S3 upload URL
      * Generates a presigned URL for uploading an attachment to a specific note
-     * @param noteId Note ID
-     * @param requestBody Upload parameters
      * @returns PresignUploadResponse OK
      * @throws ApiError
      */
-    public static getUploadUrl(
+    public static getUploadUrl({
+        noteId,
+        requestBody,
+    }: {
+        /**
+         * Note ID
+         */
         noteId: string,
+        /**
+         * Upload parameters
+         */
         requestBody: PresignUploadRequest,
-    ): CancelablePromise<PresignUploadResponse> {
+    }): CancelablePromise<PresignUploadResponse> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/notes/{noteId}/attachments',
@@ -170,15 +209,22 @@ export class NotesService {
     }
     /**
      * Delete an attachment
-     * @param noteId Note ID
-     * @param attachmentId Attachment ID
      * @returns void
      * @throws ApiError
      */
-    public static deleteAttachment(
+    public static deleteAttachment({
+        noteId,
+        attachmentId,
+    }: {
+        /**
+         * Note ID
+         */
         noteId: string,
+        /**
+         * Attachment ID
+         */
         attachmentId: string,
-    ): CancelablePromise<void> {
+    }): CancelablePromise<void> {
         return __request(OpenAPI, {
             method: 'DELETE',
             url: '/notes/{noteId}/attachments/{attachmentId}',
@@ -196,15 +242,22 @@ export class NotesService {
     /**
      * Get presigned download URL for an attachment
      * Generates a temporary URL for securely downloading a note's attachment.
-     * @param noteId Note ID (UUID)
-     * @param attachmentId Attachment ID (UUID)
      * @returns PresignDownloadResponse OK
      * @throws ApiError
      */
-    public static getDownloadUrl(
+    public static getDownloadUrl({
+        noteId,
+        attachmentId,
+    }: {
+        /**
+         * Note ID (UUID)
+         */
         noteId: string,
+        /**
+         * Attachment ID (UUID)
+         */
         attachmentId: string,
-    ): CancelablePromise<PresignDownloadResponse> {
+    }): CancelablePromise<PresignDownloadResponse> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/notes/{noteId}/attachments/{attachmentId}',
@@ -223,15 +276,22 @@ export class NotesService {
     /**
      * Share note with user
      * Allows the authenticated user to share a note they own with another user, specifying read or write permissions.
-     * @param noteId Note ID (UUID)
-     * @param requestBody Sharing request
      * @returns void
      * @throws ApiError
      */
-    public static shareNoteToUser(
+    public static shareNoteToUser({
+        noteId,
+        requestBody,
+    }: {
+        /**
+         * Note ID (UUID)
+         */
         noteId: string,
+        /**
+         * Sharing request
+         */
         requestBody: ShareToUserRequest,
-    ): CancelablePromise<void> {
+    }): CancelablePromise<void> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/notes/{noteId}/share',

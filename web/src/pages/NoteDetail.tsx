@@ -1,35 +1,112 @@
-import { useParams } from "react-router-dom";
-import { Seo } from "../components/Seo.tsx";
 import { useEffect, useState } from "react";
-import { type NoteOut, NotesService } from "../api";
+import { useNavigate, useParams } from "react-router-dom";
+import { type NoteIn, NotesService } from "../api";
+import { Seo } from "../components/Seo";
+import { RichTextEditor } from "../components/editor/RichTextEditor.tsx";
+import { useDebounce } from "use-debounce";
+import { type SaveStatus } from "../components/editor/SaveStatusIndicator.tsx";
 
 export default function NoteDetail() {
-  const [note, setNote] = useState<NoteOut | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { id } = useParams();
+  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const isNewNote = !id;
+
+  const [noteId, setNoteId] = useState<string | null>(id || null);
+  const [note, setNote] = useState<NoteIn>({ title: '', content: '' });
+  const [debouncedNote] = useDebounce(note, 2000); // debounce the note state by 2 seconds
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
+  const [loading, setLoading] = useState(!!id);
+  const [isDirty, setIsDirty] = useState(false); // if the user has made changes
 
   useEffect(() => {
-    if (id != null) {
-      NotesService.getNote(id)
-        .then(setNote)
-        .catch(() => setError("Failed to load note"))
+    // If this is an existing note, fetch its data
+    if (id) {
+      setLoading(true);
+      NotesService.getNote({ noteId: id })
+        .then((note) => {
+          setNote({ title: note.title!, content: note.content || '' });
+        })
+        .catch(err => console.error("Failed to fetch note", err))
         .finally(() => setLoading(false));
     }
   }, [id]);
 
-  if (loading) return <div className="p-4 text-white">Loading...</div>;
-  if (error) return <div className="p-4 text-red-500">{ error }</div>;
+  const handleSave = async () => {
+
+    setSaveStatus('saving');
+
+    try {
+      if (!noteId) { // this is a new note that's never been saved
+        const newNote = await NotesService.createNote({ requestBody: note });
+
+        setNoteId(newNote.id!); // track the new ID internally.
+
+        navigate(
+          `/notes/${ newNote.id }`, {
+            replace: true,
+            state: { disableAnimation: true }
+          }
+        );
+
+      } else { // this is an existing note
+        await NotesService.editNote({ noteId: noteId, requestBody: note });
+      }
+      setSaveStatus('saved');
+      setIsDirty(false);
+    } catch (err) {
+      console.error("Failed to save note", err);
+      setSaveStatus('error');
+    }
+  };
+
+  useEffect(
+    () => {
+      if (!isDirty) return;
+      if (!noteId && (!note.title || !note.content)) return;
+      handleSave().then();
+    },
+    [debouncedNote]
+  );
+
+  const handleChange = (field: 'title' | 'content', value: string) => {
+    setIsDirty(true); // Mark that we have unsaved changes
+    setSaveStatus('idle'); // Reset status when the user types again
+    setNote(prev => ({ ...prev, [field]: value }));
+  };
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <>
-      <Seo
-        title={ note?.title || "Note Detail" }
-        description={ note?.content?.substring(0, 150) || "Viewing note details." }
-      />
-      <div>
-        <h1>{ note?.title || "" }</h1>
-        <p>{ note?.content }</p>
+      <Seo title={ isNewNote ? "New Note" : note.title }/>
+
+      <div className="flex flex-1 gap-4">
+        <div className="flex-1 flex flex-col gap-4">
+          <div className="flex justify-between items-center">
+            <input
+              name="title"
+              placeholder="Note Title"
+              value={ note.title }
+              maxLength={ 120 }
+              onChange={ (e) => handleChange('title', e.target.value) }
+              className="w-full h-14 text-2xl bg-transparent focus:outline-none"
+            />
+          </div>
+          <RichTextEditor
+            isLoading={ loading }
+            content={ note.content }
+            onChange={ (htmlContent) => handleChange('content', htmlContent) }
+            status={ saveStatus }
+          />
+          <button onClick={ handleSave } className="btn self-start">
+            { isNewNote ? 'Create Note' : 'Save Changes' }
+          </button>
+        </div>
+
+        <aside className="w-80 border-l border-[var(--border)] p-4 hidden xl:block">
+          <h3 className="font-bold">Attachments</h3>
+          {/* ... Your attachments UI will go here ... */ }
+        </aside>
       </div>
     </>
   );

@@ -14,13 +14,17 @@ export class AuthService {
     /**
      * Log in a user
      * Authenticates a user and returns a JWT token
-     * @param requestBody Login credentials
      * @returns LoginOut OK
      * @throws ApiError
      */
-    public static login(
+    public static login({
+        requestBody,
+    }: {
+        /**
+         * Login credentials
+         */
         requestBody: Login,
-    ): CancelablePromise<LoginOut> {
+    }): CancelablePromise<LoginOut> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/login',
@@ -52,13 +56,17 @@ export class AuthService {
     /**
      * Refresh access token
      * Refreshes JWT access token using a refresh token
-     * @param requestBody Refresh token payload
      * @returns Session OK
      * @throws ApiError
      */
-    public static refresh(
+    public static refresh({
+        requestBody,
+    }: {
+        /**
+         * Refresh token payload
+         */
         requestBody: Record<string, string>,
-    ): CancelablePromise<Session> {
+    }): CancelablePromise<Session> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/refresh',
@@ -74,13 +82,17 @@ export class AuthService {
     /**
      * Register a new user
      * Register using email, password, and username
-     * @param requestBody user info
      * @returns UserOut Created
      * @throws ApiError
      */
-    public static register(
+    public static register({
+        requestBody,
+    }: {
+        /**
+         * user info
+         */
         requestBody: UserIn,
-    ): CancelablePromise<UserOut> {
+    }): CancelablePromise<UserOut> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/register',

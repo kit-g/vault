@@ -68,10 +68,17 @@ export function Sidebar(
         </div>
 
         <div className="flex flex-col gap-4">
-          <button className="btn flex items-center justify-center gap-2">
-            <Plus size={ 20 }/>
-            New Note
-          </button>
+          <NavLink
+            key={ "NoteEditor" }
+            to={ "notes/new" }
+            onClick={ onClose }
+          >
+            <button className="btn flex items-center justify-center gap-2">
+              <Plus size={ 20 }/>
+              New Note
+            </button>
+          </NavLink>
+
 
           <NavLink
             key='Settings'

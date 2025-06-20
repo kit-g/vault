@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "types": "npx openapi-typescript-codegen --input ../api/docs/swagger.json --output ./src/api --client axios",
+    "types": "npx openapi-typescript-codegen --input ../api/docs/swagger.json --output ./src/api --client axios --useOptions",
     "prebuild": "npm run types",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
@@ -14,16 +14,20 @@
   "dependencies": {
     "@headlessui/react": "^2.2.4",
     "@tailwindcss/vite": "^4.1.10",
+    "@tiptap/react": "^2.14.0",
+    "@tiptap/starter-kit": "^2.14.0",
     "@zodios/core": "^10.9.6",
     "framer-motion": "^12.18.1",
     "lucide-react": "^0.517.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.2",
+    "use-debounce": "^10.0.5",
     "zod": "^3.25.64"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
+    "@tailwindcss/typography": "^0.5.16",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.4.1",
