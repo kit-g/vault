@@ -54,15 +54,14 @@ export default function NoteDetail() {
       <Seo title={ isNewNote ? "New Note" : note.title }/>
 
       <div className="flex flex-1">
-
-        <div className="flex-1 flex flex-col p-6 gap-4">
+        <div className="flex-1 flex flex-col gap-4">
           <input
             name="title"
             placeholder="Note Title"
             value={ note.title }
             maxLength={ 120 }
             onChange={ handleTitleChange }
-            className="w-full h-14 p-4 text-2xl font-bold bg-transparent focus:outline-none"
+            className="w-full h-14 text-2xl bg-transparent focus:outline-none"
           />
           <RichTextEditor
             content={ note.content }
