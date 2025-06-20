@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "types": "npx openapi-typescript-codegen --input ../api/docs/swagger.json --output ./src/api --client axios",
+    "types": "npx openapi-typescript-codegen --input ../api/docs/swagger.json --output ./src/api --client axios --useOptions",
     "prebuild": "npm run types",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
