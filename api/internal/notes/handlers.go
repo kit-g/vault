@@ -325,6 +325,46 @@ func GetDownloadURL(c *gin.Context, _ uuid.UUID) (any, error) {
 	return models.PresignDownloadResponse{URL: url}, nil
 }
 
+// GetDeletedNotes godoc
+//
+//	@Summary		List deleted notes
+//	@Description	Returns paginated soft-deleted notes for the authenticated user
+//	@Tags			notes
+//	@Accept			json
+//	@Produce		json
+//	@ID				getDeletedNotes
+//	@Param			page	query		int	false	"Page number"		default(1)
+//	@Param			limit	query		int	false	"Items per page"	default(10)
+//	@Success		200		{array}		NoteOut
+//	@Failure		401		{object}	ErrorResponse	"Unauthorized"
+//	@Failure		500		{object}	ErrorResponse	"Server error"
+//	@Router			/notes/deleted [get]
+//	@Security		BearerAuth
+func GetDeletedNotes(c *gin.Context, userID uuid.UUID) (any, error) {
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	offset := (page - 1) * limit
+
+	var notes []models.Note
+	if err := db.DB.
+		Unscoped().
+		Where("user_id = ? AND deleted_at IS NOT NULL", userID).
+		Preload("Attachments").
+		Order("deleted_at desc").
+		Limit(limit).
+		Offset(offset).
+		Find(&notes).Error; err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	var out []models.NoteOut
+	for _, n := range notes {
+		out = append(out, models.NewNoteOut(&n))
+	}
+
+	return out, nil
+}
+
 // DeleteAttachment godoc
 //
 //	@Summary	Delete an attachment

@@ -658,6 +658,49 @@ paths:
             summary: Share note with user
             tags:
                 - notes
+    /notes/deleted:
+        get:
+            description: Returns paginated soft-deleted notes for the authenticated user
+            operationId: getDeletedNotes
+            parameters:
+                - description: Page number
+                  in: query
+                  name: page
+                  schema:
+                    default: 1
+                    type: integer
+                - description: Items per page
+                  in: query
+                  name: limit
+                  schema:
+                    default: 10
+                    type: integer
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                items:
+                                    $ref: '#/components/schemas/NoteOut'
+                                type: array
+                    description: OK
+                "401":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                    description: Unauthorized
+                "500":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                    description: Server error
+            security:
+                - BearerAuth: []
+            summary: List deleted notes
+            tags:
+                - notes
     /refresh:
         post:
             description: Refreshes JWT access token using a refresh token
