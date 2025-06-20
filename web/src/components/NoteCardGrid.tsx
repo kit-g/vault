@@ -15,7 +15,8 @@ export function NoteCardGrid({ hydrate, onDelete, onRestore }: NoteCardGridProps
   const [notes, setNotes] = useState<NoteOut[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [currentPage, _setCurrentPage] = useState(1);
 
   const fetchNotes = useCallback(() => {
     setLoading(true);
