@@ -11,7 +11,7 @@ export function NoteCardGrid() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    NotesService.getNotes()
+    NotesService.getNotes({ limit: 20 })
       .then(setNotes)
       .catch(() => setError("Failed to load notes"))
       .finally(() => setLoading(false));

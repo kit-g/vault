@@ -15,14 +15,14 @@ export default function NoteDetail() {
   const [note, setNote] = useState<NoteIn>({ title: '', content: '' });
   const [debouncedNote] = useDebounce(note, 2000); // debounce the note state by 2 seconds
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
-  const [loading, setLoading] = useState(!!noteId); // only load if an ID exists
+  const [loading, setLoading] = useState(!!id);
   const [isDirty, setIsDirty] = useState(false); // if the user has made changes
 
   useEffect(() => {
     // If this is an existing note, fetch its data
     if (id) {
       setLoading(true);
-      NotesService.getNote(id)
+      NotesService.getNote({ noteId: id })
         .then((note) => {
           setNote({ title: note.title!, content: note.content || '' });
         })
@@ -37,7 +37,7 @@ export default function NoteDetail() {
 
     try {
       if (!noteId) { // this is a new note that's never been saved
-        const newNote = await NotesService.createNote(note);
+        const newNote = await NotesService.createNote({ requestBody: note });
 
         setNoteId(newNote.id!); // track the new ID internally.
 
@@ -49,7 +49,7 @@ export default function NoteDetail() {
         );
 
       } else { // this is an existing note
-        await NotesService.editNote(noteId, note);
+        await NotesService.editNote({ noteId: noteId, requestBody: note });
       }
       setSaveStatus('saved');
       setIsDirty(false);
@@ -93,6 +93,7 @@ export default function NoteDetail() {
             />
           </div>
           <RichTextEditor
+            isLoading={ loading }
             content={ note.content }
             onChange={ (htmlContent) => handleChange('content', htmlContent) }
             status={ saveStatus }
@@ -106,7 +107,6 @@ export default function NoteDetail() {
           <h3 className="font-bold">Attachments</h3>
           {/* ... Your attachments UI will go here ... */ }
         </aside>
-
       </div>
     </>
   );

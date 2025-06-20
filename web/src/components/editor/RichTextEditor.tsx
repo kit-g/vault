@@ -6,12 +6,13 @@ interface RichTextEditorProps {
   content: string;
   onChange: (htmlContent: string) => void;
   status?: 'idle' | 'saving' | 'saved' | 'error';
+  isLoading?: boolean;
 }
 
-export function RichTextEditor({ content, onChange, status }: RichTextEditorProps) {
+export function RichTextEditor({ content, onChange, status, isLoading }: RichTextEditorProps) {
   const editor = useEditor({
     extensions: [StarterKit],
-    content: content,
+    content: isLoading ? '' : content,
     editorProps: {
       attributes: {
         class: 'prose focus:outline-none max-w-none p-4 min-h-[40vh]',
