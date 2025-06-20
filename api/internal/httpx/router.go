@@ -22,6 +22,13 @@ func Router(origins string) *gin.Engine {
 		},
 	)
 
+	r.GET(
+		"/version",
+		func(c *gin.Context) {
+			c.JSON(http.StatusOK, Info())
+		},
+	)
+
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Public routes
