@@ -26,7 +26,7 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const res = await AuthService.login(form);
+      const res = await AuthService.login({ requestBody: form });
       if (!res.session) {
         setError("Login failed. Please try again.");
         return;

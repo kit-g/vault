@@ -36,11 +36,11 @@ export default function RegisterPage() {
 
     try {
       const { email, password, username } = form;
-      const user = await AuthService.register({ email, password, username });
+      const user = await AuthService.register({requestBody: { email, password, username }});
       if (user) {
         const email = user.email;
         if (email) {
-          const res = await AuthService.login({ email, password });
+          const res = await AuthService.login({requestBody: { email, password }});
           if (res.session?.token) {
             login(res.session.token);
           } else {
