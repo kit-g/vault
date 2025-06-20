@@ -153,6 +153,15 @@ Resources:
               - Effect: Allow
                 Action: 'cloudfront:CreateInvalidation'
                 Resource: !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
+        - PolicyName: 'ApiDeploymentPolicy'
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'lambda:UpdateFunctionCode'
+                Resource:
+                  - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:vault-*"
 
 Outputs:
   HostingBucketName:
