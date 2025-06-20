@@ -6,16 +6,16 @@ import { Trash2 } from "lucide-react";
 interface NoteCardProps {
   note: NoteOut;
   onClick: () => void;
-  onDelete?: (noteId: string) => void;
+  onDelete?: (noteId: string) => Promise<void>;
 }
 
 
 export function NoteCard({ note, onClick, onDelete }: NoteCardProps) {
 
-  const onClickDelete = (e: React.MouseEvent) => {
+  const onClickDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (onDelete && note.id) {
-      onDelete(note.id);
+      await onDelete(note.id);
     }
   }
 

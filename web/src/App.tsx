@@ -15,6 +15,13 @@ import BinPage from "./pages/BinPage.tsx";
 import SettingsPage from "./pages/SettingsPage.tsx";
 import { NotesService } from "./api";
 
+const deleteNote = async (noteIdToDelete: string) => {
+  if (!window.confirm("Are you sure you want to delete this note?")) {
+    return;
+  }
+  await NotesService.deleteNote({ noteId: noteIdToDelete });
+};
+
 const router = createBrowserRouter([
     {
       element: <PrivateRoute><Dashboard/></PrivateRoute>,
@@ -22,7 +29,10 @@ const router = createBrowserRouter([
         {
           path: "/",
           element: <PageTransition>
-            <NoteCardGrid hydrate={ NotesService.getNotes }/>
+            <NoteCardGrid
+              hydrate={ NotesService.getNotes }
+              onDelete={ deleteNote }
+            />
           </PageTransition>,
         },
         {

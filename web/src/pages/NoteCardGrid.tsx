@@ -1,4 +1,4 @@
-import { type NoteOut, NotesService } from "../api";
+import { type NoteOut } from "../api";
 import { NoteCard } from "../components/NoteCard.tsx";
 import { useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
@@ -6,9 +6,10 @@ import { useCallback, useEffect, useState } from "react";
 
 type NoteCardGridProps = {
   hydrate: (params: { page?: number, limit?: number }) => Promise<NoteOut[]>;
+  onDelete?: (noteId: string) => Promise<void>;
 }
 
-export function NoteCardGrid({ hydrate }: NoteCardGridProps) {
+export function NoteCardGrid({ hydrate, onDelete }: NoteCardGridProps) {
   const navigate = useNavigate();
   const [notes, setNotes] = useState<NoteOut[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,6 +24,7 @@ export function NoteCardGrid({ hydrate }: NoteCardGridProps) {
       .finally(() => setLoading(false));
   }, [currentPage]);
 
+
   useEffect(() => {
     fetchNotes();
   }, [fetchNotes]);
@@ -36,16 +38,6 @@ export function NoteCardGrid({ hydrate }: NoteCardGridProps) {
     );
   }
 
-  const deleteNote = (noteIdToDelete: string) => {
-    if (!window.confirm("Are you sure you want to delete this note?")) {
-      return;
-    }
-
-    NotesService.deleteNote({ noteId: noteIdToDelete })
-      .then(fetchNotes);
-  };
-
-
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4">My Notes</h1>
@@ -57,7 +49,11 @@ export function NoteCardGrid({ hydrate }: NoteCardGridProps) {
                 key={ note.id }
                 note={ note }
                 onClick={ () => navigate(`/notes/${ note.id }`) }
-                onDelete={ deleteNote }
+                onDelete={
+                  onDelete
+                    ? async (noteId: string) => onDelete(noteId).then(fetchNotes)
+                    : undefined
+                }
               />
             )
           )
