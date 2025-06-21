@@ -2,6 +2,7 @@ import { type NotesResponse } from "../api";
 import { NoteCard } from "./NoteCard.tsx";
 import { useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
+import { Paginator } from "./paginator.tsx";
 
 
 type NoteCardGridProps = {
@@ -10,17 +11,18 @@ type NoteCardGridProps = {
   onRestore?: ({ noteId }: { noteId: string }) => Promise<void>;
 }
 
+const itemsPerPage = 2;
+
 export function NoteCardGrid({ hydrate, onDelete, onRestore }: NoteCardGridProps) {
   const navigate = useNavigate();
   const [notes, setNotes] = useState<NotesResponse>({ notes: [], total: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [currentPage, _setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const fetchNotes = useCallback(() => {
     setLoading(true);
-    hydrate({ page: currentPage, limit: 10 })
+    hydrate({ page: currentPage, limit: itemsPerPage })
       .then(setNotes)
       .catch(() => setError("Failed to load notes"))
       .finally(() => setLoading(false));
@@ -65,6 +67,14 @@ export function NoteCardGrid({ hydrate, onDelete, onRestore }: NoteCardGridProps
           )
         }
       </div>
+
+      <Paginator
+        currentPage={ currentPage }
+        totalItems={ notes.total || 0 }
+        itemsPerPage={ itemsPerPage }
+        onPageChange={ (page) => setCurrentPage(page) }
+      />
     </div>
   );
 }
+ 
