@@ -86,7 +86,7 @@ export class NotesService {
     /**
      * List deleted notes
      * Returns paginated soft-deleted notes for the authenticated user
-     * @returns NoteOut OK
+     * @returns NotesResponse OK
      * @throws ApiError
      */
     public static getDeletedNotes({
@@ -101,7 +101,7 @@ export class NotesService {
          * Items per page
          */
         limit?: number,
-    }): CancelablePromise<Array<NoteOut>> {
+    }): CancelablePromise<NotesResponse> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/notes/deleted',
