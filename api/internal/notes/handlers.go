@@ -57,7 +57,7 @@ func CreateNote(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@Param			limit		query		int		false	"Items per page"	default(10)
 //	@Param			archived	query		bool	false	"Filter by archived status"
 //	@Param			encrypted	query		bool	false	"Filter by encrypted status"
-//	@Success		200			{array}		NoteOut
+//	@Success		200			{object}    NotesResponse
 //	@Failure		401			{object}	ErrorResponse	"Unauthorized"
 //	@Failure		500			{object}	ErrorResponse	"Server error"
 //	@Router			/notes [get]
@@ -72,9 +72,13 @@ func GetNotes(c *gin.Context, userID uuid.UUID) (any, error) {
 		encrypted, encryptedSet = c.GetQuery("encrypted")
 	)
 
+	var notes []models.NoteWithCount
+
 	query := db.DB.
 		Model(&models.Note{}).
-		Where("user_id = ?", userID).
+		Joins("JOIN users ON users.id = notes.user_id").
+		Select("notes.*, users.notes_count").
+		Where("notes.user_id = ?", userID).
 		Preload("Attachments").
 		Order("created_at desc").
 		Limit(limit).
@@ -92,17 +96,23 @@ func GetNotes(c *gin.Context, userID uuid.UUID) (any, error) {
 		}
 	}
 
-	var notes []models.Note
 	if err := query.Find(&notes).Error; err != nil {
 		return nil, errors.NewServerError(err)
 	}
 
 	var out []models.NoteOut
-	for _, n := range notes {
-		out = append(out, models.NewNoteOut(&n))
-	}
+	total := 0
 
-	return out, nil
+	for _, n := range notes {
+		if total == 0 {
+			total = n.NotesCount
+		}
+		out = append(out, models.NewNoteOut(&n.Note))
+	}
+	return models.NotesResponse{
+		Notes: out,
+		Total: total,
+	}, nil
 }
 
 // GetNote godoc
@@ -343,7 +353,7 @@ func GetDownloadURL(c *gin.Context, _ uuid.UUID) (any, error) {
 //	@ID				getDeletedNotes
 //	@Param			page	query		int	false	"Page number"		default(1)
 //	@Param			limit	query		int	false	"Items per page"	default(10)
-//	@Success		200		{array}		NoteOut
+//	@Success		200		{object}	NotesResponse
 //	@Failure		401		{object}	ErrorResponse	"Unauthorized"
 //	@Failure		500		{object}	ErrorResponse	"Server error"
 //	@Router			/notes/deleted [get]
@@ -353,10 +363,12 @@ func GetDeletedNotes(c *gin.Context, userID uuid.UUID) (any, error) {
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 	offset := (page - 1) * limit
 
-	var notes []models.Note
+	var notes []models.NoteWithCount
 	if err := db.DB.
 		Unscoped().
-		Where("user_id = ? AND deleted_at IS NOT NULL", userID).
+		Joins("JOIN users ON users.id = notes.user_id").
+		Select("notes.*, users.notes_count").
+		Where("notes.user_id = ? AND notes.deleted_at IS NOT NULL", userID).
 		Preload("Attachments").
 		Order("deleted_at desc").
 		Limit(limit).
@@ -366,11 +378,19 @@ func GetDeletedNotes(c *gin.Context, userID uuid.UUID) (any, error) {
 	}
 
 	var out []models.NoteOut
+	total := 0
+
 	for _, n := range notes {
-		out = append(out, models.NewNoteOut(&n))
+		out = append(out, models.NewNoteOut(&n.Note))
+		if total == 0 {
+			total = n.NotesCount
+		}
 	}
 
-	return out, nil
+	return models.NotesResponse{
+		Notes: out,
+		Total: total,
+	}, nil
 }
 
 // RestoreNote godoc

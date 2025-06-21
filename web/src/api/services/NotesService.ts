@@ -4,6 +4,7 @@
 /* eslint-disable */
 import type { NoteIn } from '../models/NoteIn';
 import type { NoteOut } from '../models/NoteOut';
+import type { NotesResponse } from '../models/NotesResponse';
 import type { PresignDownloadResponse } from '../models/PresignDownloadResponse';
 import type { PresignUploadRequest } from '../models/PresignUploadRequest';
 import type { PresignUploadResponse } from '../models/PresignUploadResponse';
@@ -15,7 +16,7 @@ export class NotesService {
     /**
      * List user notes
      * Returns paginated notes for the authenticated user with optional filtering
-     * @returns NoteOut OK
+     * @returns NotesResponse OK
      * @throws ApiError
      */
     public static getNotes({
@@ -40,7 +41,7 @@ export class NotesService {
          * Filter by encrypted status
          */
         encrypted?: boolean,
-    }): CancelablePromise<Array<NoteOut>> {
+    }): CancelablePromise<NotesResponse> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/notes',
@@ -85,7 +86,7 @@ export class NotesService {
     /**
      * List deleted notes
      * Returns paginated soft-deleted notes for the authenticated user
-     * @returns NoteOut OK
+     * @returns NotesResponse OK
      * @throws ApiError
      */
     public static getDeletedNotes({
@@ -100,7 +101,7 @@ export class NotesService {
          * Items per page
          */
         limit?: number,
-    }): CancelablePromise<Array<NoteOut>> {
+    }): CancelablePromise<NotesResponse> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/notes/deleted',

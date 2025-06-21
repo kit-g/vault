@@ -9,7 +9,7 @@ import (
 // Note represents a secure user note
 type Note struct {
 	SoftDeleteModel
-	UserID      uuid.UUID    `json:"-"`
+	UserID      uuid.UUID    `json:"-" gorm:"type:uuid;not null"`
 	Title       string       `json:"title" binding:"required"`
 	Content     string       `json:"content" binding:"required"`
 	Encrypted   bool         `json:"encrypted"`
@@ -145,4 +145,18 @@ func NewNoteShare(noteId uuid.UUID, userId uuid.UUID, permission Permission) Not
 		SharedWithUserID: userId,
 		Permission:       permission,
 	}
+}
+
+type NotesResponse struct {
+	Notes []NoteOut `json:"notes"`
+	Total int       `json:"total" example:"10"`
+} // @name NotesResponse
+
+type NoteWithCount struct {
+	Note
+	NotesCount int `gorm:"column:notes_count"`
+}
+
+func (NoteWithCount) TableName() string {
+	return "notes"
 }

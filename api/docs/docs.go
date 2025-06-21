@@ -165,10 +165,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/NoteOut"
-                            }
+                            "$ref": "#/definitions/NotesResponse"
                         }
                     },
                     "401": {
@@ -281,10 +278,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/NoteOut"
-                            }
+                            "$ref": "#/definitions/NotesResponse"
                         }
                     },
                     "401": {
@@ -1001,6 +995,21 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
+                }
+            }
+        },
+        "NotesResponse": {
+            "type": "object",
+            "properties": {
+                "notes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/NoteOut"
+                    }
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 10
                 }
             }
         },

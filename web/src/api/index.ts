@@ -13,6 +13,7 @@ export type { Login } from './models/Login';
 export type { LoginOut } from './models/LoginOut';
 export type { NoteIn } from './models/NoteIn';
 export type { NoteOut } from './models/NoteOut';
+export type { NotesResponse } from './models/NotesResponse';
 export type { PresignDownloadResponse } from './models/PresignDownloadResponse';
 export type { PresignUploadRequest } from './models/PresignUploadRequest';
 export type { PresignUploadResponse } from './models/PresignUploadResponse';
