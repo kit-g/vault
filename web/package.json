@@ -21,6 +21,7 @@
     "lucide-react": "^0.517.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-dropzone": "^14.3.8",
     "react-router-dom": "^7.6.2",
     "use-debounce": "^10.0.5",
     "zod": "^3.25.64"

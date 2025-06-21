@@ -5,6 +5,7 @@ import { Seo } from "../components/Seo";
 import { RichTextEditor } from "../components/editor/RichTextEditor.tsx";
 import { useDebounce } from "use-debounce";
 import { type SaveStatus } from "../components/editor/SaveStatusIndicator.tsx";
+import { useDropzone } from "react-dropzone";
 
 export default function NoteDetail() {
   const navigate = useNavigate();
@@ -74,11 +75,19 @@ export default function NoteDetail() {
     setNote(prev => ({ ...prev, [field]: value }));
   };
 
-  const onFilesSelected = (files: FileList) => {
+  const onFilesSelected = (files: FileList | File[]) => {
     console.log("Files selected:", files);
     // TODO: Here is where we will start the upload process for each file.
     // For now, we just log them to the console.
   };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone(
+    {
+      onDrop: acceptedFiles => onFilesSelected(acceptedFiles),
+      noClick: true,
+      noKeyboard: true,
+    }
+  );
 
   if (loading) return <div>Loading...</div>;
 
@@ -107,7 +116,14 @@ export default function NoteDetail() {
           />
         </div>
 
-        <aside className="w-80 border-l border-[var(--border)] p-4 hidden xl:block">
+        <aside { ...getRootProps() } className="w-80 border-l border-[var(--border)] p-4 hidden xl:block relative">
+          <input { ...getInputProps() } />
+          { isDragActive && (
+            <div
+              className="absolute inset-2 flex items-center justify-center border-2 border-dashed border-[var(--accent)] bg-[var(--subtle-bg)] rounded-lg z-10">
+              <p className="font-bold text-[var(--accent)]">Drop files to attach</p>
+            </div>
+          ) }
           <h3 className="font-bold">Attachments</h3>
           {/* ... Your attachments UI will go here ... */ }
         </aside>
