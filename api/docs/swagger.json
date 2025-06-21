@@ -545,10 +545,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "items": {
-                                        "$ref": "#/components/schemas/NoteOut"
-                                    },
-                                    "type": "array"
+                                    "$ref": "#/components/schemas/NotesResponse"
                                 }
                             }
                         },

@@ -278,10 +278,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/NoteOut"
-                            }
+                            "$ref": "#/definitions/NotesResponse"
                         }
                     },
                     "401": {
