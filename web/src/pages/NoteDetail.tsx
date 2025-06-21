@@ -74,6 +74,12 @@ export default function NoteDetail() {
     setNote(prev => ({ ...prev, [field]: value }));
   };
 
+  const onFilesSelected = (files: FileList) => {
+    console.log("Files selected:", files);
+    // TODO: Here is where we will start the upload process for each file.
+    // For now, we just log them to the console.
+  };
+
   if (loading) return <div>Loading...</div>;
 
   return (
@@ -97,6 +103,7 @@ export default function NoteDetail() {
             content={ note.content }
             onChange={ (htmlContent) => handleChange('content', htmlContent) }
             status={ saveStatus }
+            onFilesSelected={ onFilesSelected }
           />
         </div>
 
