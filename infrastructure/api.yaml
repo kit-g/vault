@@ -39,6 +39,15 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub "${AWS::AccountId}-vault"
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders: [ "*" ]
+            AllowedMethods:
+              - PUT   # pre-signed URL uploads
+              - POST  # other potential operations
+              - GET
+            AllowedOrigins: !Split [ ",", !Ref CorsOrigins ]
+            MaxAge: 3000 # 50 minutes
       NotificationConfiguration:
         LambdaConfigurations:
           - Event: s3:ObjectCreated:*
