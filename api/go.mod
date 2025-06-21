@@ -8,6 +8,8 @@ require (
 	github.com/aws/aws-lambda-go v1.49.0
 	github.com/aws/aws-sdk-go v1.55.7
 	github.com/awslabs/aws-lambda-go-api-proxy v0.16.2
+	github.com/getsentry/sentry-go v0.33.0
+	github.com/getsentry/sentry-go/gin v0.33.0
 	github.com/gin-gonic/gin v1.10.1
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/google/uuid v1.6.0

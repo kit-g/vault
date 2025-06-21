@@ -22,9 +22,14 @@ type AwsConfig struct {
 	AttachmentBucket string `env:"ATTACHMENT_BUCKET" required:"true"`
 }
 
+type SentryConfig struct {
+	SentryDSN string `env:"SENTRY_DSN"`
+}
+
 type Config struct {
 	DBConfig
 	AwsConfig
+	SentryConfig
 	JWTSecret            string `env:"JWT_SECRET" required:"true"`
 	AuthTokenLifespan    int    `env:"AUTH_TOKEN_LIFESPAN" default:"180" required:"true"`       // 3 hours
 	RefreshTokenLifespan int    `env:"REFRESH_TOKEN_LIFESPAN" default:"100800" required:"true"` // 10 weeks

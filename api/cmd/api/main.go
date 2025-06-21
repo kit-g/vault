@@ -61,6 +61,13 @@ func main() {
 	Init()
 	r := httpx.Router(cfg.CORSOrigins)
 
+	if cfg.SentryDSN != "" {
+		r.Use(httpx.InitSentry(cfg.SentryDSN))
+		log.Println("Sentry initialized")
+	} else {
+		log.Println("Sentry not configured, skipping initialization")
+	}
+
 	mode := os.Getenv("MODE")
 
 	if mode == "lambda" {
