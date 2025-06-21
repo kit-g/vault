@@ -117,8 +117,6 @@ export function PersistentToolbar({ editor, status, onFilesSelected }: Persisten
       <div className="pr-2">
         <SaveStatusIndicator status={ status }/>
       </div>
-
-
     </div>
   );
 }

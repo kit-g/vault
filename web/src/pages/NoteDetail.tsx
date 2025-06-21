@@ -1,11 +1,21 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { type NoteIn, NotesService } from "../api";
+import { type NoteIn, type NoteOut, NotesService } from "../api";
 import { Seo } from "../components/Seo";
 import { RichTextEditor } from "../components/editor/RichTextEditor.tsx";
 import { useDebounce } from "use-debounce";
 import { type SaveStatus } from "../components/editor/SaveStatusIndicator.tsx";
 import { useDropzone } from "react-dropzone";
+import axios from "axios";
+import { AttachmentItem } from "../components/AttachmentItem.tsx";
+
+type UploadingFile = {
+  id: string; // A unique temporary ID for the React key
+  file: File;
+  progress: number; // A value from 0 to 100
+  status: 'uploading' | 'success' | 'error';
+  error?: string;
+};
 
 export default function NoteDetail() {
   const navigate = useNavigate();
@@ -14,10 +24,12 @@ export default function NoteDetail() {
 
   const [noteId, setNoteId] = useState<string | null>(id || null);
   const [note, setNote] = useState<NoteIn>({ title: '', content: '' });
+  const [noteOut, setNoteOut] = useState<NoteOut | undefined>(undefined);
   const [debouncedNote] = useDebounce(note, 2000); // debounce the note state by 2 seconds
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const [loading, setLoading] = useState(!!id);
   const [isDirty, setIsDirty] = useState(false); // if the user has made changes
+  const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
 
   useEffect(() => {
     // If this is an existing note, fetch its data
@@ -25,6 +37,7 @@ export default function NoteDetail() {
       setLoading(true);
       NotesService.getNote({ noteId: id })
         .then((note) => {
+          setNoteOut(note);
           setNote({ title: note.title!, content: note.content || '' });
         })
         .catch(err => console.error("Failed to fetch note", err))
@@ -70,16 +83,33 @@ export default function NoteDetail() {
   );
 
   const handleChange = (field: 'title' | 'content', value: string) => {
-    setIsDirty(true); // Mark that we have unsaved changes
-    setSaveStatus('idle'); // Reset status when the user types again
+    setIsDirty(true); // mark that we have unsaved changes
+    setSaveStatus('idle'); // reset status when the user types again
     setNote(prev => ({ ...prev, [field]: value }));
   };
 
   const onFilesSelected = (files: FileList | File[]) => {
-    console.log("Files selected:", files);
-    // TODO: Here is where we will start the upload process for each file.
-    // For now, we just log them to the console.
+    if (!noteId) {
+      alert("Please save the note before adding attachments.");
+      return;
+    }
+
+    const uploads: UploadingFile[] = Array.from(files).map(
+      file => ({
+        id: crypto.randomUUID(),
+        file,
+        progress: 0,
+        status: 'uploading',
+      })
+    );
+
+    setUploadingFiles(
+      prev => [...prev, ...uploads]
+    );
+
+    uploads.forEach(uploadFile);
   };
+
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone(
     {
@@ -88,6 +118,50 @@ export default function NoteDetail() {
       noKeyboard: true,
     }
   );
+
+  const uploadFile = async (upload: UploadingFile): Promise<void> => {
+    try {
+      const { url } = await NotesService.getUploadUrl(
+        {
+          noteId: noteId!,
+          requestBody: {
+            content_type: upload.file.type,
+            filename: upload.file.name,
+          }
+        }
+      );
+
+      if (url) {
+        await axios.put(
+          url,
+          upload.file,
+          {
+            headers: { 'Content-Type': upload.file.type },
+            onUploadProgress: (event) => {
+              const percentCompleted = Math.round((event.loaded * 100) / event.total!);
+              setUploadingFiles(prev =>
+                prev.map(f => f.id === upload.id ? { ...f, progress: percentCompleted } : f)
+              );
+            }
+          }
+        );
+
+        setUploadingFiles(
+          prev => prev.map(
+            f => f.id === upload.id ? { ...f, status: 'success' } : f
+          )
+        );
+      }
+    } catch (err) {
+      console.error("Upload failed", err);
+
+      setUploadingFiles(
+        prev => prev.map(
+          f => f.id === upload.id ? { ...f, status: 'error', error: (err as Error).message } : f
+        )
+      );
+    }
+  }
 
   if (loading) return <div>Loading...</div>;
 
@@ -125,7 +199,32 @@ export default function NoteDetail() {
             </div>
           ) }
           <h3 className="font-bold">Attachments</h3>
-          {/* ... Your attachments UI will go here ... */ }
+          <div className="flex flex-col gap-2 mt-4">
+            {
+              noteOut?.attachments?.map(
+                (attachment) => (
+                  <AttachmentItem
+                    key={ attachment.id }
+                    name={ attachment.filename || "" }
+                    status="idle"
+                    progress={ 100 }
+                  />
+                )
+              )
+            }
+            {
+              uploadingFiles.map(f => (
+                  <AttachmentItem
+                    key={ f.id }
+                    name={ f.file.name }
+                    status={ f.status }
+                    progress={ f.progress }
+                    error={ f.error }
+                  />
+                )
+              )
+            }
+          </div>
         </aside>
       </div>
     </>
