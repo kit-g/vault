@@ -11,7 +11,7 @@ type NoteCardGridProps = {
   onRestore?: ({ noteId }: { noteId: string }) => Promise<void>;
 }
 
-const itemsPerPage = 2;
+const itemsPerPage = 12;
 
 export function NoteCardGrid({ hydrate, onDelete, onRestore }: NoteCardGridProps) {
   const navigate = useNavigate();
@@ -43,7 +43,7 @@ export function NoteCardGrid({ hydrate, onDelete, onRestore }: NoteCardGridProps
   }
 
   return (
-    <div>
+    <div className="flex flex-col flex-1">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {
           notes.notes?.map(
@@ -68,12 +68,14 @@ export function NoteCardGrid({ hydrate, onDelete, onRestore }: NoteCardGridProps
         }
       </div>
 
-      <Paginator
-        currentPage={ currentPage }
-        totalItems={ notes.total || 0 }
-        itemsPerPage={ itemsPerPage }
-        onPageChange={ (page) => setCurrentPage(page) }
-      />
+      <div className="mt-auto pt-8 flex justify-center">
+        <Paginator
+          currentPage={ currentPage }
+          totalItems={ notes.total || 0 }
+          itemsPerPage={ itemsPerPage }
+          onPageChange={ (page) => setCurrentPage(page) }
+        />
+      </div>
     </div>
   );
 }

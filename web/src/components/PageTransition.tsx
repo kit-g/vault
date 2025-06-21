@@ -23,6 +23,7 @@ export function PageTransition({ children }: { children: ReactNode }) {
       animate="animate"
       exit="exit"
       transition={ { duration: disableAnimation ? 0 : 0.4, ease: "easeInOut" } }
+      className="flex flex-col h-full"
     >{ children }</motion.div>
   );
 }
