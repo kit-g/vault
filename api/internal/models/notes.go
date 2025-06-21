@@ -146,3 +146,13 @@ func NewNoteShare(noteId uuid.UUID, userId uuid.UUID, permission Permission) Not
 		Permission:       permission,
 	}
 }
+
+type NotesResponse struct {
+	Notes []NoteOut `json:"notes"`
+	Total int       `json:"total" example:"10"`
+} // @name NotesResponse
+
+type NoteWithCount struct {
+	Note
+	NotesCount int `gorm:"column:notes_count"`
+}

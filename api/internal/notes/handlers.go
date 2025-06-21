@@ -57,7 +57,7 @@ func CreateNote(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@Param			limit		query		int		false	"Items per page"	default(10)
 //	@Param			archived	query		bool	false	"Filter by archived status"
 //	@Param			encrypted	query		bool	false	"Filter by encrypted status"
-//	@Success		200			{array}		NoteOut
+//	@Success		200			{object}    NotesResponse
 //	@Failure		401			{object}	ErrorResponse	"Unauthorized"
 //	@Failure		500			{object}	ErrorResponse	"Server error"
 //	@Router			/notes [get]
@@ -72,9 +72,13 @@ func GetNotes(c *gin.Context, userID uuid.UUID) (any, error) {
 		encrypted, encryptedSet = c.GetQuery("encrypted")
 	)
 
+	var notes []models.NoteWithCount
+
 	query := db.DB.
 		Model(&models.Note{}).
-		Where("user_id = ?", userID).
+		Joins("JOIN users ON users.id = notes.user_id").
+		Select("notes.*, users.notes_count").
+		Where("notes.user_id = ?", userID).
 		Preload("Attachments").
 		Order("created_at desc").
 		Limit(limit).
@@ -92,17 +96,23 @@ func GetNotes(c *gin.Context, userID uuid.UUID) (any, error) {
 		}
 	}
 
-	var notes []models.Note
 	if err := query.Find(&notes).Error; err != nil {
 		return nil, errors.NewServerError(err)
 	}
 
 	var out []models.NoteOut
-	for _, n := range notes {
-		out = append(out, models.NewNoteOut(&n))
-	}
+	total := 0
 
-	return out, nil
+	for _, n := range notes {
+		if total == 0 {
+			total = n.NotesCount
+		}
+		out = append(out, models.NewNoteOut(&n.Note))
+	}
+	return models.NotesResponse{
+		Notes: out,
+		Total: total,
+	}, nil
 }
 
 // GetNote godoc
