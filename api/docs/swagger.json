@@ -114,6 +114,21 @@
                 },
                 "type": "object"
             },
+            "NotesResponse": {
+                "properties": {
+                    "notes": {
+                        "items": {
+                            "$ref": "#/components/schemas/NoteOut"
+                        },
+                        "type": "array"
+                    },
+                    "total": {
+                        "example": 10,
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
             "PresignDownloadResponse": {
                 "properties": {
                     "url": {
@@ -396,10 +411,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "items": {
-                                        "$ref": "#/components/schemas/NoteOut"
-                                    },
-                                    "type": "array"
+                                    "$ref": "#/components/schemas/NotesResponse"
                                 }
                             }
                         },
