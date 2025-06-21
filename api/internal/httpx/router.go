@@ -5,6 +5,7 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"net/http"
+	"strings"
 	_ "vault/docs"
 	"vault/internal/auth"
 	"vault/internal/notes"
@@ -61,12 +62,19 @@ func Router(origins string) *gin.Engine {
 	return r
 }
 
+// CORSMiddleware returns a Gin middleware that handles CORS requests.
 func CORSMiddleware(origins string) gin.HandlerFunc {
+	parsed := allowedOrigins(origins)
+	originSet := make(map[string]struct{}, len(parsed))
+	for _, o := range parsed {
+		originSet[o] = struct{}{}
+	}
+
 	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", origins)
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		origin := c.Request.Header.Get("Origin")
+		if _, ok := originSet[origin]; ok {
+			corsHeaders(c, origin)
+		}
 
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)
@@ -75,4 +83,22 @@ func CORSMiddleware(origins string) gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+func allowedOrigins(origins string) []string {
+	var result []string
+	for _, o := range strings.Split(origins, ",") {
+		trimmed := strings.TrimSpace(o)
+		if trimmed != "" {
+			result = append(result, trimmed)
+		}
+	}
+	return result
+}
+
+func corsHeaders(c *gin.Context, origin string) {
+	c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+	c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+	c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+	c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 }
