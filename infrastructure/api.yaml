@@ -28,6 +28,11 @@ Parameters:
   ApiCertificateArn:
     Type: String
     Description: "ACM certificate ARN for the API domain"
+  SentryDsn:
+    Type: String
+    Description: "Sentry DSN for error tracking"
+    Default: ""
+    NoEcho: true
 
 Resources:
   AttachmentBucket:
@@ -82,6 +87,7 @@ Resources:
           JWT_SECRET: 1
           MODE: "lambda"
           REGION: !Ref AWS::Region
+          SENTRY_DSN: !Ref SentryDsn
       FunctionName: "vault-api"
       Policies:
         - AWSLambdaBasicExecutionRole
