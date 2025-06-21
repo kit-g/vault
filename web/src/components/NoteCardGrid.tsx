@@ -1,18 +1,18 @@
-import { type NoteOut } from "../api";
+import { type NotesResponse } from "../api";
 import { NoteCard } from "./NoteCard.tsx";
 import { useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 
 
 type NoteCardGridProps = {
-  hydrate: (params: { page?: number, limit?: number }) => Promise<NoteOut[]>;
+  hydrate: (params: { page?: number, limit?: number }) => Promise<NotesResponse>;
   onDelete?: ({ noteId }: { noteId: string }) => Promise<void>;
   onRestore?: ({ noteId }: { noteId: string }) => Promise<void>;
 }
 
 export function NoteCardGrid({ hydrate, onDelete, onRestore }: NoteCardGridProps) {
   const navigate = useNavigate();
-  const [notes, setNotes] = useState<NoteOut[]>([]);
+  const [notes, setNotes] = useState<NotesResponse>({ notes: [], total: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -34,7 +34,7 @@ export function NoteCardGrid({ hydrate, onDelete, onRestore }: NoteCardGridProps
   if (loading) return <div className="p-4 text-white">Loading...</div>;
   if (error) return <div className="p-4 text-red-500">{ error }</div>;
 
-  if (!notes || notes.length === 0) {
+  if (!notes || notes.notes?.length === 0) {
     return (
       <p className="text-center text-gray-200 mt-10">No notes yet. Create one!</p>
     );
@@ -44,7 +44,7 @@ export function NoteCardGrid({ hydrate, onDelete, onRestore }: NoteCardGridProps
     <div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {
-          notes.map(
+          notes.notes?.map(
             (note) => (
               <NoteCard
                 key={ note.id }
