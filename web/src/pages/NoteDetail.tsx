@@ -9,6 +9,8 @@ import { useDropzone } from "react-dropzone";
 import axios from "axios";
 import { AttachmentItem } from "../components/AttachmentItem.tsx";
 import { fileTypeFromBlob } from "file-type";
+import { formatBytes } from "../utils/numbers.ts";
+import toast from "react-hot-toast";
 
 type UploadingFile = {
   id: string; // A unique temporary ID for the React key
@@ -17,6 +19,8 @@ type UploadingFile = {
   status: 'uploading' | 'success' | 'error';
   error?: string;
 };
+
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
 export default function NoteDetail() {
   const navigate = useNavigate();
@@ -95,7 +99,27 @@ export default function NoteDetail() {
       return;
     }
 
-    const uploads: UploadingFile[] = Array.from(files).map(
+    const validFiles: File[] = [];
+    const invalidFiles: string[] = [];
+
+    for (const file of Array.from(files)) {
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        invalidFiles.push(`${ file.name } (${ formatBytes(file.size) })`);
+      } else {
+        validFiles.push(file);
+      }
+    }
+
+    if (invalidFiles.length > 0) {
+      toast.error(
+        `File size exceeds ${ formatBytes(MAX_FILE_SIZE_BYTES) } limit.`,
+        { duration: 4000 }
+      );
+
+      return;
+    }
+
+    const uploads: UploadingFile[] = Array.from(validFiles).map(
       file => ({
         id: crypto.randomUUID(),
         file,

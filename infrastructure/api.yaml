@@ -48,6 +48,12 @@ Resources:
               - GET
             AllowedOrigins: !Split [ ",", !Ref CorsOrigins ]
             MaxAge: 3000 # 50 minutes
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteLargeFiles
+            Status: Enabled
+            ObjectSizeGreaterThan: 10485760
+            ExpirationInDays: 1
       NotificationConfiguration:
         LambdaConfigurations:
           - Event: s3:ObjectCreated:*
@@ -147,6 +153,11 @@ Resources:
       DeploymentId: !Ref VaultApiDeployment
       StageName: v1
       Description: "v1 stage"
+      MethodSettings:
+        - ResourcePath: "/*"
+          HttpMethod: "*"
+          ThrottlingRateLimit: 200
+          ThrottlingBurstLimit: 100
 
   VaultApiPermission:
     Type: AWS::Lambda::Permission

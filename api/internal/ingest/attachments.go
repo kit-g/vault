@@ -15,6 +15,8 @@ import (
 	"vault/internal/models"
 )
 
+const maxUploadSize = 10 * 1024 * 1024 // 10 MB
+
 func Handle() error {
 	lambda.Start(handler)
 	return nil
@@ -73,6 +75,25 @@ func handler(_ context.Context, s3Event events.S3Event) error {
 		size := int64(0)
 		if head.ContentLength != nil {
 			size = *head.ContentLength
+		}
+
+		if size > maxUploadSize {
+			log.Printf("File %s exceeds size limit (%d > %d). Deleting.", decoded, size, maxUploadSize)
+
+			request := &s3.DeleteObjectInput{
+				Bucket: aws.String(bucket),
+				Key:    aws.String(decoded),
+			}
+			_, err := awsx.S3.DeleteObject(request)
+
+			if err != nil {
+				errors("Failed to delete oversized file %s: %v", decoded, err)
+			} else {
+				log.Printf("Successfully deleted oversized file: %s", decoded)
+			}
+
+			// skip the rest of the loop for this record
+			continue
 		}
 
 		attachment := models.NewAttachment(noteID, filename, mimeType, size)

@@ -2,12 +2,14 @@ import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { AppHeader } from "../components/AppHeader.tsx";
 import { Sidebar } from "../components/Sidebar.tsx";
+import { Toaster } from "react-hot-toast";
 
 export function Dashboard() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="h-screen flex flex-col bg-[var(--background)] text-[var(--foreground)]">
+      <Toaster position="bottom-center"/>
       <AppHeader onMenuClick={ () => setSidebarOpen(true) }/>
       <div className="flex flex-1 overflow-hidden">
         <Sidebar className="hidden lg:flex"/>
