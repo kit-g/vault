@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { AttachmentResponse } from '../models/AttachmentResponse';
 import type { NoteIn } from '../models/NoteIn';
 import type { NoteOut } from '../models/NoteOut';
 import type { NotesResponse } from '../models/NotesResponse';
@@ -80,6 +81,62 @@ export class NotesService {
                 400: `Bad Request`,
                 401: `Unauthorized`,
                 500: `Internal Server Error`,
+            },
+        });
+    }
+    /**
+     * List user attachments
+     * Returns paginated attachments for the authenticated user with optional filtering
+     * @returns AttachmentResponse OK
+     * @throws ApiError
+     */
+    public static getAttachments({
+        page = 1,
+        limit = 10,
+        deleted,
+        mimeType,
+        noteId,
+        sort = 'desc',
+    }: {
+        /**
+         * Page number
+         */
+        page?: number,
+        /**
+         * Items per page
+         */
+        limit?: number,
+        /**
+         * Filter by deleted notes
+         */
+        deleted?: boolean,
+        /**
+         * Filter by MIME type
+         */
+        mimeType?: string,
+        /**
+         * Filter by note ID
+         */
+        noteId?: string,
+        /**
+         * Sort by creation date (asc/desc)
+         */
+        sort?: string,
+    }): CancelablePromise<AttachmentResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/notes/attachments',
+            query: {
+                'page': page,
+                'limit': limit,
+                'deleted': deleted,
+                'mime_type': mimeType,
+                'note_id': noteId,
+                'sort': sort,
+            },
+            errors: {
+                401: `Unauthorized`,
+                500: `Server error`,
             },
         });
     }

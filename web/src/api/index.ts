@@ -8,6 +8,8 @@ export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
 export type { AttachmentOut } from './models/AttachmentOut';
+export type { AttachmentRef } from './models/AttachmentRef';
+export type { AttachmentResponse } from './models/AttachmentResponse';
 export type { ErrorResponse } from './models/ErrorResponse';
 export type { Login } from './models/Login';
 export type { LoginOut } from './models/LoginOut';

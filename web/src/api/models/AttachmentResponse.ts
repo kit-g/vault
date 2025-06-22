@@ -2,9 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { NoteOut } from './NoteOut';
-export type NotesResponse = {
-    notes: Array<NoteOut>;
+import type { AttachmentRef } from './AttachmentRef';
+export type AttachmentResponse = {
+    attachments: Array<AttachmentRef>;
     total: number;
 };
 
