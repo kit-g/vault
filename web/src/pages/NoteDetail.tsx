@@ -181,6 +181,28 @@ export default function NoteDetail() {
       .catch(err => console.error("Failed to delete attachment", err));
   }
 
+  const downloadAttachment = async (attachmentId: string) => {
+    try {
+      const request = { noteId: noteId!, attachmentId: attachmentId, };
+      const { url } = await NotesService.getDownloadUrl(request);
+
+      console.log(url)
+
+      if (url) {
+        // create a temporary link element to trigger the download
+        const link = document.createElement('a');
+        link.href = url;
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (err) {
+      console.error("Failed to download file", err);
+      alert("Could not download the file.");
+    }
+  };
+
   if (loading) return <div>Loading...</div>;
 
   return (
@@ -230,11 +252,7 @@ export default function NoteDetail() {
                     size={ attachment.size }
                     progress={ 100 }
                     onDelete={ deleteAttachment }
-                    onDownload={
-                      (attachmentId) => {
-                        console.log(attachmentId)
-                      }
-                    }
+                    onDownload={ downloadAttachment }
                   />
                 )
               )
