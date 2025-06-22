@@ -11,6 +11,7 @@ type User struct {
 	Password          string
 	NotesCount        int `gorm:"type:integer;default:0;not null"`
 	DeletedNotesCount int `gorm:"type:integer;default:0;not null"`
+	AttachmentsCount  int `gorm:"type:integer;default:0;not null"`
 }
 
 func (u User) String() string {

@@ -4,7 +4,7 @@
 /* eslint-disable */
 export type AttachmentOut = {
     filename?: string;
-    id?: string;
+    id: string;
     mime_type?: string;
     size?: number;
 };

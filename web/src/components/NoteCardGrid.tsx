@@ -1,7 +1,7 @@
 import { type NotesResponse } from "../api";
 import { NoteCard } from "./NoteCard.tsx";
 import { useCallback, useEffect, useState } from "react";
-import { Paginator } from "./paginator.tsx";
+import { Paginator } from "./Paginator.tsx";
 
 
 type NoteCardGridProps = {

@@ -1,4 +1,4 @@
-import { AlertCircle, CheckCircle2, Download, Paperclip, X } from "lucide-react";
+import { AlertCircle, CheckCircle2, Download, Eye, Paperclip, X } from "lucide-react";
 import { formatBytes } from "../utils/numbers.ts";
 import * as React from "react";
 import { Tooltip } from "./Tooltip.tsx";
@@ -13,10 +13,11 @@ interface AttachmentItemProps {
   error?: string;
   onDelete?: (attachmentId: string) => void;
   onDownload?: (attachmentId: string) => void;
+  onView?: (attachmentId: string) => void;
 }
 
 export function AttachmentItem(
-  { attachmentId, name, status, progress = 0, mimeType, size, onDelete, onDownload }: AttachmentItemProps
+  { attachmentId, name, status, progress = 0, mimeType, size, onDelete, onDownload, onView }: AttachmentItemProps
 ) {
   const tooltip = `${ name }\n${ mimeType }\n${ formatBytes(size || 0) }`;
 
@@ -31,6 +32,11 @@ export function AttachmentItem(
     e.stopPropagation();
     if (onDownload && attachmentId) onDownload(attachmentId);
   };
+
+  const onClickView = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onView && attachmentId) onView(attachmentId);
+  }
 
   return (
     <Tooltip tip={ tooltip }>
@@ -59,6 +65,15 @@ export function AttachmentItem(
         absolute top-1/2 -translate-y-1/2 right-2 flex items-center gap-1
         opacity-0 group-hover:opacity-100 transition-opacity duration-200"
         >
+          {
+            onView && (
+              <button onClick={ onClickView }
+                      className="p-1.5 rounded-full hover:bg-black/10"
+                      aria-label="View attachment">
+                <Eye size={ 16 }/>
+              </button>
+            )
+          }
           {
             onDownload && (
               <button onClick={ onClickDownload } className="p-1.5 rounded-full hover:bg-black/10"

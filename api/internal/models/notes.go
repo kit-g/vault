@@ -87,7 +87,7 @@ type NoteIn struct {
 } // @name NoteIn
 
 type AttachmentOut struct {
-	ID       uuid.UUID `json:"id" example:"123e4567-e89b-12d3-a456-426614174000"`
+	ID       uuid.UUID `json:"id" example:"123e4567-e89b-12d3-a456-426614174000" binding:"required"`
 	Filename string    `json:"filename" example:"document.pdf"`
 	MimeType string    `json:"mime_type" example:"application/pdf"`
 	Size     int64     `json:"size" example:"123456"`
@@ -103,12 +103,12 @@ func NewAttachmentOut(a *Attachment) AttachmentOut {
 }
 
 type NoteOut struct {
-	ID          uuid.UUID       `json:"id" example:"123e4567-e89b-12d3-a456-426614174000"`
+	ID          uuid.UUID       `json:"id" example:"123e4567-e89b-12d3-a456-426614174000" binding:"required"`
 	Title       string          `json:"title" example:"Meeting Notes"`
 	Content     string          `json:"content" example:"Notes from the meeting with the client."`
 	Encrypted   bool            `json:"encrypted"`
 	Archived    bool            `json:"archived"`
-	CreatedAt   time.Time       `json:"created_at"`
+	CreatedAt   time.Time       `json:"created_at" binding:"required"`
 	UpdatedAt   time.Time       `json:"updated_at"`
 	Attachments []AttachmentOut `json:"attachments"`
 } // @name NoteOut
@@ -148,8 +148,8 @@ func NewNoteShare(noteId uuid.UUID, userId uuid.UUID, permission Permission) Not
 }
 
 type NotesResponse struct {
-	Notes []NoteOut `json:"notes"`
-	Total int       `json:"total" example:"10"`
+	Notes []NoteOut `json:"notes" binding:"required"`
+	Total int       `json:"total" example:"10" binding:"required"`
 } // @name NotesResponse
 
 type NoteWithCount struct {
@@ -160,3 +160,13 @@ type NoteWithCount struct {
 func (NoteWithCount) TableName() string {
 	return "notes"
 }
+
+type AttachmentRef struct {
+	AttachmentOut `json:"attachment" binding:"required"`
+	NoteOut       `json:"note" binding:"required"`
+} // @name AttachmentRef
+
+type AttachmentResponse struct {
+	Attachments []AttachmentRef `json:"attachments" binding:"required"`
+	Total       int             `json:"total" example:"10" binding:"required"`
+} // @name AttachmentResponse

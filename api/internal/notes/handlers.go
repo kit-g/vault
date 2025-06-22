@@ -431,6 +431,89 @@ func RestoreNote(c *gin.Context, userID uuid.UUID) (any, error) {
 	return models.NewNoteOut(&note), nil
 }
 
+// GetAttachments godoc
+//
+//	@Summary		List user attachments
+//	@Description	Returns paginated attachments for the authenticated user with optional filtering
+//	@Tags			notes
+//	@Accept			json
+//	@Produce		json
+//	@ID				getAttachments
+//	@Param			page		query		int		false	"Page number"		default(1)
+//	@Param			limit		query		int		false	"Items per page"	default(10)
+//	@Param			deleted		query		bool	false	"Filter by deleted notes"
+//	@Param			mime_type	query		string	false	"Filter by MIME type"
+//	@Param			note_id		query		string	false	"Filter by note ID"
+//	@Param			sort		query		string	false	"Sort by creation date (asc/desc)"	default(desc)
+//	@Success		200			{object}	AttachmentResponse
+//	@Failure		401			{object}	ErrorResponse	"Unauthorized"
+//	@Failure		500			{object}	ErrorResponse	"Server error"
+//	@Router			/notes/attachments [get]
+//	@Security		BearerAuth
+func GetAttachments(c *gin.Context, userID uuid.UUID) (any, error) {
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	offset := (page - 1) * limit
+
+	query := db.DB.
+		Model(&models.Attachment{}).
+		Select("attachments.*, notes.*, users.attachment_count").
+		Joins("JOIN notes ON notes.id = attachments.note_id").
+		Joins("JOIN users ON users.id = notes.user_id").
+		Where("notes.user_id = ?", userID)
+
+	if deleted, ok := c.GetQuery("deleted"); ok {
+		if v, err := strconv.ParseBool(deleted); err == nil && v {
+			query = query.Unscoped().Where("notes.deleted_at IS NOT NULL")
+		} else {
+			query = query.Where("notes.deleted_at IS NULL")
+		}
+	}
+
+	if mimeType := c.Query("mime_type"); mimeType != "" {
+		query = query.Where("attachments.mime_type = ?", mimeType)
+	}
+
+	if noteID := c.Query("note_id"); noteID != "" {
+		if id, err := uuid.Parse(noteID); err == nil {
+			query = query.Where("notes.id = ?", id)
+		}
+	}
+
+	sort := c.DefaultQuery("sort", "desc")
+	if sort == "asc" {
+		query = query.Order("attachments.created_at asc")
+	} else {
+		query = query.Order("attachments.created_at desc")
+	}
+
+	var attachments []struct {
+		models.Attachment
+		models.Note
+		AttachmentsCount int `gorm:"column:attachment_count"`
+	}
+
+	if err := query.Limit(limit).Offset(offset).Find(&attachments).Error; err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	response := models.AttachmentResponse{
+		Attachments: make([]models.AttachmentRef, len(attachments)),
+	}
+
+	for i, a := range attachments {
+		response.Attachments[i] = models.AttachmentRef{
+			AttachmentOut: models.NewAttachmentOut(&a.Attachment),
+			NoteOut:       models.NewNoteOut(&a.Note),
+		}
+		if response.Total == 0 {
+			response.Total = a.AttachmentsCount
+		}
+	}
+
+	return response, nil
+}
+
 // DeleteAttachment godoc
 //
 //	@Summary	Delete an attachment
