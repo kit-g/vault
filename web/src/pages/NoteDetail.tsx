@@ -37,17 +37,20 @@ export default function NoteDetail() {
   const [isDirty, setIsDirty] = useState(false); // if the user has made changes
   const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
 
+  const getNote = async (id: string): Promise<void> => {
+    return NotesService.getNote({ noteId: id })
+      .then((note) => {
+        setNoteOut(note);
+        setNote({ title: note.title!, content: note.content || '' });
+      })
+      .catch(err => console.error("Failed to fetch note", err));
+  }
+
   useEffect(() => {
     // If this is an existing note, fetch its data
     if (id) {
       setLoading(true);
-      NotesService.getNote({ noteId: id })
-        .then((note) => {
-          setNoteOut(note);
-          setNote({ title: note.title!, content: note.content || '' });
-        })
-        .catch(err => console.error("Failed to fetch note", err))
-        .finally(() => setLoading(false));
+      getNote(id).finally(() => setLoading(false));
     }
   }, [id]);
 
@@ -133,7 +136,18 @@ export default function NoteDetail() {
       prev => [...prev, ...uploads]
     );
 
-    uploads.forEach(uploadFile);
+    const futures = uploads.map(uploadFile);
+
+
+    Promise.all(futures).then(() => {
+      setTimeout(async () => {
+        setUploadingFiles([]);
+        if (id) {
+          await getNote(id);
+        }
+      }, 3000);
+    });
+
   };
 
 
