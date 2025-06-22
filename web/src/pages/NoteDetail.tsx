@@ -279,6 +279,11 @@ export default function NoteDetail() {
                           onDownload={
                             (attachmentId) => downloadAttachment(noteId!, attachmentId)
                           }
+                          onView={
+                            (attachmentId) => {
+                              navigate(`/attachments/${ attachmentId }`)
+                            }
+                          }
                         />
                       )
                     )

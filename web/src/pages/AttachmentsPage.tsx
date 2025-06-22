@@ -58,16 +58,6 @@ function AttachmentDetailView({ attachmentRef }: { attachmentRef?: AttachmentRef
   }
   const { attachment, note } = attachmentRef;
 
-  // const handleDownload = async () => {
-  //   if (!note?.id || !attachment?.id) return;
-  //   try {
-  //     const response = await NotesService.getDownloadUrl({ noteId: note.id, attachmentId: attachment.id });
-  //     window.open(response.url, '_blank');
-  //   } catch (err) {
-  //     console.error("Download failed", err);
-  //   }
-  // };
-
   return (
     <div className="p-6">
       <div className="flex items-center justify-center w-32 h-32 rounded-lg bg-[var(--subtle-bg)] mx-auto">
