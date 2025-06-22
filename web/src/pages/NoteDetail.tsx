@@ -163,6 +163,23 @@ export default function NoteDetail() {
     }
   }
 
+  const deleteAttachment = (attachmentId: string) => {
+    const request = {
+      noteId: noteId!,
+      attachmentId: attachmentId,
+    };
+    NotesService.deleteAttachment(request)
+      .then(() => {
+        setNoteOut(
+          prev => ({
+            ...prev!,
+            attachments: prev!.attachments?.filter(a => a.id !== attachmentId)
+          })
+        );
+      })
+      .catch(err => console.error("Failed to delete attachment", err));
+  }
+
   if (loading) return <div>Loading...</div>;
 
   return (
@@ -204,10 +221,14 @@ export default function NoteDetail() {
               noteOut?.attachments?.map(
                 (attachment) => (
                   <AttachmentItem
+                    attachmentId={ attachment.id }
                     key={ attachment.id }
                     name={ attachment.filename || "" }
                     status="idle"
+                    mimeType={ attachment.mime_type }
+                    size={ attachment.size }
                     progress={ 100 }
+                    onDelete={ deleteAttachment }
                   />
                 )
               )
@@ -219,6 +240,8 @@ export default function NoteDetail() {
                     name={ f.file.name }
                     status={ f.status }
                     progress={ f.progress }
+                    mimeType={ f.file.type }
+                    size={ f.file.size }
                     error={ f.error }
                   />
                 )
