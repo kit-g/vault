@@ -457,7 +457,7 @@ func GetAttachments(c *gin.Context, userID uuid.UUID) (any, error) {
 
 	query := db.DB.
 		Model(&models.Attachment{}).
-		Select("attachments.*, notes.*, users.attachments_count").
+		Select("attachments.*, notes.*, users.attachment_count").
 		Joins("JOIN notes ON notes.id = attachments.note_id").
 		Joins("JOIN users ON users.id = notes.user_id").
 		Where("notes.user_id = ?", userID)
@@ -490,7 +490,7 @@ func GetAttachments(c *gin.Context, userID uuid.UUID) (any, error) {
 	var attachments []struct {
 		models.Attachment
 		models.Note
-		AttachmentsCount int `gorm:"column:attachments_count"`
+		AttachmentsCount int `gorm:"column:attachment_count"`
 	}
 
 	if err := query.Limit(limit).Offset(offset).Find(&attachments).Error; err != nil {
