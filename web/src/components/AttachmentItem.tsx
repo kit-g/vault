@@ -28,7 +28,7 @@ export function AttachmentItem(
 
   return (
     <Tooltip tip={ tooltip }>
-      <div className="relative group flex items-center gap-3 p-2 rounded-lg bg-[var(--subtle-bg)] toolbar-btn">
+      <div className="relative group flex items-center gap-3 p-2 rounded-lg bg-[var(--subtle-bg)] toolbar-btn w-full">
         <div className="flex-shrink-0">
           { status === 'uploading'
             ? <div className="size-4 border-2 rounded-full border-t-transparent animate-spin"/>

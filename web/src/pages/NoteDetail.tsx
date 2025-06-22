@@ -8,6 +8,7 @@ import { type SaveStatus } from "../components/editor/SaveStatusIndicator.tsx";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
 import { AttachmentItem } from "../components/AttachmentItem.tsx";
+import { fileTypeFromBlob } from "file-type";
 
 type UploadingFile = {
   id: string; // A unique temporary ID for the React key
@@ -120,23 +121,23 @@ export default function NoteDetail() {
   );
 
   const uploadFile = async (upload: UploadingFile): Promise<void> => {
+
     try {
-      const { url } = await NotesService.getUploadUrl(
-        {
-          noteId: noteId!,
-          requestBody: {
-            content_type: upload.file.type,
-            filename: upload.file.name,
-          }
-        }
-      );
+      const type = await mimeType(upload.file);
+      const body = {
+        content_type: type,
+        filename: upload.file.name,
+      };
+      console.log(body)
+
+      const { url } = await NotesService.getUploadUrl({ noteId: noteId!, requestBody: body });
 
       if (url) {
         await axios.put(
           url,
           upload.file,
           {
-            headers: { 'Content-Type': upload.file.type },
+            headers: { 'Content-Type': type },
             onUploadProgress: (event) => {
               const percentCompleted = Math.round((event.loaded * 100) / event.total!);
               setUploadingFiles(prev =>
@@ -252,4 +253,8 @@ export default function NoteDetail() {
       </div>
     </>
   );
+}
+
+async function mimeType(file: File): Promise<string> {
+  return file.type || (await fileTypeFromBlob(file))?.mime || 'binary/octet-stream'
 }
