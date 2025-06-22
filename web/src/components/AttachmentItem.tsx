@@ -1,7 +1,7 @@
 import { AlertCircle, CheckCircle2, Paperclip, X } from "lucide-react";
 import { formatBytes } from "../utils/numbers.ts";
-import Tippy from "@tippyjs/react";
 import * as React from "react";
+import { Tooltip } from "./tooltip.tsx";
 
 interface AttachmentItemProps {
   attachmentId?: string;
@@ -27,11 +27,7 @@ export function AttachmentItem(
   };
 
   return (
-    <Tippy
-      content={ <div style={ { whiteSpace: 'pre-line' } }>{ tooltip }</div> }
-      delay={ [1000, 0] } // Show after 1000ms (1 sec), hide instantly
-      placement="top"
-    >
+    <Tooltip tip={ tooltip }>
       <div className="relative group flex items-center gap-3 p-2 rounded-lg bg-[var(--subtle-bg)] toolbar-btn">
         <div className="flex-shrink-0">
           { status === 'uploading'
@@ -68,6 +64,6 @@ export function AttachmentItem(
           { status === 'error' && <AlertCircle size={ 18 } className="error"/> }
         </div>
       </div>
-    </Tippy>
+    </Tooltip>
   );
 }
