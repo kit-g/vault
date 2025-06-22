@@ -40,6 +40,10 @@ const router = createBrowserRouter([
           element: <PageTransition><AttachmentsPage/></PageTransition>,
         },
         {
+          path: "/attachments/:attachmentId",
+          element: <AttachmentsPage/>,
+        },
+        {
           path: "/trash",
           element: <PageTransition><BinPage/></PageTransition>,
         },
