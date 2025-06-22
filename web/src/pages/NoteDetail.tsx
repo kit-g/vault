@@ -11,6 +11,7 @@ import { AttachmentItem } from "../components/AttachmentItem.tsx";
 import { fileTypeFromBlob } from "file-type";
 import { formatBytes } from "../utils/numbers.ts";
 import toast from "react-hot-toast";
+import { AttachmentsEmptyState } from "../components/AttachmentsEmptyState.tsx";
 
 type UploadingFile = {
   id: string; // A unique temporary ID for the React key
@@ -265,39 +266,45 @@ export default function NoteDetail() {
             </div>
           ) }
           <h3 className="font-bold">Attachments</h3>
-          <div className="flex flex-col gap-2 mt-4">
-            {
-              noteOut?.attachments?.map(
-                (attachment) => (
-                  <AttachmentItem
-                    attachmentId={ attachment.id }
-                    key={ attachment.id }
-                    name={ attachment.filename || "" }
-                    status="idle"
-                    mimeType={ attachment.mime_type }
-                    size={ attachment.size }
-                    progress={ 100 }
-                    onDelete={ deleteAttachment }
-                    onDownload={ downloadAttachment }
-                  />
-                )
+          {
+            (!noteOut?.attachments || noteOut?.attachments.length === 0) && (uploadingFiles.length === 0)
+              ? <AttachmentsEmptyState/> :
+              (
+                <div className="flex flex-col gap-2 mt-4">
+                  {
+                    noteOut?.attachments?.map(
+                      (attachment) => (
+                        <AttachmentItem
+                          attachmentId={ attachment.id }
+                          key={ attachment.id }
+                          name={ attachment.filename || "" }
+                          status="idle"
+                          mimeType={ attachment.mime_type }
+                          size={ attachment.size }
+                          progress={ 100 }
+                          onDelete={ deleteAttachment }
+                          onDownload={ downloadAttachment }
+                        />
+                      )
+                    )
+                  }
+                  {
+                    uploadingFiles.map(f => (
+                        <AttachmentItem
+                          key={ f.id }
+                          name={ f.file.name }
+                          status={ f.status }
+                          progress={ f.progress }
+                          mimeType={ f.file.type }
+                          size={ f.file.size }
+                          error={ f.error }
+                        />
+                      )
+                    )
+                  }
+                </div>
               )
-            }
-            {
-              uploadingFiles.map(f => (
-                  <AttachmentItem
-                    key={ f.id }
-                    name={ f.file.name }
-                    status={ f.status }
-                    progress={ f.progress }
-                    mimeType={ f.file.type }
-                    size={ f.file.size }
-                    error={ f.error }
-                  />
-                )
-              )
-            }
-          </div>
+          }
         </aside>
       </div>
     </>
