@@ -59,5 +59,3 @@ COMMENT ON FUNCTION count_notes()
     IS 'Trigger function to update the notes count for a user when a note is inserted, deleted, or updated.';
 COMMENT ON TRIGGER on_note ON notes
     IS 'Trigger function to update the notes count for a user when a note is inserted, deleted, or updated.';
-
--- TRUNCATE notes CASCADE ;
