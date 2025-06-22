@@ -14,6 +14,31 @@ components:
                 size:
                     example: 123456
                     type: integer
+            required:
+                - id
+            type: object
+        AttachmentRef:
+            properties:
+                attachment:
+                    $ref: '#/components/schemas/AttachmentOut'
+                note:
+                    $ref: '#/components/schemas/NoteOut'
+            required:
+                - attachment
+                - note
+            type: object
+        AttachmentResponse:
+            properties:
+                attachments:
+                    items:
+                        $ref: '#/components/schemas/AttachmentRef'
+                    type: array
+                total:
+                    example: 10
+                    type: integer
+            required:
+                - attachments
+                - total
             type: object
         ErrorResponse:
             properties:
@@ -77,6 +102,9 @@ components:
                     type: string
                 updated_at:
                     type: string
+            required:
+                - created_at
+                - id
             type: object
         NotesResponse:
             properties:
@@ -87,6 +115,9 @@ components:
                 total:
                     example: 10
                     type: integer
+            required:
+                - notes
+                - total
             type: object
         PresignDownloadResponse:
             properties:
@@ -713,6 +744,68 @@ paths:
             security:
                 - BearerAuth: []
             summary: Share note with user
+            tags:
+                - notes
+    /notes/attachments:
+        get:
+            description: Returns paginated attachments for the authenticated user with optional filtering
+            operationId: getAttachments
+            parameters:
+                - description: Page number
+                  in: query
+                  name: page
+                  schema:
+                    default: 1
+                    type: integer
+                - description: Items per page
+                  in: query
+                  name: limit
+                  schema:
+                    default: 10
+                    type: integer
+                - description: Filter by deleted notes
+                  in: query
+                  name: deleted
+                  schema:
+                    type: boolean
+                - description: Filter by MIME type
+                  in: query
+                  name: mime_type
+                  schema:
+                    type: string
+                - description: Filter by note ID
+                  in: query
+                  name: note_id
+                  schema:
+                    type: string
+                - description: Sort by creation date (asc/desc)
+                  in: query
+                  name: sort
+                  schema:
+                    default: desc
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AttachmentResponse'
+                    description: OK
+                "401":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                    description: Unauthorized
+                "500":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                    description: Server error
+            security:
+                - BearerAuth: []
+            summary: List user attachments
             tags:
                 - notes
     /notes/deleted:

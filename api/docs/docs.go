@@ -239,6 +239,88 @@ const docTemplate = `{
                 }
             }
         },
+        "/notes/attachments": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns paginated attachments for the authenticated user with optional filtering",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notes"
+                ],
+                "summary": "List user attachments",
+                "operationId": "getAttachments",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Filter by deleted notes",
+                        "name": "deleted",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by MIME type",
+                        "name": "mime_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by note ID",
+                        "name": "note_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "desc",
+                        "description": "Sort by creation date (asc/desc)",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/AttachmentResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/notes/deleted": {
             "get": {
                 "security": [
@@ -887,6 +969,9 @@ const docTemplate = `{
     "definitions": {
         "AttachmentOut": {
             "type": "object",
+            "required": [
+                "id"
+            ],
             "properties": {
                 "filename": {
                     "type": "string",
@@ -903,6 +988,40 @@ const docTemplate = `{
                 "size": {
                     "type": "integer",
                     "example": 123456
+                }
+            }
+        },
+        "AttachmentRef": {
+            "type": "object",
+            "required": [
+                "attachment",
+                "note"
+            ],
+            "properties": {
+                "attachment": {
+                    "$ref": "#/definitions/AttachmentOut"
+                },
+                "note": {
+                    "$ref": "#/definitions/NoteOut"
+                }
+            }
+        },
+        "AttachmentResponse": {
+            "type": "object",
+            "required": [
+                "attachments",
+                "total"
+            ],
+            "properties": {
+                "attachments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/AttachmentRef"
+                    }
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 10
                 }
             }
         },
@@ -965,6 +1084,10 @@ const docTemplate = `{
         },
         "NoteOut": {
             "type": "object",
+            "required": [
+                "created_at",
+                "id"
+            ],
             "properties": {
                 "archived": {
                     "type": "boolean"
@@ -1000,6 +1123,10 @@ const docTemplate = `{
         },
         "NotesResponse": {
             "type": "object",
+            "required": [
+                "notes",
+                "total"
+            ],
             "properties": {
                 "notes": {
                     "type": "array",
