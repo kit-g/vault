@@ -27,7 +27,7 @@ function AttachmentList({ attachments, selectedId, onSelect }: {
           key={ ref.attachment.id }
           onClick={ () => onSelect(ref) }
           className={ clsx(
-            'flex items-center gap-4 p-3 rounded-lg cursor-pointer transition-colors',
+            'flex items-center gap-4 p-3 rounded-lg cursor-pointer transition-colors toolbar-btn',
             selectedId === ref.attachment.id ? 'bg-[var(--subtle-bg)]' : 'hover:bg-[var(--subtle-bg)]'
           ) }
         >
