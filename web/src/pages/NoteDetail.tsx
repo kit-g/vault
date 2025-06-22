@@ -233,8 +233,8 @@ export default function NoteDetail() {
     <>
       <Seo title={ isNewNote ? "New Note" : note.title }/>
 
-      <div className="flex flex-1 gap-4">
-        <div className="flex-1 flex flex-col gap-4">
+      <div className="flex flex-1 gap-4 overflow-hidden">
+        <div className="flex-1 flex flex-col gap-4 overflow-y-auto">
           <div className="flex justify-between items-center">
             <input
               name="title"
@@ -254,7 +254,9 @@ export default function NoteDetail() {
           />
         </div>
 
-        <aside { ...getRootProps() } className="w-80 border-l border-[var(--border)] p-4 hidden xl:block relative">
+        <aside { ...getRootProps() }
+               className="w-80 border-l border-[var(--border)] p-4 hidden xl:block relative overflow-y-auto"
+        >
           <input { ...getInputProps() } />
           { isDragActive && (
             <div

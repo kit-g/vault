@@ -14,7 +14,7 @@ export function Dashboard() {
       <div className="flex flex-1 overflow-hidden">
         <Sidebar className="hidden lg:flex"/>
 
-        <main className="flex-1 p-6 overflow-y-auto">
+        <main className="flex-1 p-6">
           <Outlet/>
         </main>
       </div>
