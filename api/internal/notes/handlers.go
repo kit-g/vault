@@ -310,7 +310,7 @@ func GetUploadURL(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@Failure		404				{object}	ErrorResponse
 //	@Failure		500				{object}	ErrorResponse
 //	@Router			/notes/{noteId}/attachments/{attachmentId} [get]
-func GetDownloadURL(c *gin.Context, _ uuid.UUID) (any, error) {
+func GetDownloadURL(c *gin.Context, userID uuid.UUID) (any, error) {
 	noteID, err := uuid.Parse(c.Param("noteId"))
 	if err != nil {
 		return nil, errors.NewValidationError(fmt.Errorf("invalid note ID"))
@@ -329,7 +329,7 @@ func GetDownloadURL(c *gin.Context, _ uuid.UUID) (any, error) {
 			"notes.id = ? AND attachments.id = ? AND notes.user_id = ?",
 			noteID,
 			attachmentID,
-			c.GetUint("userID"),
+			userID,
 		).
 		First(&attachment).Error
 
@@ -444,7 +444,7 @@ func RestoreNote(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@Failure	404				{object}	ErrorResponse
 //	@Router		/notes/{noteId}/attachments/{attachmentId} [delete]
 //	@Security	BearerAuth
-func DeleteAttachment(c *gin.Context, _ uuid.UUID) (any, error) {
+func DeleteAttachment(c *gin.Context, userID uuid.UUID) (any, error) {
 	noteID, err := uuid.Parse(c.Param("noteId"))
 	if err != nil {
 		return nil, errors.NewValidationError(fmt.Errorf("invalid note ID"))
@@ -462,7 +462,7 @@ func DeleteAttachment(c *gin.Context, _ uuid.UUID) (any, error) {
 			"notes.id = ? AND attachments.id = ? AND notes.user_id = ?",
 			noteID,
 			attachmentID,
-			c.GetUint("userID"),
+			userID,
 		).
 		First(&attachment).Error
 

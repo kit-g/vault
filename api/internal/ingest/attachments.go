@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/google/uuid"
 	"log"
+	"net/url"
 	"strings"
 	"vault/internal/awsx"
 	"vault/internal/db"
@@ -35,8 +36,14 @@ func handler(_ context.Context, s3Event events.S3Event) error {
 
 		log.Printf("New S3 object: %s (bucket: %s)", key, bucket)
 
+		decoded, err := url.QueryUnescape(key)
+		if err != nil {
+			errors("Failed to decode S3 key %s: %v", key, err)
+			continue
+		}
+
 		// Only handle keys like: attachments/{noteId}/{filename}
-		parts := strings.SplitN(key, "/", 3)
+		parts := strings.SplitN(decoded, "/", 3)
 		if len(parts) != 3 {
 			skips("Skipping invalid key: %s", key)
 			continue
@@ -49,11 +56,11 @@ func handler(_ context.Context, s3Event events.S3Event) error {
 
 		input := &s3.HeadObjectInput{
 			Bucket: aws.String(bucket),
-			Key:    aws.String(key),
+			Key:    aws.String(decoded),
 		}
 		head, err := awsx.S3.HeadObject(input)
 		if err != nil {
-			skips("Failed to fetch metadata for %s: %v", key, err)
+			skips("Failed to fetch metadata for %s: %v", decoded, err)
 			continue
 		}
 

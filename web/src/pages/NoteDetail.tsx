@@ -1,10 +1,22 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { type NoteIn, NotesService } from "../api";
+import { type NoteIn, type NoteOut, NotesService } from "../api";
 import { Seo } from "../components/Seo";
 import { RichTextEditor } from "../components/editor/RichTextEditor.tsx";
 import { useDebounce } from "use-debounce";
 import { type SaveStatus } from "../components/editor/SaveStatusIndicator.tsx";
+import { useDropzone } from "react-dropzone";
+import axios from "axios";
+import { AttachmentItem } from "../components/AttachmentItem.tsx";
+import { fileTypeFromBlob } from "file-type";
+
+type UploadingFile = {
+  id: string; // A unique temporary ID for the React key
+  file: File;
+  progress: number; // A value from 0 to 100
+  status: 'uploading' | 'success' | 'error';
+  error?: string;
+};
 
 export default function NoteDetail() {
   const navigate = useNavigate();
@@ -13,10 +25,12 @@ export default function NoteDetail() {
 
   const [noteId, setNoteId] = useState<string | null>(id || null);
   const [note, setNote] = useState<NoteIn>({ title: '', content: '' });
+  const [noteOut, setNoteOut] = useState<NoteOut | undefined>(undefined);
   const [debouncedNote] = useDebounce(note, 2000); // debounce the note state by 2 seconds
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const [loading, setLoading] = useState(!!id);
   const [isDirty, setIsDirty] = useState(false); // if the user has made changes
+  const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
 
   useEffect(() => {
     // If this is an existing note, fetch its data
@@ -24,6 +38,7 @@ export default function NoteDetail() {
       setLoading(true);
       NotesService.getNote({ noteId: id })
         .then((note) => {
+          setNoteOut(note);
           setNote({ title: note.title!, content: note.content || '' });
         })
         .catch(err => console.error("Failed to fetch note", err))
@@ -69,9 +84,123 @@ export default function NoteDetail() {
   );
 
   const handleChange = (field: 'title' | 'content', value: string) => {
-    setIsDirty(true); // Mark that we have unsaved changes
-    setSaveStatus('idle'); // Reset status when the user types again
+    setIsDirty(true); // mark that we have unsaved changes
+    setSaveStatus('idle'); // reset status when the user types again
     setNote(prev => ({ ...prev, [field]: value }));
+  };
+
+  const onFilesSelected = (files: FileList | File[]) => {
+    if (!noteId) {
+      alert("Please save the note before adding attachments.");
+      return;
+    }
+
+    const uploads: UploadingFile[] = Array.from(files).map(
+      file => ({
+        id: crypto.randomUUID(),
+        file,
+        progress: 0,
+        status: 'uploading',
+      })
+    );
+
+    setUploadingFiles(
+      prev => [...prev, ...uploads]
+    );
+
+    uploads.forEach(uploadFile);
+  };
+
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone(
+    {
+      onDrop: acceptedFiles => onFilesSelected(acceptedFiles),
+      noClick: true,
+      noKeyboard: true,
+    }
+  );
+
+  const uploadFile = async (upload: UploadingFile): Promise<void> => {
+
+    try {
+      const type = await mimeType(upload.file);
+      const body = {
+        content_type: type,
+        filename: upload.file.name,
+      };
+      console.log(body)
+
+      const { url } = await NotesService.getUploadUrl({ noteId: noteId!, requestBody: body });
+
+      if (url) {
+        await axios.put(
+          url,
+          upload.file,
+          {
+            headers: { 'Content-Type': type },
+            onUploadProgress: (event) => {
+              const percentCompleted = Math.round((event.loaded * 100) / event.total!);
+              setUploadingFiles(prev =>
+                prev.map(f => f.id === upload.id ? { ...f, progress: percentCompleted } : f)
+              );
+            }
+          }
+        );
+
+        setUploadingFiles(
+          prev => prev.map(
+            f => f.id === upload.id ? { ...f, status: 'success' } : f
+          )
+        );
+      }
+    } catch (err) {
+      console.error("Upload failed", err);
+
+      setUploadingFiles(
+        prev => prev.map(
+          f => f.id === upload.id ? { ...f, status: 'error', error: (err as Error).message } : f
+        )
+      );
+    }
+  }
+
+  const deleteAttachment = (attachmentId: string) => {
+    const request = {
+      noteId: noteId!,
+      attachmentId: attachmentId,
+    };
+    NotesService.deleteAttachment(request)
+      .then(() => {
+        setNoteOut(
+          prev => ({
+            ...prev!,
+            attachments: prev!.attachments?.filter(a => a.id !== attachmentId)
+          })
+        );
+      })
+      .catch(err => console.error("Failed to delete attachment", err));
+  }
+
+  const downloadAttachment = async (attachmentId: string) => {
+    try {
+      const request = { noteId: noteId!, attachmentId: attachmentId, };
+      const { url } = await NotesService.getDownloadUrl(request);
+
+      console.log(url)
+
+      if (url) {
+        // create a temporary link element to trigger the download
+        const link = document.createElement('a');
+        link.href = url;
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (err) {
+      console.error("Failed to download file", err);
+      alert("Could not download the file.");
+    }
   };
 
   if (loading) return <div>Loading...</div>;
@@ -97,14 +226,58 @@ export default function NoteDetail() {
             content={ note.content }
             onChange={ (htmlContent) => handleChange('content', htmlContent) }
             status={ saveStatus }
+            onFilesSelected={ onFilesSelected }
           />
         </div>
 
-        <aside className="w-80 border-l border-[var(--border)] p-4 hidden xl:block">
+        <aside { ...getRootProps() } className="w-80 border-l border-[var(--border)] p-4 hidden xl:block relative">
+          <input { ...getInputProps() } />
+          { isDragActive && (
+            <div
+              className="absolute inset-2 flex items-center justify-center border-2 border-dashed border-[var(--accent)] bg-[var(--subtle-bg)] rounded-lg z-10">
+              <p className="font-bold text-[var(--accent)]">Drop files to attach</p>
+            </div>
+          ) }
           <h3 className="font-bold">Attachments</h3>
-          {/* ... Your attachments UI will go here ... */ }
+          <div className="flex flex-col gap-2 mt-4">
+            {
+              noteOut?.attachments?.map(
+                (attachment) => (
+                  <AttachmentItem
+                    attachmentId={ attachment.id }
+                    key={ attachment.id }
+                    name={ attachment.filename || "" }
+                    status="idle"
+                    mimeType={ attachment.mime_type }
+                    size={ attachment.size }
+                    progress={ 100 }
+                    onDelete={ deleteAttachment }
+                    onDownload={ downloadAttachment }
+                  />
+                )
+              )
+            }
+            {
+              uploadingFiles.map(f => (
+                  <AttachmentItem
+                    key={ f.id }
+                    name={ f.file.name }
+                    status={ f.status }
+                    progress={ f.progress }
+                    mimeType={ f.file.type }
+                    size={ f.file.size }
+                    error={ f.error }
+                  />
+                )
+              )
+            }
+          </div>
         </aside>
       </div>
     </>
   );
+}
+
+async function mimeType(file: File): Promise<string> {
+  return file.type || (await fileTypeFromBlob(file))?.mime || 'binary/octet-stream'
 }
