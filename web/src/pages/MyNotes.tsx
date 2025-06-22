@@ -1,8 +1,10 @@
 import { Seo } from "../components/Seo.tsx";
 import { NotesService } from "../api";
 import { NoteCardGrid } from "../components/NoteCardGrid.tsx";
+import { useNavigate } from "react-router-dom";
 
 export default function MyNotes() {
+  const navigate = useNavigate();
   return (
     <>
       <Seo
@@ -13,6 +15,7 @@ export default function MyNotes() {
       <NoteCardGrid
         hydrate={ NotesService.getNotes }
         onDelete={ deleteNote }
+        onClickCard={ (noteId) => navigate(`/notes/${ noteId }`) }
       />
     </>
   );

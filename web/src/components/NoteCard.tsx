@@ -5,7 +5,7 @@ import { Trash2, Undo2 } from "lucide-react";
 
 interface NoteCardProps {
   note: NoteOut;
-  onClick: () => void;
+  onClick?: () => void;
   onDelete?: ({ noteId }: { noteId: string }) => Promise<void>;
   onRestore?: ({ noteId }: { noteId: string }) => Promise<void>;
 }
