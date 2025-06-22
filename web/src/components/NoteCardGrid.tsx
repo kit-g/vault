@@ -1,6 +1,5 @@
 import { type NotesResponse } from "../api";
 import { NoteCard } from "./NoteCard.tsx";
-import { useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 import { Paginator } from "./paginator.tsx";
 
@@ -9,12 +8,12 @@ type NoteCardGridProps = {
   hydrate: (params: { page?: number, limit?: number }) => Promise<NotesResponse>;
   onDelete?: ({ noteId }: { noteId: string }) => Promise<void>;
   onRestore?: ({ noteId }: { noteId: string }) => Promise<void>;
+  onClickCard?: (noteId: string) => void;
 }
 
 const itemsPerPage = 12;
 
-export function NoteCardGrid({ hydrate, onDelete, onRestore }: NoteCardGridProps) {
-  const navigate = useNavigate();
+export function NoteCardGrid({ hydrate, onDelete, onRestore, onClickCard }: NoteCardGridProps) {
   const [notes, setNotes] = useState<NotesResponse>({ notes: [], total: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -51,7 +50,7 @@ export function NoteCardGrid({ hydrate, onDelete, onRestore }: NoteCardGridProps
               <NoteCard
                 key={ note.id }
                 note={ note }
-                onClick={ () => navigate(`/notes/${ note.id }`) }
+                onClick={ (onClickCard && note.id) ? () => onClickCard(note.id!) : undefined }
                 onDelete={
                   onDelete
                     ? async ({ noteId }) => onDelete({ noteId }).then(fetchNotes)
