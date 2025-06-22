@@ -56,6 +56,7 @@ func Router(origins string) *gin.Engine {
 	vaultGroup.POST("/:noteId/attachments", Authenticated(notes.GetUploadURL))
 	vaultGroup.GET("/:noteId/attachments/:attachmentId", Authenticated(notes.GetDownloadURL))
 	vaultGroup.DELETE("/:noteId/attachments/:attachmentId", Authenticated(notes.DeleteAttachment))
+	vaultGroup.GET("/attachments", Authenticated(notes.GetAttachments))
 	// share
 	vaultGroup.POST("/:noteId/share", Authenticated(notes.ShareNoteToUser))
 
