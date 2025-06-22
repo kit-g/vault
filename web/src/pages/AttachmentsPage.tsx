@@ -3,10 +3,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { type AttachmentRef, NotesService } from '../api';
 import { Seo } from '../components/Seo';
-import { File as FileIcon, FileImage, FileText } from 'lucide-react';
+import { Download, File as FileIcon, FileImage, FileText } from 'lucide-react';
 import { formatBytes } from '../utils/numbers';
 import clsx from 'clsx';
 import { Paginator } from '../components/Paginator';
+import downloadAttachment from "../utils/network.ts";
 
 
 function getFileIcon(mimeType: string = ''): React.ReactElement {
@@ -22,22 +23,27 @@ function AttachmentList({ attachments, selectedId, onSelect }: {
 }) {
   return (
     <div className="flex flex-col gap-2">
-      { attachments.map(ref => (
-        <div
-          key={ ref.attachment.id }
-          onClick={ () => onSelect(ref) }
-          className={ clsx(
-            'flex items-center gap-4 p-3 rounded-lg cursor-pointer transition-colors toolbar-btn',
-            selectedId === ref.attachment.id ? 'bg-[var(--subtle-bg)]' : 'hover:bg-[var(--subtle-bg)]'
-          ) }
-        >
-          <div className="flex-shrink-0">{ getFileIcon(ref.attachment.mime_type) }</div>
-          <div className="flex-1 min-w-0">
-            <p className="font-medium truncate">{ ref.attachment.filename }</p>
-            <p className="text-sm text-[var(--muted-foreground)]">{ formatBytes(ref.attachment.size || 0) }</p>
-          </div>
-        </div>
-      )) }
+      {
+        attachments.map(ref => (
+            <div
+              key={ ref.attachment.id }
+              onClick={ () => onSelect(ref) }
+              className={
+                clsx(
+                  'flex items-center gap-4 p-3 rounded-lg cursor-pointer transition-colors toolbar-btn',
+                  selectedId === ref.attachment.id ? 'bg-[var(--subtle-bg)]' : 'hover:bg-[var(--subtle-bg)]'
+                )
+              }
+            >
+              <div className="flex-shrink-0">{ getFileIcon(ref.attachment.mime_type) }</div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium truncate">{ ref.attachment.filename }</p>
+                <p className="text-sm text-[var(--muted-foreground)]">{ formatBytes(ref.attachment.size || 0) }</p>
+              </div>
+            </div>
+          )
+        )
+      }
     </div>
   );
 }
@@ -51,27 +57,48 @@ function AttachmentDetailView({ attachmentRef }: { attachmentRef?: AttachmentRef
     );
   }
   const { attachment, note } = attachmentRef;
+
+  // const handleDownload = async () => {
+  //   if (!note?.id || !attachment?.id) return;
+  //   try {
+  //     const response = await NotesService.getDownloadUrl({ noteId: note.id, attachmentId: attachment.id });
+  //     window.open(response.url, '_blank');
+  //   } catch (err) {
+  //     console.error("Download failed", err);
+  //   }
+  // };
+
   return (
     <div className="p-6">
       <div className="flex items-center justify-center w-32 h-32 rounded-lg bg-[var(--subtle-bg)] mx-auto">
         { getFileIcon(attachment.mime_type) }
       </div>
-      <h2 className="text-xl font-bold text-center mt-4">{ attachment.filename }</h2>
+      <h2 className="text-xl font-bold text-center mt-4 break-all">{ attachment.filename }</h2>
+
       <div className="mt-8 space-y-4">
         <div className="flex justify-between"><span
           className="font-medium text-[var(--muted-foreground)]">Size</span><span>{ formatBytes(attachment.size || 0) }</span>
         </div>
         <div className="flex justify-between"><span
           className="font-medium text-[var(--muted-foreground)]">Type</span><span>{ attachment.mime_type }</span></div>
-        <div className="flex justify-between"><span
-          className="font-medium text-[var(--muted-foreground)]">Parent Note</span><a href={ `/notes/${ note?.id }` }
-                                                                                      className="text-[var(--accent)] underline">{ note?.title || 'Untitled' }</a>
-        </div>
+        <div className="flex justify-between items-center"><span className="font-medium text-[var(--muted-foreground)]">In Note</span><a
+          href={ `/notes/${ note?.id }` }
+          className="text-[var(--accent)] underline truncate ml-4">{ note?.title || 'Untitled' }</a></div>
+      </div>
+
+      <div className="mt-8 flex items-center gap-4">
+        <button
+          onClick={ () => downloadAttachment(attachmentRef.note.id, attachmentRef.attachment.id) }
+          className="btn flex-1 flex items-center justify-center gap-2"
+        >
+          <Download size={ 18 }/>
+          Download
+        </button>
+        {/* A delete button could go here */ }
       </div>
     </div>
   );
 }
-
 
 export default function AttachmentsPage() {
   const navigate = useNavigate();

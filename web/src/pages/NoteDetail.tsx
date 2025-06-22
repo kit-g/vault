@@ -12,6 +12,7 @@ import { fileTypeFromBlob } from "file-type";
 import { formatBytes } from "../utils/numbers.ts";
 import toast from "react-hot-toast";
 import { AttachmentsEmptyState } from "../components/AttachmentsEmptyState.tsx";
+import downloadAttachment from "../utils/network.ts";
 
 type UploadingFile = {
   id: string; // A unique temporary ID for the React key
@@ -220,28 +221,6 @@ export default function NoteDetail() {
       .catch(err => console.error("Failed to delete attachment", err));
   }
 
-  const downloadAttachment = async (attachmentId: string) => {
-    try {
-      const request = { noteId: noteId!, attachmentId: attachmentId, };
-      const { url } = await NotesService.getDownloadUrl(request);
-
-      console.log(url)
-
-      if (url) {
-        // create a temporary link element to trigger the download
-        const link = document.createElement('a');
-        link.href = url;
-
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
-    } catch (err) {
-      console.error("Failed to download file", err);
-      alert("Could not download the file.");
-    }
-  };
-
   if (loading) return <div>Loading...</div>;
 
   return (
@@ -297,7 +276,9 @@ export default function NoteDetail() {
                           size={ attachment.size }
                           progress={ 100 }
                           onDelete={ deleteAttachment }
-                          onDownload={ downloadAttachment }
+                          onDownload={
+                            (attachmentId) => downloadAttachment(noteId!, attachmentId)
+                          }
                         />
                       )
                     )
