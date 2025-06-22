@@ -1,7 +1,7 @@
-import { AlertCircle, CheckCircle2, Paperclip, X } from "lucide-react";
+import { AlertCircle, CheckCircle2, Download, Paperclip, X } from "lucide-react";
 import { formatBytes } from "../utils/numbers.ts";
 import * as React from "react";
-import { Tooltip } from "./tooltip.tsx";
+import { Tooltip } from "./Tooltip.tsx";
 
 interface AttachmentItemProps {
   attachmentId?: string;
@@ -12,10 +12,11 @@ interface AttachmentItemProps {
   progress?: number;
   error?: string;
   onDelete?: (attachmentId: string) => void;
+  onDownload?: (attachmentId: string) => void;
 }
 
 export function AttachmentItem(
-  { attachmentId, name, status, progress = 0, mimeType, size, onDelete }: AttachmentItemProps
+  { attachmentId, name, status, progress = 0, mimeType, size, onDelete, onDownload }: AttachmentItemProps
 ) {
   const tooltip = `${ name }\n${ mimeType }\n${ formatBytes(size || 0) }`;
 
@@ -24,6 +25,11 @@ export function AttachmentItem(
     if (onDelete && attachmentId) {
       onDelete(attachmentId);
     }
+  };
+
+  const onClickDownload = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onDownload && attachmentId) onDownload(attachmentId);
   };
 
   return (
@@ -49,16 +55,28 @@ export function AttachmentItem(
           ) }
         </div>
 
-        { onDelete && (
-          <button
-            onClick={ onClickDelete }
-            className="absolute top-1 right-1 p-1 rounded-full text-[var(--muted-foreground)] hover:bg-black/10
-                       opacity-0 group-hover:opacity-100 transition-opacity"
-            aria-label="Delete attachment"
-          >
-            <X size={ 16 }/>
-          </button>
-        ) }
+        <div className="
+        absolute top-1/2 -translate-y-1/2 right-2 flex items-center gap-1
+        opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+        >
+          {
+            onDownload && (
+              <button onClick={ onClickDownload } className="p-1.5 rounded-full hover:bg-black/10"
+                      aria-label="Download attachment">
+                <Download size={ 16 }/>
+              </button>
+            )
+          }
+          {
+            onDelete && (
+              <button onClick={ onClickDelete }
+                      className="p-1.5 rounded-full hover:bg-black/10 text-[var(--error-color)]"
+                      aria-label="Delete attachment">
+                <X size={ 16 }/>
+              </button>
+            )
+          }
+        </div>
         <div className="flex-shrink-0">
           { status === 'success' && <CheckCircle2 size={ 18 } className="success"/> }
           { status === 'error' && <AlertCircle size={ 18 } className="error"/> }

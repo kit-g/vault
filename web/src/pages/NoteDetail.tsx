@@ -230,6 +230,11 @@ export default function NoteDetail() {
                     size={ attachment.size }
                     progress={ 100 }
                     onDelete={ deleteAttachment }
+                    onDownload={
+                      (attachmentId) => {
+                        console.log(attachmentId)
+                      }
+                    }
                   />
                 )
               )

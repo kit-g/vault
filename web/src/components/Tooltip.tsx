@@ -1,8 +1,8 @@
 import { type ReactNode } from "react";
 
 interface TooltipProps {
-  children: ReactNode; // The element to hover over (the trigger)
-  tip: string;       // The text to display in the tooltip
+  children: ReactNode; // element to hover over (the trigger)
+  tip: string;       // text to display in the tooltip
 }
 
 export function Tooltip({ children, tip }: TooltipProps) {
