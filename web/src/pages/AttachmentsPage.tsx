@@ -21,22 +21,27 @@ function AttachmentList({ attachments, selectedId, onSelect }: {
 }) {
   return (
     <div className="flex flex-col gap-2">
-      { attachments.map(ref => (
-        <div
-          key={ ref.attachment.id }
-          onClick={ () => onSelect(ref) }
-          className={ clsx(
-            'flex items-center gap-4 p-3 rounded-lg cursor-pointer transition-colors',
-            selectedId === ref.attachment.id ? 'bg-[var(--subtle-bg)]' : 'hover:bg-[var(--subtle-bg)]'
-          ) }
-        >
-          <div className="flex-shrink-0">{ getFileIcon(ref.attachment.mime_type) }</div>
-          <div className="flex-1 min-w-0">
-            <p className="font-medium truncate">{ ref.attachment.filename }</p>
-            <p className="text-sm text-[var(--muted-foreground)]">{ formatBytes(ref.attachment.size || 0) }</p>
-          </div>
-        </div>
-      )) }
+      {
+        attachments.map(ref => (
+            <div
+              key={ ref.attachment.id }
+              onClick={ () => onSelect(ref) }
+              className={ clsx(
+                'flex items-center gap-4 p-3 rounded-lg cursor-pointer transition-colors toolbar-btn',
+                selectedId === ref.attachment.id ? 'bg-[var(--subtle-bg)]' : 'hover:bg-[var(--subtle-bg)]'
+              ) }
+            >
+              <div className="flex-shrink-0">{ getFileIcon(ref.attachment.mime_type) }</div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium truncate">{ ref.attachment.filename }</p>
+                <p className="text-sm text-[var(--muted-foreground)]">
+                  { formatBytes(ref.attachment.size || 0) } • { ref.attachment.mime_type }
+                </p>
+              </div>
+            </div>
+          )
+        )
+      }
     </div>
   );
 }
@@ -63,8 +68,7 @@ function AttachmentDetailView({ attachmentRef }: { attachmentRef?: AttachmentRef
         <div className="flex justify-between"><span
           className="font-medium text-[var(--muted-foreground)]">Type</span><span>{ attachment.mime_type }</span></div>
         <div className="flex justify-between"><span
-          className="font-medium text-[var(--muted-foreground)]">Parent Note</span><a href={ `/notes/${ note?.id }` }
-                                                                                      className="text-[var(--accent)] underline">{ note?.title || 'Untitled' }</a>
+          className="font-medium text-[var(--muted-foreground)]">In</span><a href={ `/notes/${ note?.id }` } className="text-[var(--accent)] underline">{ note?.title || 'Untitled' }</a>
         </div>
       </div>
     </div>
@@ -136,7 +140,7 @@ export default function AttachmentsPage() {
             </div>
           </div>
 
-          {/* -detail view */ }
+          {/* detail view */ }
           <div className="md:col-span-2 border-l border-[var(--border)] h-full overflow-y-auto">
             <AttachmentDetailView attachmentRef={ selectedAttachment }/>
           </div>
