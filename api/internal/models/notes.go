@@ -56,7 +56,7 @@ func NewAttachment(noteId uuid.UUID, fileName string, mimeType string, size int6
 	}
 }
 
-type Permission string
+type Permission string // @name Permission
 
 const (
 	ReadPermission  Permission = "read"
@@ -176,9 +176,9 @@ type AttachmentResponse struct {
 } // @name AttachmentResponse
 
 type NoteShareOut struct {
-	ID         uuid.UUID  `json:"id"`
-	Permission Permission `json:"permission"`
-	Expires    *time.Time `json:"expires,omitempty"`
+	ID         uuid.UUID  `json:"id" binding:"required"`
+	Permission string     `json:"permission" binding:"required" example:"read"`
+	Expires    *time.Time `json:"expires,omitempty" example:"2024-12-31T23:59:59Z"`
 	SharedWith *UserOut   `json:"with,omitempty"`
 } // @name Share
 
@@ -191,7 +191,7 @@ func NewNoteShareOut(share *NoteShare) NoteShareOut {
 
 	return NoteShareOut{
 		ID:         share.ID,
-		Permission: share.Permission,
+		Permission: string(share.Permission),
 		Expires:    share.Expires,
 		SharedWith: userOut,
 	}

@@ -5,6 +5,7 @@
 import type { AttachmentResponse } from '../models/AttachmentResponse';
 import type { NoteIn } from '../models/NoteIn';
 import type { NoteOut } from '../models/NoteOut';
+import type { NoteShareResponse } from '../models/NoteShareResponse';
 import type { NotesResponse } from '../models/NotesResponse';
 import type { PresignDownloadResponse } from '../models/PresignDownloadResponse';
 import type { PresignUploadRequest } from '../models/PresignUploadRequest';
@@ -388,6 +389,34 @@ export class NotesService {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/notes/{noteId}/restore',
+            path: {
+                'noteId': noteId,
+            },
+            errors: {
+                400: `Bad Request`,
+                401: `Unauthorized`,
+                404: `Not Found`,
+                500: `Internal Server Error`,
+            },
+        });
+    }
+    /**
+     * List note shares
+     * Returns a list of users the note has been shared with
+     * @returns NoteShareResponse OK
+     * @throws ApiError
+     */
+    public static getNoteShares({
+        noteId,
+    }: {
+        /**
+         * Note ID
+         */
+        noteId: string,
+    }): CancelablePromise<NoteShareResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/notes/{noteId}/share',
             path: {
                 'noteId': noteId,
             },

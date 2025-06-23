@@ -2,12 +2,11 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type ShareToUserRequest = {
+import type { UserOut } from './UserOut';
+export type Share = {
     expires?: string;
-    /**
-     * "read" or "write"
-     */
+    id: string;
     permission: string;
-    shared_with: string;
+    with?: UserOut;
 };
 

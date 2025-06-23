@@ -237,18 +237,24 @@
             "Share": {
                 "properties": {
                     "expires": {
+                        "example": "2024-12-31T23:59:59Z",
                         "type": "string"
                     },
                     "id": {
                         "type": "string"
                     },
                     "permission": {
-                        "$ref": "#/components/schemas/models.Permission"
+                        "example": "read",
+                        "type": "string"
                     },
                     "with": {
                         "$ref": "#/components/schemas/UserOut"
                     }
                 },
+                "required": [
+                    "id",
+                    "permission"
+                ],
                 "type": "object"
             },
             "ShareToUserRequest": {
@@ -313,17 +319,6 @@
                     }
                 },
                 "type": "object"
-            },
-            "models.Permission": {
-                "enum": [
-                    "read",
-                    "write"
-                ],
-                "type": "string",
-                "x-enum-varnames": [
-                    "ReadPermission",
-                    "WritePermission"
-                ]
             }
         }
     },

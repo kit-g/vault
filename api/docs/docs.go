@@ -1262,15 +1262,21 @@ const docTemplate = `{
         },
         "Share": {
             "type": "object",
+            "required": [
+                "id",
+                "permission"
+            ],
             "properties": {
                 "expires": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2024-12-31T23:59:59Z"
                 },
                 "id": {
                     "type": "string"
                 },
                 "permission": {
-                    "$ref": "#/definitions/models.Permission"
+                    "type": "string",
+                    "example": "read"
                 },
                 "with": {
                     "$ref": "#/definitions/UserOut"
@@ -1339,17 +1345,6 @@ const docTemplate = `{
                     "example": "jane_doe"
                 }
             }
-        },
-        "models.Permission": {
-            "type": "string",
-            "enum": [
-                "read",
-                "write"
-            ],
-            "x-enum-varnames": [
-                "ReadPermission",
-                "WritePermission"
-            ]
         }
     }
 }`
