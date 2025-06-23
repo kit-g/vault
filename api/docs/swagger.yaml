@@ -818,6 +818,55 @@ paths:
             summary: Share note with user
             tags:
                 - notes
+    /notes/{noteId}/shares/{userId}:
+        delete:
+            description: Removes note sharing permissions for a specific user
+            operationId: revokeNoteShare
+            parameters:
+                - description: Note ID
+                  in: path
+                  name: noteId
+                  required: true
+                  schema:
+                    type: string
+                - description: User ID to revoke access from
+                  in: path
+                  name: userId
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "204":
+                    description: No Content
+                "400":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                    description: Bad Request
+                "401":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                    description: Unauthorized
+                "404":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                    description: Not Found
+                "500":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorResponse'
+                    description: Internal Server Error
+            security:
+                - BearerAuth: []
+            summary: Revoke note access
+            tags:
+                - notes
     /notes/attachments:
         get:
             description: Returns paginated attachments for the authenticated user with optional filtering
