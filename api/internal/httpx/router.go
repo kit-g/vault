@@ -59,6 +59,7 @@ func Router(origins string) *gin.Engine {
 	vaultGroup.GET("/attachments", Authenticated(notes.GetAttachments))
 	// share
 	vaultGroup.POST("/:noteId/share", Authenticated(notes.ShareNoteToUser))
+	vaultGroup.GET("/:noteId/share", Authenticated(notes.GetNoteShares))
 
 	return r
 }

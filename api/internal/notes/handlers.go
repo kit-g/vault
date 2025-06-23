@@ -602,16 +602,70 @@ func ShareNoteToUser(c *gin.Context, userID uuid.UUID) (any, error) {
 	}
 
 	permission, err := models.NewPermission(req.Permission)
-
 	if err != nil {
 		return nil, errors.NewValidationError(err)
 	}
 
-	share := models.NewNoteShare(note.ID, req.SharedWith, permission)
+	var with models.User
+	if err := db.DB.
+		Where("id = ? OR email = ? OR username = ?", req.SharedWith, req.SharedWith, req.SharedWith).
+		First(&with).Error; err != nil {
+		return nil, errors.NewNotFoundError("User not found", err)
+	}
+
+	share := models.NewNoteShare(note.ID, with, permission, req.Expires)
 	onConflict := clause.OnConflict{UpdateAll: true}
 	if err := db.DB.Clauses(onConflict).Create(&share).Error; err != nil {
 		return nil, errors.NewServerError(err)
 	}
 
 	return models.NoContent, nil
+}
+
+// GetNoteShares godoc
+//
+//	@Summary		List note shares
+//	@Description	Returns a list of users the note has been shared with
+//	@Tags			notes
+//	@Accept			json
+//	@Produce		json
+//	@ID				getNoteShares
+//	@Param			noteId	path		string	true	"Note ID"
+//	@Success		200		{object}	NoteShareResponse
+//	@Failure		400		{object}	ErrorResponse
+//	@Failure		401		{object}	ErrorResponse
+//	@Failure		404		{object}	ErrorResponse
+//	@Failure		500		{object}	ErrorResponse
+//	@Router			/notes/{noteId}/share [get]
+//	@Security		BearerAuth
+func GetNoteShares(c *gin.Context, userID uuid.UUID) (any, error) {
+	noteID, err := uuid.Parse(c.Param("noteId"))
+	if err != nil {
+		return nil, errors.NewValidationError(fmt.Errorf("invalid note ID: %w", err))
+	}
+
+	var note models.Note
+	if err := db.DB.
+		Select("id").
+		Where("id = ? AND user_id = ?", noteID, userID).
+		First(&note).Error; err != nil {
+		return nil, errors.NewNotFoundError("Note not found", err)
+	}
+
+	var shares []models.NoteShare
+	if err := db.DB.
+		Preload("SharedWith").
+		Where("note_id = ?", noteID).
+		Find(&shares).Error; err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	outs := make([]models.NoteShareOut, 0, len(shares))
+	for _, share := range shares {
+		outs = append(outs, models.NewNoteShareOut(&share))
+	}
+
+	return models.NoteShareResponse{
+		Shares: outs,
+	}, nil
 }
