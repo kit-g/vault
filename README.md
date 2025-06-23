@@ -1,10 +1,13 @@
 # Vault - Secure Note Storage System
 
-Vault is a secure application for storing and managing sensitive information (notes and attachments) with user authentication. It's built with Go and deployed as a serverless application on AWS.
+Vault is a secure application for storing and managing sensitive information (notes and attachments) with user
+authentication. It's built with Go and deployed as a serverless application on AWS. Check it
+out [here](https://vault.awry.me).
 
 ## Project Overview
 
 Vault allows users to:
+
 - Create an account and securely authenticate
 - Store and manage private notes
 - Attach files to notes
@@ -62,14 +65,14 @@ Vault uses a serverless architecture on AWS with the following components:
    ```
 
 2. **Local Development**
-   
+
    To run the API locally:
    ```bash
    cd api
    go mod download
    go run cmd/api/main.go
    ```
-   
+
    The API will be available at http://localhost:8080
 
 3. **Deployment to AWS**
@@ -91,15 +94,19 @@ Vault uses a serverless architecture on AWS with the following components:
 For more detailed information about specific components:
 
 - **[API Documentation](api/README.md)**: Details about the API service, endpoints, and local development
-- **[Infrastructure Documentation](infrastructure/README.md)**: Details about AWS deployment and infrastructure configuration
+- **[Infrastructure Documentation](infrastructure/README.md)**: Details about AWS deployment and infrastructure
+  configuration
 
 ## For New Developers
 
 If you're new to Go or AWS infrastructure:
 
-1. **Learning Go**: The API code follows standard Go practices. Check out [Go by Example](https://gobyexample.com/) or the [official Go tour](https://tour.golang.org/) to learn more about Go.
+1. **Learning Go**: The API code follows standard Go practices. Check out [Go by Example](https://gobyexample.com/) or
+   the [official Go tour](https://tour.golang.org/) to learn more about Go.
 
-2. **Understanding AWS SAM**: The infrastructure uses AWS Serverless Application Model (SAM). Check out the [AWS SAM Developer Guide](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) to learn more.
+2. **Understanding AWS SAM**: The infrastructure uses AWS Serverless Application Model (SAM). Check out
+   the [AWS SAM Developer Guide](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html)
+   to learn more.
 
 3. **Local Testing**: Start by running the API locally before attempting deployment to AWS.
 

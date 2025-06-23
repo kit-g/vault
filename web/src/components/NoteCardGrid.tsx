@@ -72,7 +72,7 @@ export function NoteCardGrid({ hydrate, onDelete, onRestore, onClickCard }: Note
           currentPage={ currentPage }
           totalItems={ notes.total || 0 }
           itemsPerPage={ itemsPerPage }
-          onPageChange={ (page) => setCurrentPage(page) }
+          onPageChange={ (page: number) => setCurrentPage(page) }
         />
       </div>
     </div>
