@@ -9,7 +9,8 @@ import (
 // Note represents a secure user note
 type Note struct {
 	SoftDeleteModel
-	UserID      uuid.UUID    `json:"-" gorm:"type:uuid;not null"`
+	UserID      uuid.UUID    `json:"-" gorm:"index;type:uuid;not null"`
+	User        User         `json:"user" gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Title       string       `json:"title" binding:"required"`
 	Content     string       `json:"content" binding:"required"`
 	Encrypted   bool         `json:"encrypted"`
@@ -77,8 +78,10 @@ func NewPermission(v string) (Permission, error) {
 type NoteShare struct {
 	Model
 	NoteID           uuid.UUID  `json:"-"`
-	SharedWithUserID uuid.UUID  `json:"shared_with"`
+	SharedWithUserID uuid.UUID  `json:"-" gorm:"index"`
+	SharedWith       User       `json:"shared_with" gorm:"foreignKey:SharedWithUserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Permission       Permission `json:"permission"` // "read", "write"
+	Expires          *time.Time `json:"expires,omitempty"`
 }
 
 type NoteIn struct {
@@ -139,11 +142,12 @@ func NewNoteOut(n *Note) NoteOut {
 	}
 }
 
-func NewNoteShare(noteId uuid.UUID, userId uuid.UUID, permission Permission) NoteShare {
+func NewNoteShare(noteId uuid.UUID, with User, permission Permission, expires *time.Time) NoteShare {
 	return NoteShare{
 		NoteID:           noteId,
-		SharedWithUserID: userId,
+		SharedWithUserID: with.ID,
 		Permission:       permission,
+		Expires:          expires,
 	}
 }
 
@@ -170,3 +174,29 @@ type AttachmentResponse struct {
 	Attachments []AttachmentRef `json:"attachments" binding:"required"`
 	Total       int             `json:"total" example:"10" binding:"required"`
 } // @name AttachmentResponse
+
+type NoteShareOut struct {
+	ID         uuid.UUID  `json:"id"`
+	Permission Permission `json:"permission"`
+	Expires    *time.Time `json:"expires,omitempty"`
+	SharedWith *UserOut   `json:"with,omitempty"`
+} // @name Share
+
+func NewNoteShareOut(share *NoteShare) NoteShareOut {
+	var userOut *UserOut
+	if share.SharedWith.ID != uuid.Nil {
+		u := NewUserOut(share.SharedWith)
+		userOut = &u
+	}
+
+	return NoteShareOut{
+		ID:         share.ID,
+		Permission: share.Permission,
+		Expires:    share.Expires,
+		SharedWith: userOut,
+	}
+}
+
+type NoteShareResponse struct {
+	Shares []NoteShareOut `json:"shared"`
+} // @name NoteShareResponse

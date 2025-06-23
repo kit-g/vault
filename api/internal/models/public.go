@@ -1,6 +1,8 @@
 package models
 
-import "github.com/google/uuid"
+import (
+	"time"
+)
 
 type PresignUploadRequest struct {
 	Filename    string `json:"filename" binding:"required" example:"example.txt"`
@@ -10,13 +12,14 @@ type PresignUploadRequest struct {
 type PresignUploadResponse struct {
 	URL string `json:"url" example:"https://s3.com/upload?key=example.txt"`
 	Key string `json:"key" example:"attachments/123e4567-e89b-12d3-a456-426614174000/example.txt"`
-} //@name PresignUploadResponse
+} // @name PresignUploadResponse
 
 type PresignDownloadResponse struct {
 	URL string `json:"url"`
-} //@name PresignDownloadResponse
+} // @name PresignDownloadResponse
 
 type ShareToUserRequest struct {
-	SharedWith uuid.UUID `json:"shared_with" binding:"required" example:"123e4567-e89b-12d3-a456-426614174000"`
-	Permission string    `json:"permission" binding:"required" example:"read"` // "read" or "write"
+	SharedWith string     `json:"shared_with" binding:"required" example:"username" description:"User ID or email or username to share the note with"`
+	Permission string     `json:"permission" binding:"required" example:"read"` // "read" or "write"
+	Expires    *time.Time `json:"expires,omitempty" example:"2024-12-31T23:59:59Z"`
 } // @name ShareToUserRequest
