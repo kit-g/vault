@@ -795,6 +795,66 @@ const docTemplate = `{
             }
         },
         "/notes/{noteId}/share": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns a list of users the note has been shared with",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notes"
+                ],
+                "summary": "List note shares",
+                "operationId": "getNoteShares",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Note ID",
+                        "name": "noteId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NoteShareResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -1121,6 +1181,17 @@ const docTemplate = `{
                 }
             }
         },
+        "NoteShareResponse": {
+            "type": "object",
+            "properties": {
+                "shared": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Share"
+                    }
+                }
+            }
+        },
         "NotesResponse": {
             "type": "object",
             "required": [
@@ -1189,6 +1260,23 @@ const docTemplate = `{
                 }
             }
         },
+        "Share": {
+            "type": "object",
+            "properties": {
+                "expires": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "permission": {
+                    "$ref": "#/definitions/models.Permission"
+                },
+                "with": {
+                    "$ref": "#/definitions/UserOut"
+                }
+            }
+        },
         "ShareToUserRequest": {
             "type": "object",
             "required": [
@@ -1196,6 +1284,10 @@ const docTemplate = `{
                 "shared_with"
             ],
             "properties": {
+                "expires": {
+                    "type": "string",
+                    "example": "2024-12-31T23:59:59Z"
+                },
                 "permission": {
                     "description": "\"read\" or \"write\"",
                     "type": "string",
@@ -1203,7 +1295,7 @@ const docTemplate = `{
                 },
                 "shared_with": {
                     "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174000"
+                    "example": "username"
                 }
             }
         },
@@ -1247,6 +1339,17 @@ const docTemplate = `{
                     "example": "jane_doe"
                 }
             }
+        },
+        "models.Permission": {
+            "type": "string",
+            "enum": [
+                "read",
+                "write"
+            ],
+            "x-enum-varnames": [
+                "ReadPermission",
+                "WritePermission"
+            ]
         }
     }
 }`

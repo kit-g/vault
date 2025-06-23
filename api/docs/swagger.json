@@ -155,6 +155,17 @@
                 ],
                 "type": "object"
             },
+            "NoteShareResponse": {
+                "properties": {
+                    "shared": {
+                        "items": {
+                            "$ref": "#/components/schemas/Share"
+                        },
+                        "type": "array"
+                    }
+                },
+                "type": "object"
+            },
             "NotesResponse": {
                 "properties": {
                     "notes": {
@@ -223,15 +234,36 @@
                 },
                 "type": "object"
             },
+            "Share": {
+                "properties": {
+                    "expires": {
+                        "type": "string"
+                    },
+                    "id": {
+                        "type": "string"
+                    },
+                    "permission": {
+                        "$ref": "#/components/schemas/models.Permission"
+                    },
+                    "with": {
+                        "$ref": "#/components/schemas/UserOut"
+                    }
+                },
+                "type": "object"
+            },
             "ShareToUserRequest": {
                 "properties": {
+                    "expires": {
+                        "example": "2024-12-31T23:59:59Z",
+                        "type": "string"
+                    },
                     "permission": {
                         "description": "\"read\" or \"write\"",
                         "example": "read",
                         "type": "string"
                     },
                     "shared_with": {
-                        "example": "123e4567-e89b-12d3-a456-426614174000",
+                        "example": "username",
                         "type": "string"
                     }
                 },
@@ -281,6 +313,17 @@
                     }
                 },
                 "type": "object"
+            },
+            "models.Permission": {
+                "enum": [
+                    "read",
+                    "write"
+                ],
+                "type": "string",
+                "x-enum-varnames": [
+                    "ReadPermission",
+                    "WritePermission"
+                ]
             }
         }
     },
@@ -1273,6 +1316,82 @@
             }
         },
         "/notes/{noteId}/share": {
+            "get": {
+                "description": "Returns a list of users the note has been shared with",
+                "operationId": "getNoteShares",
+                "parameters": [
+                    {
+                        "description": "Note ID",
+                        "in": "path",
+                        "name": "noteId",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NoteShareResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad Request"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Not Found"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal Server Error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "summary": "List note shares",
+                "tags": [
+                    "notes"
+                ]
+            },
             "post": {
                 "description": "Allows the authenticated user to share a note they own with another user, specifying read or write permissions.",
                 "operationId": "shareNoteToUser",
