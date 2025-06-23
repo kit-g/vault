@@ -669,3 +669,48 @@ func GetNoteShares(c *gin.Context, userID uuid.UUID) (any, error) {
 		Shares: outs,
 	}, nil
 }
+
+// RevokeNoteShare godoc
+//
+//	@Summary		Revoke note access
+//	@Description	Removes note sharing permissions for a specific user
+//	@Tags			notes
+//	@Accept			json
+//	@Produce		json
+//	@ID				revokeNoteShare
+//	@Param			noteId	path		string	true	"Note ID"
+//	@Param			userId	path		string	true	"User ID to revoke access from"
+//	@Success		204		"No Content"
+//	@Failure		400		{object}	ErrorResponse
+//	@Failure		401		{object}	ErrorResponse
+//	@Failure		404		{object}	ErrorResponse
+//	@Failure		500		{object}	ErrorResponse
+//	@Router			/notes/{noteId}/shares/{userId} [delete]
+//	@Security		BearerAuth
+func RevokeNoteShare(c *gin.Context, userID uuid.UUID) (any, error) {
+	noteID, err := uuid.Parse(c.Param("noteId"))
+	if err != nil {
+		return nil, errors.NewValidationError(fmt.Errorf("invalid note ID: %w", err))
+	}
+
+	revokeUserID, err := uuid.Parse(c.Param("userId"))
+	if err != nil {
+		return nil, errors.NewValidationError(fmt.Errorf("invalid user ID: %w", err))
+	}
+
+	var note models.Note
+	if err := db.DB.
+		Select("id").
+		Where("id = ? AND user_id = ?", noteID, userID).
+		First(&note).Error; err != nil {
+		return nil, errors.NewNotFoundError("Note not found", err)
+	}
+
+	if err := db.DB.
+		Where("note_id = ? AND shared_with_id = ?", noteID, revokeUserID).
+		Delete(&models.NoteShare{}).Error; err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	return models.NoContent, nil
+}
