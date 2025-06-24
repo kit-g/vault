@@ -174,6 +174,38 @@ export class NotesService {
         });
     }
     /**
+     * List shared notes
+     * Returns paginated notes that have been shared with the authenticated user
+     * @returns NotesResponse OK
+     * @throws ApiError
+     */
+    public static getSharedNotes({
+        page = 1,
+        limit = 10,
+    }: {
+        /**
+         * Page number
+         */
+        page?: number,
+        /**
+         * Items per page
+         */
+        limit?: number,
+    }): CancelablePromise<NotesResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/notes/shared-with-me',
+            query: {
+                'page': page,
+                'limit': limit,
+            },
+            errors: {
+                401: `Unauthorized`,
+                500: `Server error`,
+            },
+        });
+    }
+    /**
      * Delete a note
      * Deletes a note owned by the authenticated user
      * @returns void
@@ -459,6 +491,40 @@ export class NotesService {
                 400: `Bad request (invalid UUID, payload, or permission)`,
                 404: `Note not found or not owned by user`,
                 500: `Internal server error`,
+            },
+        });
+    }
+    /**
+     * Revoke note access
+     * Removes note sharing permissions for a specific user
+     * @returns void
+     * @throws ApiError
+     */
+    public static revokeNoteShare({
+        noteId,
+        userId,
+    }: {
+        /**
+         * Note ID
+         */
+        noteId: string,
+        /**
+         * User ID to revoke access from
+         */
+        userId: string,
+    }): CancelablePromise<void> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/notes/{noteId}/shares/{userId}',
+            path: {
+                'noteId': noteId,
+                'userId': userId,
+            },
+            errors: {
+                400: `Bad Request`,
+                401: `Unauthorized`,
+                404: `Not Found`,
+                500: `Internal Server Error`,
             },
         });
     }

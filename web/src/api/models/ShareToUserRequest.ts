@@ -8,6 +8,6 @@ export type ShareToUserRequest = {
      * "read" or "write"
      */
     permission: string;
-    shared_with: string;
+    shared_with?: string;
 };
 
