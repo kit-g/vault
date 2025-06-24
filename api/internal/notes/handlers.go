@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"net/mail"
 	"strconv"
 	"vault/internal/awsx"
 	"vault/internal/db"
@@ -131,19 +132,47 @@ func GetNotes(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@Router			/notes/{noteId} [get]
 //	@Security		BearerAuth
 func GetNote(c *gin.Context, userID uuid.UUID) (any, error) {
-	noteIDStr := c.Param("noteId")
-	noteID, err := uuid.Parse(noteIDStr)
-
+	noteID, err := uuid.Parse(c.Param("noteId"))
 	if err != nil {
-		return nil, errors.NewValidationError(err)
+		return nil, errors.NewValidationError(fmt.Errorf("invalid note ID: %w", err))
 	}
 
 	var note models.Note
-	if err := db.DB.
-		Where("user_id = ? AND id = ?", userID, noteID).
-		Preload("Attachments").
-		First(&note).Error; err != nil {
+	query := db.DB.
+		Joins("LEFT JOIN note_shares ON note_shares.note_id = notes.id").
+		Where(
+			"notes.id = ? AND (notes.user_id = ? OR (note_shares.shared_with_user_id = ? AND (note_shares.expires IS NULL OR note_shares.expires > NOW())))",
+			noteID,
+			userID,
+			userID,
+		).
+		Preload("Attachments")
 
+	// Check if the user is the owner to determine what shares to load
+	var isOwner bool
+	if err := db.DB.
+		Model(&models.Note{}).
+		Select("user_id = ?", userID).
+		Where("id = ?", noteID).
+		Find(&isOwner).
+		Error; err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	if isOwner {
+		query = query.Preload("Shares").Preload("Shares.SharedWith")
+	} else {
+		query = query.
+			Preload(
+				"Shares",
+				func(db *gorm.DB) *gorm.DB {
+					return db.Where("shared_with_user_id = ?", userID)
+				},
+			).
+			Preload("Shares.SharedWith")
+	}
+
+	if err := query.First(&note).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NewNotFoundError("Note not found", err)
 		}
@@ -607,9 +636,20 @@ func ShareNoteToUser(c *gin.Context, userID uuid.UUID) (any, error) {
 	}
 
 	var with models.User
-	if err := db.DB.
-		Where("id = ? OR email = ? OR username = ?", req.SharedWith, req.SharedWith, req.SharedWith).
-		First(&with).Error; err != nil {
+	query := db.DB
+
+	if uid, err := uuid.Parse(req.SharedWith); err == nil {
+		// looks like a UUID
+		query = query.Where("id = ?", uid)
+	} else if _, err := mail.ParseAddress(req.SharedWith); err == nil {
+		// looks like an email
+		query = query.Where("email = ?", req.SharedWith)
+	} else {
+		// fallback: treat it as username
+		query = query.Where("username = ?", req.SharedWith)
+	}
+
+	if err := query.First(&with).Error; err != nil {
 		return nil, errors.NewNotFoundError("User not found", err)
 	}
 
@@ -738,7 +778,7 @@ func SharedWithMe(c *gin.Context, userID uuid.UUID) (any, error) {
 	var notes []models.Note
 	if err := db.DB.
 		Joins("JOIN note_shares ON notes.id = note_shares.note_id").
-		Where("note_shares.shared_with_id = ?", userID).
+		Where("note_shares.shared_with_user_id = ?", userID).
 		Preload("Attachments").
 		Order("note_shares.created_at desc").
 		Limit(limit).

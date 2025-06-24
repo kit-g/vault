@@ -48,11 +48,11 @@ func Router(origins string) *gin.Engine {
 	vaultGroup.GET("", Authenticated(notes.GetNotes))
 	vaultGroup.POST("", Authenticated(notes.CreateNote))
 	vaultGroup.GET("deleted", Authenticated(notes.GetDeletedNotes))
-	vaultGroup.DELETE("/shared-with-me", Authenticated(notes.SharedWithMe))
 	vaultGroup.GET("/:noteId", Authenticated(notes.GetNote))
 	vaultGroup.PUT("/:noteId", Authenticated(notes.EditNote))
 	vaultGroup.DELETE("/:noteId", Authenticated(notes.DeleteNote))
 	vaultGroup.POST("/:noteId/restore", Authenticated(notes.RestoreNote))
+	vaultGroup.GET("/shared-with-me", Authenticated(notes.SharedWithMe))
 	// attachments
 	vaultGroup.POST("/:noteId/attachments", Authenticated(notes.GetUploadURL))
 	vaultGroup.GET("/:noteId/attachments/:attachmentId", Authenticated(notes.GetDownloadURL))
