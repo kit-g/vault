@@ -13,6 +13,10 @@ import { formatBytes } from "../utils/numbers.ts";
 import toast from "react-hot-toast";
 import { AttachmentsEmptyState } from "../components/AttachmentsEmptyState.tsx";
 import downloadAttachment from "../utils/network.ts";
+import ShareButton from "../components/ShareButton.tsx";
+import { isNoteBy } from "../api/utils.ts";
+import { useAuth } from "../features/AuthContext.tsx";
+import { ShareModal } from "../components/ShareModal.tsx";
 
 type UploadingFile = {
   id: string; // A unique temporary ID for the React key
@@ -31,12 +35,15 @@ export default function NoteDetail() {
 
   const [noteId, setNoteId] = useState<string | null>(id || null);
   const [note, setNote] = useState<NoteIn>({ title: '', content: '' });
+  const { user } = useAuth();
+
   const [noteOut, setNoteOut] = useState<NoteOut | undefined>(undefined);
   const [debouncedNote] = useDebounce(note, 2000); // debounce the note state by 2 seconds
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const [loading, setLoading] = useState(!!id);
   const [isDirty, setIsDirty] = useState(false); // if the user has made changes
   const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
+  const [isShareModalOpen, setShareModalOpen] = useState(false);
 
   const getNote = async (id: string): Promise<void> => {
     return NotesService.getNote({ noteId: id })
@@ -151,7 +158,6 @@ export default function NoteDetail() {
 
   };
 
-
   const { getRootProps, getInputProps, isDragActive } = useDropzone(
     {
       onDrop: acceptedFiles => onFilesSelected(acceptedFiles),
@@ -168,7 +174,6 @@ export default function NoteDetail() {
         content_type: type,
         filename: upload.file.name,
       };
-      console.log(body)
 
       const { url } = await NotesService.getUploadUrl({ noteId: noteId!, requestBody: body });
 
@@ -209,6 +214,7 @@ export default function NoteDetail() {
       noteId: noteId!,
       attachmentId: attachmentId,
     };
+
     NotesService.deleteAttachment(request)
       .then(() => {
         setNoteOut(
@@ -221,23 +227,44 @@ export default function NoteDetail() {
       .catch(err => console.error("Failed to delete attachment", err));
   }
 
+  const isNoteMine = isNoteBy(noteOut, user?.id);
+
   if (loading) return <div>Loading...</div>;
 
   return (
     <>
       <Seo title={ isNewNote ? "New Note" : note.title }/>
 
+      {
+        noteOut && (
+          <ShareModal
+            isOpen={ isShareModalOpen }
+            onClose={ () => setShareModalOpen(false) }
+            noteId={ noteOut.id }
+          />
+        )
+      }
+
       <div className="flex flex-1 gap-4 overflow-hidden">
         <div className="flex-1 flex flex-col gap-4 overflow-y-auto">
           <div className="flex justify-between items-center">
-            <input
-              name="title"
-              placeholder="Note Title"
-              value={ note.title }
-              maxLength={ 120 }
-              onChange={ (e) => handleChange('title', e.target.value) }
-              className="w-full h-14 text-2xl bg-transparent focus:outline-none"
-            />
+            <div className="flex justify-between items-center w-full">
+              <input
+                name="title"
+                placeholder="Note Title"
+                value={ note.title }
+                maxLength={ 120 }
+                onChange={ (e) => handleChange('title', e.target.value) }
+                className="w-full h-14 text-2xl bg-transparent focus:outline-none"
+              />
+              {
+                isNoteMine && noteId && (
+                  <ShareButton
+                    onShare={ () => setShareModalOpen(true) }
+                  />
+                )
+              }
+            </div>
           </div>
           <RichTextEditor
             isLoading={ loading }
@@ -248,6 +275,7 @@ export default function NoteDetail() {
           />
         </div>
 
+        {/* Attachments pane */ }
         <aside { ...getRootProps() }
                className="w-80 border-l border-[var(--border)] p-4 hidden xl:block relative overflow-y-auto"
         >
