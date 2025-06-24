@@ -1239,6 +1239,10 @@ const docTemplate = `{
         },
         "LoginOut": {
             "type": "object",
+            "required": [
+                "session",
+                "user"
+            ],
             "properties": {
                 "session": {
                     "$ref": "#/definitions/Session"
@@ -1268,6 +1272,7 @@ const docTemplate = `{
         "NoteOut": {
             "type": "object",
             "required": [
+                "author_id",
                 "created_at",
                 "id"
             ],
@@ -1280,6 +1285,10 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/AttachmentOut"
                     }
+                },
+                "author_id": {
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
                 },
                 "content": {
                     "type": "string",
@@ -1294,6 +1303,12 @@ const docTemplate = `{
                 "id": {
                     "type": "string",
                     "example": "123e4567-e89b-12d3-a456-426614174000"
+                },
+                "shares": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Share"
+                    }
                 },
                 "title": {
                     "type": "string",
@@ -1374,6 +1389,10 @@ const docTemplate = `{
         },
         "Session": {
             "type": "object",
+            "required": [
+                "refresh",
+                "token"
+            ],
             "properties": {
                 "refresh": {
                     "type": "string"
@@ -1453,6 +1472,10 @@ const docTemplate = `{
         },
         "UserOut": {
             "type": "object",
+            "required": [
+                "id",
+                "username"
+            ],
             "properties": {
                 "email": {
                     "type": "string",

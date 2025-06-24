@@ -97,6 +97,10 @@
                         "$ref": "#/components/schemas/UserOut"
                     }
                 },
+                "required": [
+                    "session",
+                    "user"
+                ],
                 "type": "object"
             },
             "NoteIn": {
@@ -127,6 +131,10 @@
                         },
                         "type": "array"
                     },
+                    "author_id": {
+                        "example": "123e4567-e89b-12d3-a456-426614174000",
+                        "type": "string"
+                    },
                     "content": {
                         "example": "Notes from the meeting with the client.",
                         "type": "string"
@@ -141,6 +149,12 @@
                         "example": "123e4567-e89b-12d3-a456-426614174000",
                         "type": "string"
                     },
+                    "shares": {
+                        "items": {
+                            "$ref": "#/components/schemas/Share"
+                        },
+                        "type": "array"
+                    },
                     "title": {
                         "example": "Meeting Notes",
                         "type": "string"
@@ -150,6 +164,7 @@
                     }
                 },
                 "required": [
+                    "author_id",
                     "created_at",
                     "id"
                 ],
@@ -232,6 +247,10 @@
                         "type": "string"
                     }
                 },
+                "required": [
+                    "refresh",
+                    "token"
+                ],
                 "type": "object"
             },
             "Share": {
@@ -317,6 +336,10 @@
                         "type": "string"
                     }
                 },
+                "required": [
+                    "id",
+                    "username"
+                ],
                 "type": "object"
             }
         }

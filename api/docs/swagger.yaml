@@ -66,6 +66,9 @@ components:
                     $ref: '#/components/schemas/Session'
                 user:
                     $ref: '#/components/schemas/UserOut'
+            required:
+                - session
+                - user
             type: object
         NoteIn:
             properties:
@@ -87,6 +90,9 @@ components:
                     items:
                         $ref: '#/components/schemas/AttachmentOut'
                     type: array
+                author_id:
+                    example: 123e4567-e89b-12d3-a456-426614174000
+                    type: string
                 content:
                     example: Notes from the meeting with the client.
                     type: string
@@ -97,12 +103,17 @@ components:
                 id:
                     example: 123e4567-e89b-12d3-a456-426614174000
                     type: string
+                shares:
+                    items:
+                        $ref: '#/components/schemas/Share'
+                    type: array
                 title:
                     example: Meeting Notes
                     type: string
                 updated_at:
                     type: string
             required:
+                - author_id
                 - created_at
                 - id
             type: object
@@ -158,6 +169,9 @@ components:
                     type: string
                 token:
                     type: string
+            required:
+                - refresh
+                - token
             type: object
         Share:
             properties:
@@ -219,6 +233,9 @@ components:
                 username:
                     example: jane_doe
                     type: string
+            required:
+                - id
+                - username
             type: object
 info:
     contact:
