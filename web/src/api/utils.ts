@@ -5,6 +5,6 @@ export const isNoteBy = (note?: NoteOut, userId?: string): boolean => {
   if (!note || !userId) {
     return false;
   }
-  return note?.author_id === userId;
+  return note?.author.id === userId;
 };
 
