@@ -348,9 +348,16 @@ export default function NoteDetail() {
           </div>
 
           {
-            noteId && (
-              <div className="p-2 border-t border-[var(--border)] h-40">
+            noteOut && (
+              <div className="p-2 border-t border-[var(--border)] h-40 overflow-y-auto">
                 <h3 className="font-bold">About</h3>
+                <div className="text-sm flex items-center mt-2">
+                  <span>Created</span>
+                  <div className="flex-1"/>
+                  <span className="text-xs text-[var(--muted-foreground)]">
+                    { new Date(noteOut.created_at).toLocaleDateString() }
+                  </span>
+                </div>
                 {
                   isNoteMine ? (
                     (shares?.length > 0) && (
@@ -410,9 +417,11 @@ function SharedItem({ noteId, share, onShareRevoked }: {
       <span>{ share.with?.username }</span>
       <div className="flex-1"/>
       {
-        share.expires && (
+        (
           <span className="text-xs text-[var(--muted-foreground)]">
-          until { new Date(share.expires).toLocaleDateString() }
+          {
+            share.expires ? `until ${ new Date(share.expires).toLocaleDateString() }` : 'indefinitely'
+          }
         </span>
         )
       }
