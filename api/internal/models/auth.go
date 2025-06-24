@@ -9,14 +9,14 @@ type UserIn struct {
 } // @name UserIn
 
 type UserOut struct {
-	ID       uuid.UUID `json:"id" example:"123e4567-e89b-12d3-a456-426614174000"`
+	ID       uuid.UUID `json:"id" example:"123e4567-e89b-12d3-a456-426614174000" binding:"required"`
 	Email    string    `json:"email" example:"jane@mail.com"`
-	Username string    `json:"username" example:"jane_doe"`
+	Username string    `json:"username" example:"jane_doe" binding:"required"`
 } // @name UserOut
 
 type Session struct {
-	Token   string `json:"token"`
-	Refresh string `json:"refresh"`
+	Token   string `json:"token" binding:"required"`
+	Refresh string `json:"refresh" binding:"required"`
 } // @name Session
 
 type Login struct {
@@ -25,8 +25,8 @@ type Login struct {
 } // @name Login
 
 type LoginOut struct {
-	Session Session `json:"session"`
-	User    UserOut `json:"user"`
+	Session Session `json:"session" binding:"required"`
+	User    UserOut `json:"user" binding:"required"`
 } // @name LoginOut
 
 func NewSession(token string, refresh string) Session {

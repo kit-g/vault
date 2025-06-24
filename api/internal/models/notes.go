@@ -109,11 +109,13 @@ type NoteOut struct {
 	ID          uuid.UUID       `json:"id" example:"123e4567-e89b-12d3-a456-426614174000" binding:"required"`
 	Title       string          `json:"title" example:"Meeting Notes"`
 	Content     string          `json:"content" example:"Notes from the meeting with the client."`
+	AuthorId    uuid.UUID       `json:"author_id" example:"123e4567-e89b-12d3-a456-426614174000" binding:"required"`
 	Encrypted   bool            `json:"encrypted"`
 	Archived    bool            `json:"archived"`
 	CreatedAt   time.Time       `json:"created_at" binding:"required"`
 	UpdatedAt   time.Time       `json:"updated_at"`
 	Attachments []AttachmentOut `json:"attachments"`
+	Shares      []NoteShareOut  `json:"shares"`
 } // @name NoteOut
 
 func NewNote(n *NoteIn, userID uuid.UUID) Note {
@@ -129,16 +131,22 @@ func NewNoteOut(n *Note) NoteOut {
 	for i, att := range n.Attachments {
 		attachments[i] = NewAttachmentOut(&att)
 	}
+	shares := make([]NoteShareOut, len(n.Shares))
+	for i, share := range n.Shares {
+		shares[i] = NewNoteShareOut(&share)
+	}
 
 	return NoteOut{
 		ID:          n.ID,
 		Title:       n.Title,
 		Content:     n.Content,
 		Encrypted:   n.Encrypted,
+		AuthorId:    n.UserID,
 		Archived:    n.Archived,
 		CreatedAt:   n.CreatedAt,
 		UpdatedAt:   n.UpdatedAt,
 		Attachments: attachments,
+		Shares:      shares,
 	}
 }
 
