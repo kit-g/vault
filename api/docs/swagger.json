@@ -274,8 +274,7 @@
                     }
                 },
                 "required": [
-                    "permission",
-                    "shared_with"
+                    "permission"
                 ],
                 "type": "object"
             },
@@ -761,6 +760,73 @@
                     }
                 ],
                 "summary": "List deleted notes",
+                "tags": [
+                    "notes"
+                ]
+            }
+        },
+        "/notes/shared-with-me": {
+            "get": {
+                "description": "Returns paginated notes that have been shared with the authenticated user",
+                "operationId": "getSharedNotes",
+                "parameters": [
+                    {
+                        "description": "Page number",
+                        "in": "query",
+                        "name": "page",
+                        "schema": {
+                            "default": 1,
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "description": "Items per page",
+                        "in": "query",
+                        "name": "limit",
+                        "schema": {
+                            "default": 10,
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotesResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Server error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "summary": "List shared notes",
                 "tags": [
                     "notes"
                 ]
