@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type Session = {
-    refresh?: string;
-    token?: string;
+    refresh: string;
+    token: string;
 };
 

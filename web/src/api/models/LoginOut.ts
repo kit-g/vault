@@ -5,7 +5,7 @@
 import type { Session } from './Session';
 import type { UserOut } from './UserOut';
 export type LoginOut = {
-    session?: Session;
-    user?: UserOut;
+    session: Session;
+    user: UserOut;
 };
 
