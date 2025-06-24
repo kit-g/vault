@@ -45,11 +45,13 @@ export default function NoteDetail() {
   const [isDirty, setIsDirty] = useState(false); // if the user has made changes
   const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
   const [isShareModalOpen, setShareModalOpen] = useState(false);
+  const [shares, setShares] = useState<Share[]>(noteOut?.shares || []);
 
   const getNote = async (id: string): Promise<void> => {
     return NotesService.getNote({ noteId: id })
       .then((note) => {
         setNoteOut(note);
+        setShares(note?.shares || []);
         setNote({ title: note.title!, content: note.content || '' });
       })
       .catch(err => console.error("Failed to fetch note", err));
@@ -240,7 +242,12 @@ export default function NoteDetail() {
         noteOut && (
           <ShareModal
             isOpen={ isShareModalOpen }
-            onClose={ () => setShareModalOpen(false) }
+            onClose={
+              async () => {
+                setShareModalOpen(false)
+                await getNote(noteId!)
+              }
+            }
             noteId={ noteOut.id }
           />
         )
@@ -346,11 +353,26 @@ export default function NoteDetail() {
                 <h3 className="font-bold">About</h3>
                 {
                   isNoteMine ? (
-                    (noteOut && noteOut?.shares && noteOut?.shares?.length > 0) && (
+                    (shares?.length > 0) && (
                       <div className="mt-2">
                         <div className="text-sm">Shared with:</div>
                         <div className="mt-1 flex flex-col space-y-2">
-                          { noteOut.shares.map(SharedItem) }
+                          {
+                            shares.map(
+                              (share) => {
+                                return SharedItem({
+                                  noteId: noteId!,
+                                  share: share,
+                                  onShareRevoked: () => {
+                                    setShares(
+                                      prev => prev.filter(s => s.with?.id !== share.with?.id)
+                                    )
+                                    toast.success(`Unshared with ${ share.with?.username }`)
+                                  },
+                                });
+                              }
+                            )
+                          }
                         </div>
                       </div>
                     )
@@ -369,8 +391,16 @@ export default function NoteDetail() {
   );
 }
 
-function SharedItem(share: Share) {
+function SharedItem({ noteId, share, onShareRevoked }: {
+  noteId: string,
+  share: Share,
+  onShareRevoked: () => void,
+}) {
   const unshare = async () => {
+    if (share.with?.id) {
+      await NotesService.revokeNoteShare({ noteId: noteId, userId: share.with?.id });
+      onShareRevoked();
+    }
   }
   return (
     <div

@@ -748,7 +748,7 @@ func RevokeNoteShare(c *gin.Context, userID uuid.UUID) (any, error) {
 	}
 
 	if err := db.DB.
-		Where("note_id = ? AND shared_with_id = ?", noteID, revokeUserID).
+		Where("note_id = ? AND shared_with_user_id = ?", noteID, revokeUserID).
 		Delete(&models.NoteShare{}).Error; err != nil {
 		return nil, errors.NewServerError(err)
 	}

@@ -61,7 +61,7 @@ func Router(origins string) *gin.Engine {
 	// share
 	vaultGroup.POST("/:noteId/share", Authenticated(notes.ShareNoteToUser))
 	vaultGroup.GET("/:noteId/share", Authenticated(notes.GetNoteShares))
-	vaultGroup.DELETE("/:noteId/share/:userId", Authenticated(notes.RevokeNoteShare))
+	vaultGroup.DELETE("/:noteId/shares/:userId", Authenticated(notes.RevokeNoteShare))
 
 	return r
 }
