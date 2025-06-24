@@ -1272,7 +1272,7 @@ const docTemplate = `{
         "NoteOut": {
             "type": "object",
             "required": [
-                "author_id",
+                "author",
                 "created_at",
                 "id"
             ],
@@ -1286,9 +1286,8 @@ const docTemplate = `{
                         "$ref": "#/definitions/AttachmentOut"
                     }
                 },
-                "author_id": {
-                    "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174000"
+                "author": {
+                    "$ref": "#/definitions/PublicUserOut"
                 },
                 "content": {
                     "type": "string",
@@ -1387,6 +1386,23 @@ const docTemplate = `{
                 }
             }
         },
+        "PublicUserOut": {
+            "type": "object",
+            "required": [
+                "id",
+                "username"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "jane_doe"
+                }
+            }
+        },
         "Session": {
             "type": "object",
             "required": [
@@ -1421,7 +1437,7 @@ const docTemplate = `{
                     "example": "read"
                 },
                 "with": {
-                    "$ref": "#/definitions/UserOut"
+                    "$ref": "#/definitions/PublicUserOut"
                 }
             }
         },

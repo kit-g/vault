@@ -146,7 +146,8 @@ func GetNote(c *gin.Context, userID uuid.UUID) (any, error) {
 			userID,
 			userID,
 		).
-		Preload("Attachments")
+		Preload("Attachments").
+		Preload("User")
 
 	// Check if the user is the owner to determine what shares to load
 	var isOwner bool

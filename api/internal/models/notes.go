@@ -109,7 +109,7 @@ type NoteOut struct {
 	ID          uuid.UUID       `json:"id" example:"123e4567-e89b-12d3-a456-426614174000" binding:"required"`
 	Title       string          `json:"title" example:"Meeting Notes"`
 	Content     string          `json:"content" example:"Notes from the meeting with the client."`
-	AuthorId    uuid.UUID       `json:"author_id" example:"123e4567-e89b-12d3-a456-426614174000" binding:"required"`
+	Author      PublicUserOut   `json:"author"  binding:"required"`
 	Encrypted   bool            `json:"encrypted"`
 	Archived    bool            `json:"archived"`
 	CreatedAt   time.Time       `json:"created_at" binding:"required"`
@@ -141,10 +141,10 @@ func NewNoteOut(n *Note) NoteOut {
 		Title:       n.Title,
 		Content:     n.Content,
 		Encrypted:   n.Encrypted,
-		AuthorId:    n.UserID,
 		Archived:    n.Archived,
 		CreatedAt:   n.CreatedAt,
 		UpdatedAt:   n.UpdatedAt,
+		Author:      NewPublicUserOut(n.User),
 		Attachments: attachments,
 		Shares:      shares,
 	}
@@ -184,16 +184,16 @@ type AttachmentResponse struct {
 } // @name AttachmentResponse
 
 type NoteShareOut struct {
-	ID         uuid.UUID  `json:"id" binding:"required"`
-	Permission string     `json:"permission" binding:"required" example:"read"`
-	Expires    *time.Time `json:"expires,omitempty" example:"2024-12-31T23:59:59Z"`
-	SharedWith *UserOut   `json:"with,omitempty"`
+	ID         uuid.UUID      `json:"id" binding:"required"`
+	Permission string         `json:"permission" binding:"required" example:"read"`
+	Expires    *time.Time     `json:"expires,omitempty" example:"2024-12-31T23:59:59Z"`
+	SharedWith *PublicUserOut `json:"with,omitempty"`
 } // @name Share
 
 func NewNoteShareOut(share *NoteShare) NoteShareOut {
-	var userOut *UserOut
+	var userOut *PublicUserOut
 	if share.SharedWith.ID != uuid.Nil {
-		u := NewUserOut(share.SharedWith)
+		u := NewPublicUserOut(share.SharedWith)
 		userOut = &u
 	}
 

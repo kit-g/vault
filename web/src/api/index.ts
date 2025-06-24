@@ -20,6 +20,7 @@ export type { NotesResponse } from './models/NotesResponse';
 export type { PresignDownloadResponse } from './models/PresignDownloadResponse';
 export type { PresignUploadRequest } from './models/PresignUploadRequest';
 export type { PresignUploadResponse } from './models/PresignUploadResponse';
+export type { PublicUserOut } from './models/PublicUserOut';
 export type { Session } from './models/Session';
 export type { Share } from './models/Share';
 export type { ShareToUserRequest } from './models/ShareToUserRequest';

@@ -90,9 +90,8 @@ components:
                     items:
                         $ref: '#/components/schemas/AttachmentOut'
                     type: array
-                author_id:
-                    example: 123e4567-e89b-12d3-a456-426614174000
-                    type: string
+                author:
+                    $ref: '#/components/schemas/PublicUserOut'
                 content:
                     example: Notes from the meeting with the client.
                     type: string
@@ -113,7 +112,7 @@ components:
                 updated_at:
                     type: string
             required:
-                - author_id
+                - author
                 - created_at
                 - id
             type: object
@@ -163,6 +162,18 @@ components:
                     example: https://s3.com/upload?key=example.txt
                     type: string
             type: object
+        PublicUserOut:
+            properties:
+                id:
+                    example: 123e4567-e89b-12d3-a456-426614174000
+                    type: string
+                username:
+                    example: jane_doe
+                    type: string
+            required:
+                - id
+                - username
+            type: object
         Session:
             properties:
                 refresh:
@@ -184,7 +195,7 @@ components:
                     example: read
                     type: string
                 with:
-                    $ref: '#/components/schemas/UserOut'
+                    $ref: '#/components/schemas/PublicUserOut'
             required:
                 - id
                 - permission

@@ -2,11 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { PublicUserOut } from './PublicUserOut';
-export type Share = {
-    expires?: string;
+export type PublicUserOut = {
     id: string;
-    permission: string;
-    with?: PublicUserOut;
+    username: string;
 };
 
