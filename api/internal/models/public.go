@@ -19,7 +19,7 @@ type PresignDownloadResponse struct {
 } // @name PresignDownloadResponse
 
 type ShareToUserRequest struct {
-	SharedWith string     `json:"shared_with" binding:"required" example:"username" description:"User ID or email or username to share the note with"`
+	SharedWith string     `json:"shared_with" example:"username" description:"User ID or email or username to share the note with"`
 	Permission string     `json:"permission" binding:"required" example:"read"` // "read" or "write"
 	Expires    *time.Time `json:"expires,omitempty" example:"2024-12-31T23:59:59Z"`
 } // @name ShareToUserRequest

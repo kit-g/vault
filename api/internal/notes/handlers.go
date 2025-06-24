@@ -714,3 +714,46 @@ func RevokeNoteShare(c *gin.Context, userID uuid.UUID) (any, error) {
 
 	return models.NoContent, nil
 }
+
+// SharedWithMe godoc
+//
+//	@Summary		List shared notes
+//	@Description	Returns paginated notes that have been shared with the authenticated user
+//	@Tags			notes
+//	@Accept			json
+//	@Produce		json
+//	@ID				getSharedNotes
+//	@Param			page	query		int	false	"Page number"		default(1)
+//	@Param			limit	query		int	false	"Items per page"	default(10)
+//	@Success		200		{object}	NotesResponse
+//	@Failure		401		{object}	ErrorResponse	"Unauthorized"
+//	@Failure		500		{object}	ErrorResponse	"Server error"
+//	@Router			/notes/shared-with-me [get]
+//	@Security		BearerAuth
+func SharedWithMe(c *gin.Context, userID uuid.UUID) (any, error) {
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	offset := (page - 1) * limit
+
+	var notes []models.Note
+	if err := db.DB.
+		Joins("JOIN note_shares ON notes.id = note_shares.note_id").
+		Where("note_shares.shared_with_id = ?", userID).
+		Preload("Attachments").
+		Order("note_shares.created_at desc").
+		Limit(limit).
+		Offset(offset).
+		Find(&notes).Error; err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	var out []models.NoteOut
+	for _, n := range notes {
+		out = append(out, models.NewNoteOut(&n))
+	}
+
+	return models.NotesResponse{
+		Notes: out,
+		Total: 0,
+	}, nil
+}
