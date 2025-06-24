@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { type NoteIn, type NoteOut, NotesService } from "../api";
+import { type NoteIn, type NoteOut, NotesService, type Share } from "../api";
 import { Seo } from "../components/Seo";
 import { RichTextEditor } from "../components/editor/RichTextEditor.tsx";
 import { useDebounce } from "use-debounce";
@@ -17,6 +17,7 @@ import ShareButton from "../components/ShareButton.tsx";
 import { isNoteBy } from "../api/utils.ts";
 import { useAuth } from "../features/AuthContext.tsx";
 import { ShareModal } from "../components/ShareModal.tsx";
+import { X } from "lucide-react";
 
 type UploadingFile = {
   id: string; // A unique temporary ID for the React key
@@ -277,65 +278,122 @@ export default function NoteDetail() {
 
         {/* Attachments pane */ }
         <aside { ...getRootProps() }
-               className="w-80 border-l border-[var(--border)] p-4 hidden xl:block relative overflow-y-auto"
+               className="w-80 hidden xl:flex xl:flex-col  border-l border-[var(--border)] relative "
         >
-          <input { ...getInputProps() } />
-          { isDragActive && (
-            <div
-              className="absolute inset-2 flex items-center justify-center border-2 border-dashed border-[var(--accent)] bg-[var(--subtle-bg)] rounded-lg z-10">
-              <p className="font-bold text-[var(--accent)]">Drop files to attach</p>
-            </div>
-          ) }
-          <h3 className="font-bold">Attachments</h3>
-          {
-            (!noteOut?.attachments || noteOut?.attachments.length === 0) && (uploadingFiles.length === 0)
-              ? <AttachmentsEmptyState/> :
-              (
-                <div className="flex flex-col gap-2 mt-4">
-                  {
-                    noteOut?.attachments?.map(
-                      (attachment) => (
-                        <AttachmentItem
-                          attachmentId={ attachment.id }
-                          key={ attachment.id }
-                          name={ attachment.filename || "" }
-                          status="idle"
-                          mimeType={ attachment.mime_type }
-                          size={ attachment.size }
-                          progress={ 100 }
-                          onDelete={ deleteAttachment }
-                          onDownload={
-                            (attachmentId) => downloadAttachment(noteId!, attachmentId)
-                          }
-                          onView={
-                            (attachmentId) => {
-                              navigate(`/attachments/${ attachmentId }`)
+          <div className="p-4">
+            <h3 className="font-bold">Attachments</h3>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-4">
+            <input { ...getInputProps() } />
+            { isDragActive && (
+              <div
+                className="absolute inset-2 flex items-center justify-center border-2 border-dashed border-[var(--accent)] bg-[var(--subtle-bg)] rounded-lg z-10">
+                <p className="font-bold text-[var(--accent)]">Drop files to attach</p>
+              </div>
+            ) }
+            {
+              (!noteOut?.attachments || noteOut?.attachments.length === 0) && (uploadingFiles.length === 0)
+                ? <AttachmentsEmptyState/> :
+                (
+                  <div className="flex flex-col gap-2">
+                    {
+                      noteOut?.attachments?.map(
+                        (attachment) => (
+                          <AttachmentItem
+                            attachmentId={ attachment.id }
+                            key={ attachment.id }
+                            name={ attachment.filename || "" }
+                            status="idle"
+                            mimeType={ attachment.mime_type }
+                            size={ attachment.size }
+                            progress={ 100 }
+                            onDelete={ deleteAttachment }
+                            onDownload={
+                              (attachmentId) => downloadAttachment(noteId!, attachmentId)
                             }
-                          }
-                        />
+                            onView={
+                              (attachmentId) => {
+                                navigate(`/attachments/${ attachmentId }`)
+                              }
+                            }
+                          />
+                        )
                       )
-                    )
-                  }
-                  {
-                    uploadingFiles.map(f => (
-                        <AttachmentItem
-                          key={ f.id }
-                          name={ f.file.name }
-                          status={ f.status }
-                          progress={ f.progress }
-                          mimeType={ f.file.type }
-                          size={ f.file.size }
-                          error={ f.error }
-                        />
+                    }
+                    {
+                      uploadingFiles.map(f => (
+                          <AttachmentItem
+                            key={ f.id }
+                            name={ f.file.name }
+                            status={ f.status }
+                            progress={ f.progress }
+                            mimeType={ f.file.type }
+                            size={ f.file.size }
+                            error={ f.error }
+                          />
+                        )
                       )
+                    }
+                  </div>
+                )
+            }
+          </div>
+
+          {
+            noteId && (
+              <div className="p-2 border-t border-[var(--border)] h-40">
+                <h3 className="font-bold">About</h3>
+                {
+                  isNoteMine ? (
+                    (noteOut && noteOut?.shares && noteOut?.shares?.length > 0) && (
+                      <div className="mt-2">
+                        <div className="text-sm">Shared with:</div>
+                        <div className="mt-1 flex flex-col space-y-2">
+                          { noteOut.shares.map(SharedItem) }
+                        </div>
+                      </div>
                     )
-                  }
-                </div>
-              )
+                  ) : (
+                    <div className="mt-2 text-sm ">
+                      By { noteOut?.author.username }
+                    </div>
+                  )
+                }
+              </div>
+            )
           }
         </aside>
       </div>
     </>
+  );
+}
+
+function SharedItem(share: Share) {
+  const unshare = async () => {
+  }
+  return (
+    <div
+      key={ share.with?.id }
+      className="text-sm flex items-center group relative pr-8"
+    >
+      <span>{ share.with?.username }</span>
+      <div className="flex-1"/>
+      {
+        share.expires && (
+          <span className="text-xs text-[var(--muted-foreground)]">
+          until { new Date(share.expires).toLocaleDateString() }
+        </span>
+        )
+      }
+      <button
+        onClick={ unshare }
+        className="absolute right-0 p-1.5 rounded-full hover:bg-black/10 text-[var(--error-color)] opacity-0 group-hover:opacity-100 transition-opacity"
+        aria-label="Delete attachment"
+      >
+        <X size={ 16 }/>
+      </button>
+    </div>
   );
 }
 
