@@ -8,15 +8,20 @@ type UserIn struct {
 	Username string `json:"username" binding:"required,min=1" example:"jane_doe"`
 } // @name UserIn
 
+type PublicUserOut struct {
+	ID       uuid.UUID `json:"id" example:"123e4567-e89b-12d3-a456-426614174000" binding:"required"`
+	Username string    `json:"username" example:"jane_doe" binding:"required"`
+} // @name PublicUserOut
+
 type UserOut struct {
-	ID       uuid.UUID `json:"id" example:"123e4567-e89b-12d3-a456-426614174000"`
+	ID       uuid.UUID `json:"id" example:"123e4567-e89b-12d3-a456-426614174000" binding:"required"`
 	Email    string    `json:"email" example:"jane@mail.com"`
-	Username string    `json:"username" example:"jane_doe"`
+	Username string    `json:"username" example:"jane_doe" binding:"required"`
 } // @name UserOut
 
 type Session struct {
-	Token   string `json:"token"`
-	Refresh string `json:"refresh"`
+	Token   string `json:"token" binding:"required"`
+	Refresh string `json:"refresh" binding:"required"`
 } // @name Session
 
 type Login struct {
@@ -25,8 +30,8 @@ type Login struct {
 } // @name Login
 
 type LoginOut struct {
-	Session Session `json:"session"`
-	User    UserOut `json:"user"`
+	Session Session `json:"session" binding:"required"`
+	User    UserOut `json:"user" binding:"required"`
 } // @name LoginOut
 
 func NewSession(token string, refresh string) Session {
@@ -42,6 +47,14 @@ func NewUserOut(user User) UserOut {
 		Email:    user.Email,
 		Username: user.Username,
 	}
+}
+
+func NewPublicUserOut(out User) PublicUserOut {
+	return PublicUserOut{
+		ID:       out.ID,
+		Username: out.Username,
+	}
+
 }
 
 func NewLoginOut(token string, refresh string, user User) LoginOut {

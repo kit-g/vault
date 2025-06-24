@@ -33,7 +33,7 @@ export default function LoginPage() {
       }
 
       if (res.session?.token) {
-        login(res.session?.token);
+        login(res.session?.token, res.user);
         navigate("/");
       }
 

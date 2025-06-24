@@ -2,8 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type Session = {
-    refresh: string;
-    token: string;
+import type { Share } from './Share';
+export type NoteShareResponse = {
+    shared?: Array<Share>;
 };
 

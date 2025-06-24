@@ -52,6 +52,7 @@ func Router(origins string) *gin.Engine {
 	vaultGroup.PUT("/:noteId", Authenticated(notes.EditNote))
 	vaultGroup.DELETE("/:noteId", Authenticated(notes.DeleteNote))
 	vaultGroup.POST("/:noteId/restore", Authenticated(notes.RestoreNote))
+	vaultGroup.GET("/shared-with-me", Authenticated(notes.SharedWithMe))
 	// attachments
 	vaultGroup.POST("/:noteId/attachments", Authenticated(notes.GetUploadURL))
 	vaultGroup.GET("/:noteId/attachments/:attachmentId", Authenticated(notes.GetDownloadURL))
@@ -59,6 +60,8 @@ func Router(origins string) *gin.Engine {
 	vaultGroup.GET("/attachments", Authenticated(notes.GetAttachments))
 	// share
 	vaultGroup.POST("/:noteId/share", Authenticated(notes.ShareNoteToUser))
+	vaultGroup.GET("/:noteId/share", Authenticated(notes.GetNoteShares))
+	vaultGroup.DELETE("/:noteId/shares/:userId", Authenticated(notes.RevokeNoteShare))
 
 	return r
 }

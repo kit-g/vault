@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"net/mail"
 	"strconv"
 	"vault/internal/awsx"
 	"vault/internal/db"
@@ -131,19 +132,48 @@ func GetNotes(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@Router			/notes/{noteId} [get]
 //	@Security		BearerAuth
 func GetNote(c *gin.Context, userID uuid.UUID) (any, error) {
-	noteIDStr := c.Param("noteId")
-	noteID, err := uuid.Parse(noteIDStr)
-
+	noteID, err := uuid.Parse(c.Param("noteId"))
 	if err != nil {
-		return nil, errors.NewValidationError(err)
+		return nil, errors.NewValidationError(fmt.Errorf("invalid note ID: %w", err))
 	}
 
 	var note models.Note
-	if err := db.DB.
-		Where("user_id = ? AND id = ?", userID, noteID).
+	query := db.DB.
+		Joins("LEFT JOIN note_shares ON note_shares.note_id = notes.id").
+		Where(
+			"notes.id = ? AND (notes.user_id = ? OR (note_shares.shared_with_user_id = ? AND (note_shares.expires IS NULL OR note_shares.expires > NOW())))",
+			noteID,
+			userID,
+			userID,
+		).
 		Preload("Attachments").
-		First(&note).Error; err != nil {
+		Preload("User")
 
+	// Check if the user is the owner to determine what shares to load
+	var isOwner bool
+	if err := db.DB.
+		Model(&models.Note{}).
+		Select("user_id = ?", userID).
+		Where("id = ?", noteID).
+		Find(&isOwner).
+		Error; err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	if isOwner {
+		query = query.Preload("Shares").Preload("Shares.SharedWith")
+	} else {
+		query = query.
+			Preload(
+				"Shares",
+				func(db *gorm.DB) *gorm.DB {
+					return db.Where("shared_with_user_id = ?", userID)
+				},
+			).
+			Preload("Shares.SharedWith")
+	}
+
+	if err := query.First(&note).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.NewNotFoundError("Note not found", err)
 		}
@@ -602,16 +632,169 @@ func ShareNoteToUser(c *gin.Context, userID uuid.UUID) (any, error) {
 	}
 
 	permission, err := models.NewPermission(req.Permission)
-
 	if err != nil {
 		return nil, errors.NewValidationError(err)
 	}
 
-	share := models.NewNoteShare(note.ID, req.SharedWith, permission)
+	var with models.User
+	query := db.DB
+
+	if uid, err := uuid.Parse(req.SharedWith); err == nil {
+		// looks like a UUID
+		query = query.Where("id = ?", uid)
+	} else if _, err := mail.ParseAddress(req.SharedWith); err == nil {
+		// looks like an email
+		query = query.Where("email = ?", req.SharedWith)
+	} else {
+		// fallback: treat it as username
+		query = query.Where("username = ?", req.SharedWith)
+	}
+
+	if err := query.First(&with).Error; err != nil {
+		return nil, errors.NewNotFoundError("User not found", err)
+	}
+
+	share := models.NewNoteShare(note.ID, with, permission, req.Expires)
 	onConflict := clause.OnConflict{UpdateAll: true}
 	if err := db.DB.Clauses(onConflict).Create(&share).Error; err != nil {
 		return nil, errors.NewServerError(err)
 	}
 
 	return models.NoContent, nil
+}
+
+// GetNoteShares godoc
+//
+//	@Summary		List note shares
+//	@Description	Returns a list of users the note has been shared with
+//	@Tags			notes
+//	@Accept			json
+//	@Produce		json
+//	@ID				getNoteShares
+//	@Param			noteId	path		string	true	"Note ID"
+//	@Success		200		{object}	NoteShareResponse
+//	@Failure		400		{object}	ErrorResponse
+//	@Failure		401		{object}	ErrorResponse
+//	@Failure		404		{object}	ErrorResponse
+//	@Failure		500		{object}	ErrorResponse
+//	@Router			/notes/{noteId}/share [get]
+//	@Security		BearerAuth
+func GetNoteShares(c *gin.Context, userID uuid.UUID) (any, error) {
+	noteID, err := uuid.Parse(c.Param("noteId"))
+	if err != nil {
+		return nil, errors.NewValidationError(fmt.Errorf("invalid note ID: %w", err))
+	}
+
+	var note models.Note
+	if err := db.DB.
+		Select("id").
+		Where("id = ? AND user_id = ?", noteID, userID).
+		First(&note).Error; err != nil {
+		return nil, errors.NewNotFoundError("Note not found", err)
+	}
+
+	var shares []models.NoteShare
+	if err := db.DB.
+		Preload("SharedWith").
+		Where("note_id = ?", noteID).
+		Find(&shares).Error; err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	outs := make([]models.NoteShareOut, 0, len(shares))
+	for _, share := range shares {
+		outs = append(outs, models.NewNoteShareOut(&share))
+	}
+
+	return models.NoteShareResponse{
+		Shares: outs,
+	}, nil
+}
+
+// RevokeNoteShare godoc
+//
+//	@Summary		Revoke note access
+//	@Description	Removes note sharing permissions for a specific user
+//	@Tags			notes
+//	@Accept			json
+//	@Produce		json
+//	@ID				revokeNoteShare
+//	@Param			noteId	path		string	true	"Note ID"
+//	@Param			userId	path		string	true	"User ID to revoke access from"
+//	@Success		204		"No Content"
+//	@Failure		400		{object}	ErrorResponse
+//	@Failure		401		{object}	ErrorResponse
+//	@Failure		404		{object}	ErrorResponse
+//	@Failure		500		{object}	ErrorResponse
+//	@Router			/notes/{noteId}/shares/{userId} [delete]
+//	@Security		BearerAuth
+func RevokeNoteShare(c *gin.Context, userID uuid.UUID) (any, error) {
+	noteID, err := uuid.Parse(c.Param("noteId"))
+	if err != nil {
+		return nil, errors.NewValidationError(fmt.Errorf("invalid note ID: %w", err))
+	}
+
+	revokeUserID, err := uuid.Parse(c.Param("userId"))
+	if err != nil {
+		return nil, errors.NewValidationError(fmt.Errorf("invalid user ID: %w", err))
+	}
+
+	var note models.Note
+	if err := db.DB.
+		Select("id").
+		Where("id = ? AND user_id = ?", noteID, userID).
+		First(&note).Error; err != nil {
+		return nil, errors.NewNotFoundError("Note not found", err)
+	}
+
+	if err := db.DB.
+		Where("note_id = ? AND shared_with_user_id = ?", noteID, revokeUserID).
+		Delete(&models.NoteShare{}).Error; err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	return models.NoContent, nil
+}
+
+// SharedWithMe godoc
+//
+//	@Summary		List shared notes
+//	@Description	Returns paginated notes that have been shared with the authenticated user
+//	@Tags			notes
+//	@Accept			json
+//	@Produce		json
+//	@ID				getSharedNotes
+//	@Param			page	query		int	false	"Page number"		default(1)
+//	@Param			limit	query		int	false	"Items per page"	default(10)
+//	@Success		200		{object}	NotesResponse
+//	@Failure		401		{object}	ErrorResponse	"Unauthorized"
+//	@Failure		500		{object}	ErrorResponse	"Server error"
+//	@Router			/notes/shared-with-me [get]
+//	@Security		BearerAuth
+func SharedWithMe(c *gin.Context, userID uuid.UUID) (any, error) {
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	offset := (page - 1) * limit
+
+	var notes []models.Note
+	if err := db.DB.
+		Joins("JOIN note_shares ON notes.id = note_shares.note_id").
+		Where("note_shares.shared_with_user_id = ?", userID).
+		Preload("Attachments").
+		Order("note_shares.created_at desc").
+		Limit(limit).
+		Offset(offset).
+		Find(&notes).Error; err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	var out []models.NoteOut
+	for _, n := range notes {
+		out = append(out, models.NewNoteOut(&n))
+	}
+
+	return models.NotesResponse{
+		Notes: out,
+		Total: 0,
+	}, nil
 }

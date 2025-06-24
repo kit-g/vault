@@ -151,7 +151,7 @@ export default function AttachmentsPage() {
                 <AttachmentList
                   attachments={ attachments }
                   selectedId={ selectedAttachment?.attachment.id }
-                  onSelect={ onSelectAttachment } // 5. Use the new handler
+                  onSelect={ onSelectAttachment }
                 />
               ) : (
                 <div className="flex items-center justify-center h-full text-center text-[var(--muted-foreground)]">

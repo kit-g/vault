@@ -42,7 +42,7 @@ export default function RegisterPage() {
         if (email) {
           const res = await AuthService.login({requestBody: { email, password }});
           if (res.session?.token) {
-            login(res.session.token);
+            login(res.session.token, res.user);
           } else {
             setError("Login failed. Please try again.");
             return;

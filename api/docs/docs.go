@@ -378,6 +378,63 @@ const docTemplate = `{
                 }
             }
         },
+        "/notes/shared-with-me": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns paginated notes that have been shared with the authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notes"
+                ],
+                "summary": "List shared notes",
+                "operationId": "getSharedNotes",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NotesResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/notes/{noteId}": {
             "get": {
                 "security": [
@@ -795,6 +852,66 @@ const docTemplate = `{
             }
         },
         "/notes/{noteId}/share": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns a list of users the note has been shared with",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notes"
+                ],
+                "summary": "List note shares",
+                "operationId": "getNoteShares",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Note ID",
+                        "name": "noteId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/NoteShareResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -849,6 +966,72 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/notes/{noteId}/shares/{userId}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Removes note sharing permissions for a specific user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notes"
+                ],
+                "summary": "Revoke note access",
+                "operationId": "revokeNoteShare",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Note ID",
+                        "name": "noteId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID to revoke access from",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/ErrorResponse"
                         }
@@ -1056,6 +1239,10 @@ const docTemplate = `{
         },
         "LoginOut": {
             "type": "object",
+            "required": [
+                "session",
+                "user"
+            ],
             "properties": {
                 "session": {
                     "$ref": "#/definitions/Session"
@@ -1085,6 +1272,7 @@ const docTemplate = `{
         "NoteOut": {
             "type": "object",
             "required": [
+                "author",
                 "created_at",
                 "id"
             ],
@@ -1097,6 +1285,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/AttachmentOut"
                     }
+                },
+                "author": {
+                    "$ref": "#/definitions/PublicUserOut"
                 },
                 "content": {
                     "type": "string",
@@ -1112,12 +1303,29 @@ const docTemplate = `{
                     "type": "string",
                     "example": "123e4567-e89b-12d3-a456-426614174000"
                 },
+                "shares": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Share"
+                    }
+                },
                 "title": {
                     "type": "string",
                     "example": "Meeting Notes"
                 },
                 "updated_at": {
                     "type": "string"
+                }
+            }
+        },
+        "NoteShareResponse": {
+            "type": "object",
+            "properties": {
+                "shared": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Share"
+                    }
                 }
             }
         },
@@ -1178,8 +1386,29 @@ const docTemplate = `{
                 }
             }
         },
+        "PublicUserOut": {
+            "type": "object",
+            "required": [
+                "id",
+                "username"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "example": "123e4567-e89b-12d3-a456-426614174000"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "jane_doe"
+                }
+            }
+        },
         "Session": {
             "type": "object",
+            "required": [
+                "refresh",
+                "token"
+            ],
             "properties": {
                 "refresh": {
                     "type": "string"
@@ -1189,13 +1418,39 @@ const docTemplate = `{
                 }
             }
         },
+        "Share": {
+            "type": "object",
+            "required": [
+                "id",
+                "permission"
+            ],
+            "properties": {
+                "expires": {
+                    "type": "string",
+                    "example": "2024-12-31T23:59:59Z"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "permission": {
+                    "type": "string",
+                    "example": "read"
+                },
+                "with": {
+                    "$ref": "#/definitions/PublicUserOut"
+                }
+            }
+        },
         "ShareToUserRequest": {
             "type": "object",
             "required": [
-                "permission",
-                "shared_with"
+                "permission"
             ],
             "properties": {
+                "expires": {
+                    "type": "string",
+                    "example": "2024-12-31T23:59:59Z"
+                },
                 "permission": {
                     "description": "\"read\" or \"write\"",
                     "type": "string",
@@ -1203,7 +1458,7 @@ const docTemplate = `{
                 },
                 "shared_with": {
                     "type": "string",
-                    "example": "123e4567-e89b-12d3-a456-426614174000"
+                    "example": "username"
                 }
             }
         },
@@ -1233,6 +1488,10 @@ const docTemplate = `{
         },
         "UserOut": {
             "type": "object",
+            "required": [
+                "id",
+                "username"
+            ],
             "properties": {
                 "email": {
                     "type": "string",

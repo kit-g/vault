@@ -2,8 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type Session = {
-    refresh: string;
-    token: string;
+export type PublicUserOut = {
+    id: string;
+    username: string;
 };
 

@@ -8,11 +8,11 @@ import { Dashboard } from "./pages/Dashboard.tsx";
 import { PrivateRoute } from "./routes/Private.tsx";
 import { PublicRoute } from "./routes/Public.tsx";
 import { PageTransition } from "./components/PageTransition.tsx";
-import SharedWithMePage from "./pages/SharedWithMePage.tsx";
 import AttachmentsPage from "./pages/AttachmentsPage.tsx";
 import BinPage from "./pages/BinPage.tsx";
 import SettingsPage from "./pages/SettingsPage.tsx";
 import MyNotes from "./pages/MyNotes.tsx";
+import SharedWithMe from "./pages/SharedWithMe.tsx";
 
 
 const router = createBrowserRouter([
@@ -33,7 +33,7 @@ const router = createBrowserRouter([
         },
         {
           path: "/shared",
-          element: <PageTransition><SharedWithMePage/></PageTransition>,
+          element: <PageTransition><SharedWithMe/></PageTransition>,
         },
         {
           path: "/attachments",

@@ -4,7 +4,7 @@
 /* eslint-disable */
 export type UserOut = {
     email?: string;
-    id?: string;
-    username?: string;
+    id: string;
+    username: string;
 };
 

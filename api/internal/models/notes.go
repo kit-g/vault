@@ -9,7 +9,8 @@ import (
 // Note represents a secure user note
 type Note struct {
 	SoftDeleteModel
-	UserID      uuid.UUID    `json:"-" gorm:"type:uuid;not null"`
+	UserID      uuid.UUID    `json:"-" gorm:"index;type:uuid;not null"`
+	User        User         `json:"user" gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Title       string       `json:"title" binding:"required"`
 	Content     string       `json:"content" binding:"required"`
 	Encrypted   bool         `json:"encrypted"`
@@ -55,7 +56,7 @@ func NewAttachment(noteId uuid.UUID, fileName string, mimeType string, size int6
 	}
 }
 
-type Permission string
+type Permission string // @name Permission
 
 const (
 	ReadPermission  Permission = "read"
@@ -77,8 +78,10 @@ func NewPermission(v string) (Permission, error) {
 type NoteShare struct {
 	Model
 	NoteID           uuid.UUID  `json:"-"`
-	SharedWithUserID uuid.UUID  `json:"shared_with"`
+	SharedWithUserID uuid.UUID  `json:"-" gorm:"index"`
+	SharedWith       User       `json:"shared_with" gorm:"foreignKey:SharedWithUserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Permission       Permission `json:"permission"` // "read", "write"
+	Expires          *time.Time `json:"expires,omitempty"`
 }
 
 type NoteIn struct {
@@ -106,11 +109,13 @@ type NoteOut struct {
 	ID          uuid.UUID       `json:"id" example:"123e4567-e89b-12d3-a456-426614174000" binding:"required"`
 	Title       string          `json:"title" example:"Meeting Notes"`
 	Content     string          `json:"content" example:"Notes from the meeting with the client."`
+	Author      PublicUserOut   `json:"author"  binding:"required"`
 	Encrypted   bool            `json:"encrypted"`
 	Archived    bool            `json:"archived"`
 	CreatedAt   time.Time       `json:"created_at" binding:"required"`
 	UpdatedAt   time.Time       `json:"updated_at"`
 	Attachments []AttachmentOut `json:"attachments"`
+	Shares      []NoteShareOut  `json:"shares"`
 } // @name NoteOut
 
 func NewNote(n *NoteIn, userID uuid.UUID) Note {
@@ -126,6 +131,10 @@ func NewNoteOut(n *Note) NoteOut {
 	for i, att := range n.Attachments {
 		attachments[i] = NewAttachmentOut(&att)
 	}
+	shares := make([]NoteShareOut, len(n.Shares))
+	for i, share := range n.Shares {
+		shares[i] = NewNoteShareOut(&share)
+	}
 
 	return NoteOut{
 		ID:          n.ID,
@@ -135,15 +144,18 @@ func NewNoteOut(n *Note) NoteOut {
 		Archived:    n.Archived,
 		CreatedAt:   n.CreatedAt,
 		UpdatedAt:   n.UpdatedAt,
+		Author:      NewPublicUserOut(n.User),
 		Attachments: attachments,
+		Shares:      shares,
 	}
 }
 
-func NewNoteShare(noteId uuid.UUID, userId uuid.UUID, permission Permission) NoteShare {
+func NewNoteShare(noteId uuid.UUID, with User, permission Permission, expires *time.Time) NoteShare {
 	return NoteShare{
 		NoteID:           noteId,
-		SharedWithUserID: userId,
+		SharedWithUserID: with.ID,
 		Permission:       permission,
+		Expires:          expires,
 	}
 }
 
@@ -170,3 +182,29 @@ type AttachmentResponse struct {
 	Attachments []AttachmentRef `json:"attachments" binding:"required"`
 	Total       int             `json:"total" example:"10" binding:"required"`
 } // @name AttachmentResponse
+
+type NoteShareOut struct {
+	ID         uuid.UUID      `json:"id" binding:"required"`
+	Permission string         `json:"permission" binding:"required" example:"read"`
+	Expires    *time.Time     `json:"expires,omitempty" example:"2024-12-31T23:59:59Z"`
+	SharedWith *PublicUserOut `json:"with,omitempty"`
+} // @name Share
+
+func NewNoteShareOut(share *NoteShare) NoteShareOut {
+	var userOut *PublicUserOut
+	if share.SharedWith.ID != uuid.Nil {
+		u := NewPublicUserOut(share.SharedWith)
+		userOut = &u
+	}
+
+	return NoteShareOut{
+		ID:         share.ID,
+		Permission: string(share.Permission),
+		Expires:    share.Expires,
+		SharedWith: userOut,
+	}
+}
+
+type NoteShareResponse struct {
+	Shares []NoteShareOut `json:"shared"`
+} // @name NoteShareResponse
