@@ -6,6 +6,7 @@ import { useAuth } from "../features/AuthContext";
 import { ThemeSwitchButton } from "../components/ThemeSwitch.tsx";
 import { Seo } from "../components/Seo.tsx";
 import FirebaseSignInButton from "../components/FirebaseSignInButton.tsx";
+import Or from "./Or.tsx";
 
 export default function LoginPage() {
   const [form, setForm] = useState<Login>({
@@ -90,7 +91,7 @@ export default function LoginPage() {
             <button type="submit" disabled={ loading } className="btn">
               { loading ? "Signing in..." : "Sign In" }
             </button>
-
+            <Or/>
             <FirebaseSignInButton/>
 
             <Link

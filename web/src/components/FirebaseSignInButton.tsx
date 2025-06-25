@@ -8,14 +8,12 @@ export default function FirebaseSignInButton() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const handleLoginSuccess = (login: LoginOut) => {
-    console.log("Login successful!", login);
+  const onLogin = (login: LoginOut) => {
     localStorage.setItem('access_token', login.session.token);
-    // localStorage.setItem('refreshToken', data.refreshToken);
     window.location.reload();
   };
 
-  const handleGoogleSignIn = async (): Promise<void> => {
+  const onGoogleSignIn = async (): Promise<void> => {
     setIsLoading(true);
     setError(null);
     const provider = new GoogleAuthProvider();
@@ -25,7 +23,7 @@ export default function FirebaseSignInButton() {
       const user = result.user;
       const idToken = await user.getIdToken();
 
-      AuthService.firebaseSignin({ requestBody: { idToken: idToken } }).then(handleLoginSuccess);
+      AuthService.firebaseSignin({ requestBody: { idToken: idToken } }).then(onLogin);
 
     } catch (err: unknown) {
       let errorMessage = "An unknown error occurred.";
@@ -42,25 +40,17 @@ export default function FirebaseSignInButton() {
   return (
     <div>
       <button
-        onClick={ handleGoogleSignIn }
+        className="btn-outline relative flex w-full items-center justify-center"
+        onClick={ onGoogleSignIn }
         disabled={ isLoading }
-        style={
-          {
-            padding: '10px 20px',
-            fontSize: '16px',
-            cursor: 'pointer',
-            backgroundColor: '#4285F4',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '10px'
-          }
-        }
       >
-        <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+        <svg
+          className="absolute left-4"
+          width="24"
+          height="24"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 48 48"
+        >
           <path fill="#FFC107"
                 d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"></path>
           <path fill="#FF3D00"
@@ -70,7 +60,10 @@ export default function FirebaseSignInButton() {
           <path fill="#1976D2"
                 d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571l6.19 5.238C42.012 35.238 44 30.025 44 24c0-1.341-.138-2.65-.389-3.917z"></path>
         </svg>
-        { isLoading ? 'Signing in...' : 'Sign in with Google' }
+        {/* This text is now the only item in the flex layout, so it centers perfectly. */ }
+        <span>
+        { isLoading ? 'Signing in...' : 'Continue with Google' }
+      </span>
       </button>
       { error && <p style={ { color: 'red' } }>{ error }</p> }
     </div>

@@ -166,6 +166,22 @@ body {
         min-width: 84px;
     }
 
+    .btn-outline {
+        @apply w-full relative inline-flex items-center justify-center overflow-hidden h-12 px-5 text-base font-bold leading-normal tracking-[0.015em] rounded-xl transition-all duration-300 ease-in-out;
+        background: transparent;
+        border: 1px solid var(--accent);
+        color: var(--foreground);
+        min-width: 84px;
+    }
+
+    .btn-outline:hover {
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    .dark .btn-outline:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
     .btn::before {
         content: '';
         position: absolute;
