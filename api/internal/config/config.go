@@ -26,10 +26,15 @@ type SentryConfig struct {
 	SentryDSN string `env:"SENTRY_DSN"`
 }
 
+type FirebaseConfig struct {
+	Credentials string `env:"FIREBASE_CREDENTIALS"`
+}
+
 type Config struct {
 	DBConfig
 	AwsConfig
 	SentryConfig
+	FirebaseConfig
 	JWTSecret            string `env:"JWT_SECRET" required:"true"`
 	AuthTokenLifespan    int    `env:"AUTH_TOKEN_LIFESPAN" default:"180" required:"true"`       // 3 hours
 	RefreshTokenLifespan int    `env:"REFRESH_TOKEN_LIFESPAN" default:"100800" required:"true"` // 10 weeks
