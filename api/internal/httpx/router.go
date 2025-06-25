@@ -36,6 +36,7 @@ func Router(origins string) *gin.Engine {
 	r.POST("/register", Route(auth.Register))
 	r.POST("/login", Route(auth.Login))
 	r.POST("/refresh", Route(auth.Refresh))
+	r.POST("/firebase", Route(auth.SignInWithFirebase))
 
 	// Protected routes
 	authGroup := r.Group("/")
