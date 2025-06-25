@@ -21,6 +21,7 @@ import (
 	"vault/internal/awsx"
 	"vault/internal/config"
 	"vault/internal/db"
+	"vault/internal/firebasex"
 	"vault/internal/httpx"
 	"vault/internal/jwtx"
 	"vault/internal/models"
@@ -35,6 +36,12 @@ func Init() {
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
 		return
+	}
+
+	if cfg.FirebaseConfig.Credentials != "" {
+		if err := firebasex.Init(cfg.FirebaseConfig.Credentials); err != nil {
+			log.Fatal("Failed to initialize Firebase client:", err)
+		}
 	}
 
 	jwtx.Init(cfg.JWTSecret, cfg.AuthTokenLifespan, cfg.RefreshTokenLifespan)

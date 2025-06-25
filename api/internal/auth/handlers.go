@@ -5,8 +5,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
+	"net/http"
 	"vault/internal/db"
 	"vault/internal/errors"
+	"vault/internal/firebasex"
 	"vault/internal/jwtx"
 	"vault/internal/models"
 )
@@ -165,4 +167,59 @@ func Me(_ *gin.Context, userID uuid.UUID) (any, error) {
 	}
 
 	return models.NewUserOut(user), nil
+}
+
+// SignInWithFirebase godoc
+//
+//	@Summary		Sign in with Firebase
+//	@Description	Authenticates a user using Firebase ID token and returns JWT tokens
+//	@Tags			auth
+//	@ID			    firebase-signin
+//	@Accept			json
+//	@Produce		json
+//	@Param			input	body		FirebaseSignInRequest	true	"Firebase ID token"
+//	@Success		200		{object}	LoginOut
+//	@Failure		400		{object}	ErrorResponse	"Bad request"
+//	@Failure		401		{object}	ErrorResponse	"Unauthorized"
+//	@Failure		500		{object}	ErrorResponse	"Server error"
+//	@Router			/firebase [post]
+func SignInWithFirebase(c *gin.Context) (any, error) {
+	var req models.FirebaseSignInRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		return nil, errors.NewValidationError(err)
+	}
+
+	firebaseToken, err := firebasex.VerifyIDToken(req.IDToken)
+	if err != nil {
+		return nil, errors.NewValidationError(err)
+	}
+
+	var user models.User
+	result := db.DB.Where("firebase_uid = ?", firebaseToken.UID).First(&user)
+
+	if result.Error != nil { // User does not exist, so create them
+		newUser := models.User{
+			Username:    firebaseToken.Claims["name"].(string),
+			Email:       firebaseToken.Claims["email"].(string),
+			FirebaseUID: firebaseToken.UID,
+		}
+
+		if createResult := db.DB.Create(&newUser); createResult.Error != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create user"})
+			return nil, err
+		}
+		user = newUser
+	}
+
+	token, err := jwtx.Generate(user.ID)
+	if err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	refreshToken, err := jwtx.GenerateRefresh(user.ID)
+	if err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	return models.NewLoginOut(token, refreshToken, user), nil
 }

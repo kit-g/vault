@@ -3,6 +3,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthService, type UserIn } from "../api";
 import { useAuth } from "../features/AuthContext";
+import FirebaseSignInButton from "../components/FirebaseSignInButton.tsx";
+import Or from "./Or.tsx";
 
 export default function RegisterPage() {
   const [form, setForm] = useState<UserIn & { passwordConfirm: string }>(
@@ -36,11 +38,11 @@ export default function RegisterPage() {
 
     try {
       const { email, password, username } = form;
-      const user = await AuthService.register({requestBody: { email, password, username }});
+      const user = await AuthService.register({ requestBody: { email, password, username } });
       if (user) {
         const email = user.email;
         if (email) {
-          const res = await AuthService.login({requestBody: { email, password }});
+          const res = await AuthService.login({ requestBody: { email, password } });
           if (res.session?.token) {
             login(res.session.token, res.user);
           } else {
@@ -116,6 +118,9 @@ export default function RegisterPage() {
           >
             { loading ? "Creating..." : "Create Account" }
           </button>
+          <Or/>
+
+          <FirebaseSignInButton/>
 
           <p
             className="text-[#9bbfa9] text-sm text-center underline mt-4 cursor-pointer"

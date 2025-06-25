@@ -23,3 +23,7 @@ type ShareToUserRequest struct {
 	Permission string     `json:"permission" binding:"required" example:"read"` // "read" or "write"
 	Expires    *time.Time `json:"expires,omitempty" example:"2024-12-31T23:59:59Z"`
 } // @name ShareToUserRequest
+
+type FirebaseSignInRequest struct {
+	IDToken string `json:"idToken" binding:"required"`
+} // @name FirebaseSignInRequest
