@@ -33,6 +33,11 @@ Parameters:
     Description: "Sentry DSN for error tracking"
     Default: ""
     NoEcho: true
+  FirebaseCredentials:
+    Type: String
+    Description: "Firebase credentials JSON"
+    Default: ""
+    NoEcho: true
 
 Resources:
   AttachmentBucket:
@@ -99,6 +104,7 @@ Resources:
           DB_USER: !Ref DbUser
           DB_PASSWORD: !Ref DbPassword
           DB_PORT: 5432
+          FIREBASE_CREDENTIALS: !Ref FirebaseCredentials
           GIN_MODE: release
           JWT_SECRET: 1
           MODE: "lambda"
