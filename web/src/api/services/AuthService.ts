@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { FirebaseSignInRequest } from '../models/FirebaseSignInRequest';
 import type { Login } from '../models/Login';
 import type { LoginOut } from '../models/LoginOut';
 import type { Session } from '../models/Session';
@@ -11,6 +12,32 @@ import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 export class AuthService {
+    /**
+     * Sign in with Firebase
+     * Authenticates a user using Firebase ID token and returns JWT tokens
+     * @returns LoginOut OK
+     * @throws ApiError
+     */
+    public static firebaseSignin({
+        requestBody,
+    }: {
+        /**
+         * Firebase ID token
+         */
+        requestBody: FirebaseSignInRequest,
+    }): CancelablePromise<LoginOut> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/firebase',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Bad request`,
+                401: `Unauthorized`,
+                500: `Server error`,
+            },
+        });
+    }
     /**
      * Log in a user
      * Authenticates a user and returns a JWT token
