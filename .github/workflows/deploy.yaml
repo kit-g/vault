@@ -70,6 +70,7 @@ jobs:
       HOSTING_BUCKET: "583168578067-vault-web"
       WORKING_DIRECTORY: "./web"
       VITE_API_URL: "https://dev.api.vault.awry.me"
+      VITE_DOMAIN: "vault.awry.me"
 
     steps:
       - uses: actions/checkout@v3

@@ -4,7 +4,7 @@ import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCLgLEB72JJL13ihJgRkyEQl8bwVJKR2Bc",
-  authDomain: "vault-f7191.firebaseapp.com",
+  authDomain: import.meta.env.VITE_DOMAIN ?? "vault-f7191.firebaseapp.com",
   projectId: "vault-f7191",
   storageBucket: "vault-f7191.firebasestorage.app",
   messagingSenderId: "875140524783",
