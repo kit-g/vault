@@ -23,6 +23,59 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/firebase": {
+            "post": {
+                "description": "Authenticates a user using Firebase ID token and returns JWT tokens",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Sign in with Firebase",
+                "operationId": "firebase-signin",
+                "parameters": [
+                    {
+                        "description": "Firebase ID token",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/FirebaseSignInRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/LoginOut"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "description": "Authenticates a user and returns a JWT token",
@@ -1218,6 +1271,17 @@ const docTemplate = `{
                 "error": {
                     "type": "string",
                     "example": "An unexpected error occurred"
+                }
+            }
+        },
+        "FirebaseSignInRequest": {
+            "type": "object",
+            "required": [
+                "idToken"
+            ],
+            "properties": {
+                "idToken": {
+                    "type": "string"
                 }
             }
         },
