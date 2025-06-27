@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type PublicUserOut = {
+    avatar_url?: string;
     id: string;
     username: string;
 };

@@ -4,6 +4,8 @@
 /* eslint-disable */
 import type { FirebaseSignInRequest } from '../models/FirebaseSignInRequest';
 import type { LoginOut } from '../models/LoginOut';
+import type { PresignUploadRequest } from '../models/PresignUploadRequest';
+import type { PresignUploadResponse } from '../models/PresignUploadResponse';
 import type { Session } from '../models/Session';
 import type { UserOut } from '../models/UserOut';
 import type { CancelablePromise } from '../core/CancelablePromise';
@@ -47,6 +49,32 @@ export class AuthService {
             method: 'GET',
             url: '/me',
             errors: {
+                401: `Unauthorized`,
+                500: `Server error`,
+            },
+        });
+    }
+    /**
+     * Get presigned URL for avatar upload
+     * Generates a presigned S3 URL for uploading user avatar
+     * @returns PresignUploadResponse OK
+     * @throws ApiError
+     */
+    public static presignAvatar({
+        requestBody,
+    }: {
+        /**
+         * Upload request
+         */
+        requestBody: PresignUploadRequest,
+    }): CancelablePromise<PresignUploadResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/me/avatar',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Bad request`,
                 401: `Unauthorized`,
                 500: `Server error`,
             },

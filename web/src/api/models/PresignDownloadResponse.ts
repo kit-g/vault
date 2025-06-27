@@ -3,6 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export type PresignDownloadResponse = {
-    url?: string;
+    url: string;
 };
 
