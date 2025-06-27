@@ -2,6 +2,7 @@ import { type NotesResponse } from "../api";
 import { NoteCard } from "./NoteCard.tsx";
 import { useCallback, useEffect, useState } from "react";
 import { Paginator } from "./Paginator";
+import { Plus, StickyNote } from "lucide-react";
 
 
 type NoteCardGridProps = {
@@ -35,9 +36,18 @@ export function NoteCardGrid({ hydrate, onDelete, onRestore, onClickCard }: Note
   if (loading) return <div className="p-4 text-white">Loading...</div>;
   if (error) return <div className="p-4 text-red-500">{ error }</div>;
 
-  if (!notes || notes.notes?.length === 0) {
+  if (!notes || !notes.notes || notes.notes?.length === 0) {
     return (
-      <p className="text-center text-gray-200 mt-10">No notes yet. Create one!</p>
+      <div className="flex flex-col items-center justify-center h-[50vh] space-y-4">
+        <div className="relative">
+          <StickyNote className="w-16 h-16 text-gray-400"/>
+          <Plus className="w-6 h-6 text-gray-400 absolute -right-1 -top-1"/>
+        </div>
+        <div className="text-center space-y-2">
+          <h3 className="text-xl font-medium ">No notes yet</h3>
+          <p className="text-gray-400">Create your first note to get started!</p>
+        </div>
+      </div>
     );
   }
 
