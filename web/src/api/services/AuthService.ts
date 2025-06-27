@@ -3,10 +3,10 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { FirebaseSignInRequest } from '../models/FirebaseSignInRequest';
-import type { Login } from '../models/Login';
 import type { LoginOut } from '../models/LoginOut';
+import type { PresignUploadRequest } from '../models/PresignUploadRequest';
+import type { PresignUploadResponse } from '../models/PresignUploadResponse';
 import type { Session } from '../models/Session';
-import type { UserIn } from '../models/UserIn';
 import type { UserOut } from '../models/UserOut';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
@@ -39,32 +39,6 @@ export class AuthService {
         });
     }
     /**
-     * Log in a user
-     * Authenticates a user and returns a JWT token
-     * @returns LoginOut OK
-     * @throws ApiError
-     */
-    public static login({
-        requestBody,
-    }: {
-        /**
-         * Login credentials
-         */
-        requestBody: Login,
-    }): CancelablePromise<LoginOut> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/login',
-            body: requestBody,
-            mediaType: 'application/json',
-            errors: {
-                400: `Bad request`,
-                401: `Unauthorized`,
-                500: `Server error`,
-            },
-        });
-    }
-    /**
      * Get current user
      * Returns the currently authenticated user's information
      * @returns UserOut OK
@@ -75,6 +49,32 @@ export class AuthService {
             method: 'GET',
             url: '/me',
             errors: {
+                401: `Unauthorized`,
+                500: `Server error`,
+            },
+        });
+    }
+    /**
+     * Get presigned URL for avatar upload
+     * Generates a presigned S3 URL for uploading user avatar
+     * @returns PresignUploadResponse OK
+     * @throws ApiError
+     */
+    public static presignAvatar({
+        requestBody,
+    }: {
+        /**
+         * Upload request
+         */
+        requestBody: PresignUploadRequest,
+    }): CancelablePromise<PresignUploadResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/me/avatar',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Bad request`,
                 401: `Unauthorized`,
                 500: `Server error`,
             },
@@ -103,31 +103,6 @@ export class AuthService {
                 400: `Bad request`,
                 401: `Unauthorized`,
                 500: `Server error`,
-            },
-        });
-    }
-    /**
-     * Register a new user
-     * Register using email, password, and username
-     * @returns UserOut Created
-     * @throws ApiError
-     */
-    public static register({
-        requestBody,
-    }: {
-        /**
-         * user info
-         */
-        requestBody: UserIn,
-    }): CancelablePromise<UserOut> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/register',
-            body: requestBody,
-            mediaType: 'application/json',
-            errors: {
-                400: `Bad Request`,
-                409: `Conflict`,
             },
         });
     }

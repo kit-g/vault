@@ -76,26 +76,14 @@
                 "properties": {
                     "idToken": {
                         "type": "string"
+                    },
+                    "username": {
+                        "example": "jane_doe",
+                        "type": "string"
                     }
                 },
                 "required": [
                     "idToken"
-                ],
-                "type": "object"
-            },
-            "Login": {
-                "properties": {
-                    "email": {
-                        "example": "jane@mail.com",
-                        "type": "string"
-                    },
-                    "password": {
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "email",
-                    "password"
                 ],
                 "type": "object"
             },
@@ -213,9 +201,13 @@
             "PresignDownloadResponse": {
                 "properties": {
                     "url": {
+                        "example": "https://s3.com/download?key=example.txt",
                         "type": "string"
                     }
                 },
+                "required": [
+                    "url"
+                ],
                 "type": "object"
             },
             "PresignUploadRequest": {
@@ -246,10 +238,18 @@
                         "type": "string"
                     }
                 },
+                "required": [
+                    "key",
+                    "url"
+                ],
                 "type": "object"
             },
             "PublicUserOut": {
                 "properties": {
+                    "avatar_url": {
+                        "example": "https://vault.awry.me/avatars/123e4567-e89b-12d3-a456-426614174000",
+                        "type": "string"
+                    },
                     "id": {
                         "example": "123e4567-e89b-12d3-a456-426614174000",
                         "type": "string"
@@ -324,32 +324,24 @@
                 ],
                 "type": "object"
             },
-            "UserIn": {
-                "properties": {
-                    "email": {
-                        "example": "jane@mail.com",
-                        "type": "string"
-                    },
-                    "password": {
-                        "example": "password123",
-                        "minLength": 6,
-                        "type": "string"
-                    },
-                    "username": {
-                        "example": "jane_doe",
-                        "minLength": 1,
-                        "type": "string"
-                    }
-                },
-                "required": [
-                    "email",
-                    "password",
-                    "username"
-                ],
-                "type": "object"
-            },
             "UserOut": {
                 "properties": {
+                    "attachments_count": {
+                        "example": 10,
+                        "type": "integer"
+                    },
+                    "avatar_url": {
+                        "example": "https://vault.awry.me/avatars/123e4567-e89b-12d3-a456-426614174000",
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "example": "2023-01-01T12:00:00Z",
+                        "type": "string"
+                    },
+                    "deleted_notes_count": {
+                        "example": 5,
+                        "type": "integer"
+                    },
                     "email": {
                         "example": "jane@mail.com",
                         "type": "string"
@@ -357,6 +349,10 @@
                     "id": {
                         "example": "123e4567-e89b-12d3-a456-426614174000",
                         "type": "string"
+                    },
+                    "notes_count": {
+                        "example": 42,
+                        "type": "integer"
                     },
                     "username": {
                         "example": "jane_doe",
@@ -451,70 +447,6 @@
                 ]
             }
         },
-        "/login": {
-            "post": {
-                "description": "Authenticates a user and returns a JWT token",
-                "operationId": "login",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/Login"
-                            }
-                        }
-                    },
-                    "description": "Login credentials",
-                    "required": true,
-                    "x-originalParamName": "credentials"
-                },
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/LoginOut"
-                                }
-                            }
-                        },
-                        "description": "OK"
-                    },
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "Bad request"
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "Unauthorized"
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
-                                }
-                            }
-                        },
-                        "description": "Server error"
-                    }
-                },
-                "summary": "Log in a user",
-                "tags": [
-                    "auth"
-                ]
-            }
-        },
         "/me": {
             "get": {
                 "description": "Returns the currently authenticated user's information",
@@ -557,6 +489,75 @@
                     }
                 ],
                 "summary": "Get current user",
+                "tags": [
+                    "auth"
+                ]
+            }
+        },
+        "/me/avatar": {
+            "post": {
+                "description": "Generates a presigned S3 URL for uploading user avatar",
+                "operationId": "presign-avatar",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PresignUploadRequest"
+                            }
+                        }
+                    },
+                    "description": "Upload request",
+                    "required": true,
+                    "x-originalParamName": "input"
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PresignUploadResponse"
+                                }
+                            }
+                        },
+                        "description": "OK"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad request"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Server error"
+                    }
+                },
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "summary": "Get presigned URL for avatar upload",
                 "tags": [
                     "auth"
                 ]
@@ -1781,66 +1782,6 @@
                     }
                 },
                 "summary": "Refresh access token",
-                "tags": [
-                    "auth"
-                ]
-            }
-        },
-        "/register": {
-            "post": {
-                "description": "Register using email, password, and username",
-                "operationId": "register",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/UserIn"
-                            }
-                        }
-                    },
-                    "description": "user info",
-                    "required": true,
-                    "x-originalParamName": "input"
-                },
-                "responses": {
-                    "201": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UserOut"
-                                }
-                            }
-                        },
-                        "description": "Created"
-                    },
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "additionalProperties": {
-                                        "type": "string"
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        },
-                        "description": "Bad Request"
-                    },
-                    "409": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "additionalProperties": {
-                                        "type": "string"
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        },
-                        "description": "Conflict"
-                    }
-                },
-                "summary": "Register a new user",
                 "tags": [
                     "auth"
                 ]

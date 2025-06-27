@@ -1,4 +1,4 @@
-package notes
+package handlers
 
 import (
 	"fmt"
@@ -58,7 +58,7 @@ func CreateNote(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@Param			limit		query		int		false	"Items per page"	default(10)
 //	@Param			archived	query		bool	false	"Filter by archived status"
 //	@Param			encrypted	query		bool	false	"Filter by encrypted status"
-//	@Success		200			{object}    NotesResponse
+//	@Success		200			{object}	NotesResponse
 //	@Failure		401			{object}	ErrorResponse	"Unauthorized"
 //	@Failure		500			{object}	ErrorResponse	"Server error"
 //	@Router			/notes [get]
@@ -121,7 +121,7 @@ func GetNotes(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@Summary		Get a single note
 //	@Description	Retrieves a specific note owned by the authenticated user
 //	@Tags			notes
-//	@ID			    getNote
+//	@ID				getNote
 //	@Produce		json
 //	@Param			noteId	path		string	true	"Note UUID"
 //	@Success		200		{object}	NoteOut
@@ -191,7 +191,7 @@ func GetNote(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@ID				editNote
 //	@Accept			json
 //	@Produce		json
-//	@Param			noteId	path		string			true	"Note ID"
+//	@Param			noteId	path		string	true	"Note ID"
 //	@Param			note	body		NoteIn	true	"Note fields"
 //	@Success		200		{object}	NoteOut
 //	@Failure		400		{object}	ErrorResponse
@@ -238,7 +238,7 @@ func EditNote(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@Produce		json
 //	@ID				deleteNote
 //	@Param			noteId	path	string	true	"Note ID"
-//	@Param			hard	query	boolean	false	"Hard delete flag" default(false)
+//	@Param			hard	query	boolean	false	"Hard delete flag"	default(false)
 //	@Success		204		"No Content"
 //	@Failure		400		{object}	ErrorResponse
 //	@Failure		401		{object}	ErrorResponse
@@ -285,7 +285,7 @@ func DeleteNote(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@ID				getUploadURL
 //	@Accept			json
 //	@Produce		json
-//	@Param			noteId	path		string						true	"Note ID"
+//	@Param			noteId	path		string					true	"Note ID"
 //	@Param			body	body		PresignUploadRequest	true	"Upload parameters"
 //	@Success		200		{object}	PresignUploadResponse
 //	@Failure		400		{object}	ErrorResponse
@@ -429,7 +429,7 @@ func GetDeletedNotes(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@Description	Restores a soft-deleted note owned by the authenticated user
 //	@Tags			notes
 //	@ID				restoreNote
-//	@Param			noteId	path		string	true	"Note ID"
+//	@Param			noteId	path	string	true	"Note ID"
 //	@Success		204		"No Content"
 //	@Failure		400		{object}	ErrorResponse
 //	@Failure		401		{object}	ErrorResponse
@@ -607,9 +607,9 @@ func DeleteAttachment(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@ID				shareNoteToUser
 //	@Accept			json
 //	@Produce		json
-//	@Param			noteId	path		string						true	"Note ID (UUID)"
-//	@Param			request	body		ShareToUserRequest	true	"Sharing request"
-//	@Success		204		        	"No Content"
+//	@Param			noteId	path	string				true	"Note ID (UUID)"
+//	@Param			request	body	ShareToUserRequest	true	"Sharing request"
+//	@Success		204		"No Content"
 //	@Failure		400		{object}	ErrorResponse	"Bad request (invalid UUID, payload, or permission)"
 //	@Failure		404		{object}	ErrorResponse	"Note not found or not owned by user"
 //	@Failure		500		{object}	ErrorResponse	"Internal server error"
@@ -719,8 +719,8 @@ func GetNoteShares(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@Accept			json
 //	@Produce		json
 //	@ID				revokeNoteShare
-//	@Param			noteId	path		string	true	"Note ID"
-//	@Param			userId	path		string	true	"User ID to revoke access from"
+//	@Param			noteId	path	string	true	"Note ID"
+//	@Param			userId	path	string	true	"User ID to revoke access from"
 //	@Success		204		"No Content"
 //	@Failure		400		{object}	ErrorResponse
 //	@Failure		401		{object}	ErrorResponse

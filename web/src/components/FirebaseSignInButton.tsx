@@ -1,17 +1,14 @@
 import { useState } from 'react';
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { AuthService, type LoginOut } from "../api";
+import { AuthService } from "../api";
 import auth from "../features/Firebase";
+import { useAuth } from "../features/AuthContext.tsx";
 
 
 export default function FirebaseSignInButton() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  const onLogin = (login: LoginOut) => {
-    localStorage.setItem('access_token', login.session.token);
-    window.location.reload();
-  };
+  const { login } = useAuth();
 
   const onGoogleSignIn = async (): Promise<void> => {
     setIsLoading(true);
@@ -23,8 +20,10 @@ export default function FirebaseSignInButton() {
       const user = result.user;
       const idToken = await user.getIdToken();
 
-      AuthService.firebaseSignin({ requestBody: { idToken: idToken } }).then(onLogin);
-
+      AuthService.firebaseSignin({ requestBody: { idToken: idToken } }).then(
+        ({ session, user: signedIn }) => {
+          login(session.token, signedIn);
+        });
     } catch (err: unknown) {
       let errorMessage = "An unknown error occurred.";
       if (err instanceof Error) {

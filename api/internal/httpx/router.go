@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strings"
 	_ "vault/docs"
-	"vault/internal/auth"
-	"vault/internal/notes"
+	"vault/internal/handlers"
+	"vault/internal/middleware"
 )
 
 func Router(origins string) *gin.Engine {
@@ -33,36 +33,35 @@ func Router(origins string) *gin.Engine {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Public routes
-	r.POST("/register", Route(auth.Register))
-	r.POST("/login", Route(auth.Login))
-	r.POST("/refresh", Route(auth.Refresh))
-	r.POST("/firebase", Route(auth.SignInWithFirebase))
+	r.POST("/refresh", Route(handlers.Refresh))
+	r.POST("/firebase", Route(handlers.SignInWithFirebase))
 
 	// Protected routes
 	authGroup := r.Group("/")
-	authGroup.Use(auth.AuthenticationMiddleware())
-	authGroup.GET("/me", Authenticated(auth.Me))
+	authGroup.Use(middleware.AuthenticationMiddleware())
+	authGroup.GET("/me", Authenticated(handlers.Me))
+	authGroup.POST("/me/avatar", Authenticated(handlers.PresignAvatar))
 
 	// notes
 	vaultGroup := r.Group("/notes")
-	vaultGroup.Use(auth.AuthenticationMiddleware())
-	vaultGroup.GET("", Authenticated(notes.GetNotes))
-	vaultGroup.POST("", Authenticated(notes.CreateNote))
-	vaultGroup.GET("deleted", Authenticated(notes.GetDeletedNotes))
-	vaultGroup.GET("/:noteId", Authenticated(notes.GetNote))
-	vaultGroup.PUT("/:noteId", Authenticated(notes.EditNote))
-	vaultGroup.DELETE("/:noteId", Authenticated(notes.DeleteNote))
-	vaultGroup.POST("/:noteId/restore", Authenticated(notes.RestoreNote))
-	vaultGroup.GET("/shared-with-me", Authenticated(notes.SharedWithMe))
+	vaultGroup.Use(middleware.AuthenticationMiddleware())
+	vaultGroup.GET("", Authenticated(handlers.GetNotes))
+	vaultGroup.POST("", Authenticated(handlers.CreateNote))
+	vaultGroup.GET("deleted", Authenticated(handlers.GetDeletedNotes))
+	vaultGroup.GET("/:noteId", Authenticated(handlers.GetNote))
+	vaultGroup.PUT("/:noteId", Authenticated(handlers.EditNote))
+	vaultGroup.DELETE("/:noteId", Authenticated(handlers.DeleteNote))
+	vaultGroup.POST("/:noteId/restore", Authenticated(handlers.RestoreNote))
+	vaultGroup.GET("/shared-with-me", Authenticated(handlers.SharedWithMe))
 	// attachments
-	vaultGroup.POST("/:noteId/attachments", Authenticated(notes.GetUploadURL))
-	vaultGroup.GET("/:noteId/attachments/:attachmentId", Authenticated(notes.GetDownloadURL))
-	vaultGroup.DELETE("/:noteId/attachments/:attachmentId", Authenticated(notes.DeleteAttachment))
-	vaultGroup.GET("/attachments", Authenticated(notes.GetAttachments))
+	vaultGroup.POST("/:noteId/attachments", Authenticated(handlers.GetUploadURL))
+	vaultGroup.GET("/:noteId/attachments/:attachmentId", Authenticated(handlers.GetDownloadURL))
+	vaultGroup.DELETE("/:noteId/attachments/:attachmentId", Authenticated(handlers.DeleteAttachment))
+	vaultGroup.GET("/attachments", Authenticated(handlers.GetAttachments))
 	// share
-	vaultGroup.POST("/:noteId/share", Authenticated(notes.ShareNoteToUser))
-	vaultGroup.GET("/:noteId/share", Authenticated(notes.GetNoteShares))
-	vaultGroup.DELETE("/:noteId/shares/:userId", Authenticated(notes.RevokeNoteShare))
+	vaultGroup.POST("/:noteId/share", Authenticated(handlers.ShareNoteToUser))
+	vaultGroup.GET("/:noteId/share", Authenticated(handlers.GetNoteShares))
+	vaultGroup.DELETE("/:noteId/shares/:userId", Authenticated(handlers.RevokeNoteShare))
 
 	return r
 }

@@ -6,7 +6,11 @@ For a high-level overview of the entire project, please refer to the [main READM
 
 ## Overview
 
-The Vault application is deployed as a serverless application on AWS with the following components:
+The Vault application consists of two main components, each with its own infrastructure:
+
+### API Infrastructure
+
+The backend API is deployed as a serverless application on AWS with the following components:
 
 1. **API Lambda Function**: Handles API requests through API Gateway
 2. **Ingest Lambda Function**: Processes file uploads to S3 and creates attachment records
@@ -14,10 +18,17 @@ The Vault application is deployed as a serverless application on AWS with the fo
 4. **API Gateway**: Provides HTTP endpoints for the API
 5. **IAM Policies**: Manages permissions for the Lambda functions
 
-## Files
+### Web Infrastructure
 
-- `api.yaml`: AWS SAM template that defines all infrastructure resources
-- `api.toml`: Configuration file for deployment parameters
+The frontend web application is deployed with the following components:
+
+1. **S3 Bucket**: Hosts the static web application files
+2. **CloudFront Distribution**: Delivers content with low latency
+3. **Origin Access Control**: Secures access to the S3 bucket
+4. **Custom Error Responses**: Enables client-side routing for the SPA
+5. **IAM Roles and Policies**: Allows GitHub Actions to deploy the application
+6. **Optional Custom Domain**: Supports custom domain names with ACM certificates
+7. **Firebase Authentication Integration**: Handles user authentication
 
 ## Prerequisites
 
@@ -30,9 +41,11 @@ For details about the API application being deployed, please refer to the [API R
 
 ## Deployment
 
-### Configuration
+### API Deployment
 
-Before deploying, you need to update the `api.toml` file with your specific configuration:
+#### API Configuration
+
+Before deploying the API, you need to update the `api.toml` file with your specific configuration:
 
 ```toml
 [dev.deploy.parameters]
@@ -49,16 +62,16 @@ parameter_overrides = """
 """
 ```
 
-### Deploy Using SAM CLI
+#### Deploy API Using SAM CLI
 
-You can deploy the application using the AWS SAM CLI directly:
+You can deploy the API using the AWS SAM CLI directly:
 
 ```bash
 sam build -t infrastructure/api.yaml
 sam deploy --confirm-changeset --config-env dev --config-file infrastructure/api.toml
 ```
 
-### Deploy Using Provided Script
+#### Deploy API Using Provided Script
 
 Alternatively, use the provided script:
 
@@ -66,9 +79,49 @@ Alternatively, use the provided script:
 ./scripts/sam.sh dev infrastructure/api.yaml infrastructure/api.toml
 ```
 
+### Web Deployment
+
+#### Web Configuration
+
+Before deploying the web application, update the `web.toml` file with your specific configuration:
+
+```toml
+[dev.deploy.parameters]
+stack_name = "vault-web"
+s3_bucket = "<your-deployment-bucket>"
+s3_prefix = "vault-web"
+region = "<your-aws-region>"
+profile = "<your-aws-profile>"
+parameter_overrides = """
+    Environment=\"dev\"
+    DomainName=\"<your-domain-name>\"
+    AcmCertificateArn=\"<your-acm-certificate-arn>\"
+    FileBucket=\"<your-file-bucket>\"
+"""
+```
+
+#### Deploy Web Using SAM CLI
+
+You can deploy the web application using the AWS SAM CLI directly:
+
+```bash
+sam build -t infrastructure/web.yaml
+sam deploy --confirm-changeset --config-env dev --config-file infrastructure/web.toml
+```
+
+#### Deploy Web Using Provided Script
+
+Alternatively, use the provided script:
+
+```bash
+./scripts/sam.sh dev infrastructure/web.yaml infrastructure/web.toml
+```
+
 ## Resources Created
 
-The deployment creates the following AWS resources:
+### API Resources
+
+The API deployment creates the following AWS resources:
 
 1. **S3 Bucket**: For storing file attachments
 2. **IAM Managed Policy**: For S3 access permissions
@@ -79,38 +132,14 @@ The deployment creates the following AWS resources:
    - REST API with proxy integration to the API Lambda function
    - Deployment and stage configuration
 
-## Outputs
+### Web Resources
 
-After deployment, the following outputs are available:
+The web deployment creates the following AWS resources:
 
-- **VaultApiUrl**: The URL of the deployed API
-- **AttachmentBucket**: The name of the S3 bucket for attachments
+1. **S3 Bucket**: For hosting the static web application files
+2. **CloudFront Distribution**: For content delivery with low latency
+3. **Origin Access Control**: For secure access to the S3 bucket
+4. **S3 Bucket Policies**: For CloudFront access to S3 buckets
+5. **GitHub OIDC Provider**: For GitHub Actions authentication
+6. **IAM Role and Policies**: For GitHub Actions deployment permissions
 
-You can view these outputs in the AWS CloudFormation console or by running:
-
-```bash
-aws cloudformation describe-stacks --stack-name vault --query "Stacks[0].Outputs"
-```
-
-## Security Considerations
-
-- The template uses parameters for database credentials to avoid hardcoding sensitive information
-- IAM policies follow the principle of least privilege
-- API Gateway can be configured with additional authentication methods if needed
-
-## Customization
-
-To customize the deployment:
-
-1. Modify `api.yaml` to add or change AWS resources
-2. Update `api.toml` with different parameter values
-3. For different environments, create additional configuration sections in `api.toml`
-
-## Troubleshooting
-
-If you encounter issues during deployment:
-
-1. Check CloudFormation events in the AWS console
-2. Verify that your AWS credentials have sufficient permissions
-3. Ensure your database is accessible from Lambda functions
-4. Check Lambda function logs in CloudWatch

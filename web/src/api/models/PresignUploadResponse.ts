@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type PresignUploadResponse = {
-    key?: string;
-    url?: string;
+    key: string;
+    url: string;
 };
 

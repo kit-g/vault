@@ -76,59 +76,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/login": {
-            "post": {
-                "description": "Authenticates a user and returns a JWT token",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Log in a user",
-                "operationId": "login",
-                "parameters": [
-                    {
-                        "description": "Login credentials",
-                        "name": "credentials",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/Login"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/LoginOut"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "$ref": "#/definitions/ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Server error",
-                        "schema": {
-                            "$ref": "#/definitions/ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/me": {
             "get": {
                 "security": [
@@ -150,6 +97,64 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/UserOut"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/me/avatar": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Generates a presigned S3 URL for uploading user avatar",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Get presigned URL for avatar upload",
+                "operationId": "presign-avatar",
+                "parameters": [
+                    {
+                        "description": "Upload request",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/PresignUploadRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PresignUploadResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
                         }
                     },
                     "401": {
@@ -1147,59 +1152,6 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/register": {
-            "post": {
-                "description": "Register using email, password, and username",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Register a new user",
-                "operationId": "register",
-                "parameters": [
-                    {
-                        "description": "user info",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/UserIn"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/UserOut"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
@@ -1282,22 +1234,10 @@ const docTemplate = `{
             "properties": {
                 "idToken": {
                     "type": "string"
-                }
-            }
-        },
-        "Login": {
-            "type": "object",
-            "required": [
-                "email",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "jane@mail.com"
                 },
-                "password": {
-                    "type": "string"
+                "username": {
+                    "type": "string",
+                    "example": "jane_doe"
                 }
             }
         },
@@ -1414,9 +1354,13 @@ const docTemplate = `{
         },
         "PresignDownloadResponse": {
             "type": "object",
+            "required": [
+                "url"
+            ],
             "properties": {
                 "url": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "https://s3.com/download?key=example.txt"
                 }
             }
         },
@@ -1439,6 +1383,10 @@ const docTemplate = `{
         },
         "PresignUploadResponse": {
             "type": "object",
+            "required": [
+                "key",
+                "url"
+            ],
             "properties": {
                 "key": {
                     "type": "string",
@@ -1457,6 +1405,10 @@ const docTemplate = `{
                 "username"
             ],
             "properties": {
+                "avatar_url": {
+                    "type": "string",
+                    "example": "https://vault.awry.me/avatars/123e4567-e89b-12d3-a456-426614174000"
+                },
                 "id": {
                     "type": "string",
                     "example": "123e4567-e89b-12d3-a456-426614174000"
@@ -1526,30 +1478,6 @@ const docTemplate = `{
                 }
             }
         },
-        "UserIn": {
-            "type": "object",
-            "required": [
-                "email",
-                "password",
-                "username"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "jane@mail.com"
-                },
-                "password": {
-                    "type": "string",
-                    "minLength": 6,
-                    "example": "password123"
-                },
-                "username": {
-                    "type": "string",
-                    "minLength": 1,
-                    "example": "jane_doe"
-                }
-            }
-        },
         "UserOut": {
             "type": "object",
             "required": [
@@ -1557,6 +1485,22 @@ const docTemplate = `{
                 "username"
             ],
             "properties": {
+                "attachments_count": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "avatar_url": {
+                    "type": "string",
+                    "example": "https://vault.awry.me/avatars/123e4567-e89b-12d3-a456-426614174000"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2023-01-01T12:00:00Z"
+                },
+                "deleted_notes_count": {
+                    "type": "integer",
+                    "example": 5
+                },
                 "email": {
                     "type": "string",
                     "example": "jane@mail.com"
@@ -1564,6 +1508,10 @@ const docTemplate = `{
                 "id": {
                     "type": "string",
                     "example": "123e4567-e89b-12d3-a456-426614174000"
+                },
+                "notes_count": {
+                    "type": "integer",
+                    "example": 42
                 },
                 "username": {
                     "type": "string",

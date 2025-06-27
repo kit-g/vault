@@ -38,6 +38,9 @@ Parameters:
     Description: "Firebase credentials JSON"
     Default: ""
     NoEcho: true
+  WebDomainName:
+    Type: String
+    Description: "Domain name for the web app"
 
 Resources:
   AttachmentBucket:
@@ -67,6 +70,13 @@ Resources:
                 Rules:
                   - Name: prefix
                     Value: attachments/
+            Function: !GetAtt VaultIngestFunction.Arn
+          - Event: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: prefix
+                    Value: avatars/
             Function: !GetAtt VaultIngestFunction.Arn
 
   VaultPolicy:
@@ -203,6 +213,7 @@ Resources:
       Environment:
         Variables:
           ATTACHMENT_BUCKET: !Sub "${AWS::AccountId}-vault"
+          CLOUDFRONT_ALIAS: !Ref WebDomainName
           DB_HOST: !Ref DbHost
           DB_NAME: vault
           DB_USER: !Ref DbUser

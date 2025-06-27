@@ -86,17 +86,6 @@ func NewValidationError(err error) *ValidationError {
 	}
 }
 
-func NewConflictError(msg string, err error) *ValidationError {
-	return &ValidationError{
-		&baseError{
-			Err:     err,
-			status:  409,
-			message: msg,
-			code:    "ConflictError",
-		},
-	}
-}
-
 func NewUnauthorizedError(msg string, err error) *UnauthorizedError {
 	return &UnauthorizedError{
 		&baseError{

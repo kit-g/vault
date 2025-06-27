@@ -30,6 +30,10 @@ type FirebaseConfig struct {
 	Credentials string `env:"FIREBASE_CREDENTIALS"`
 }
 
+type CloudFrontConfig struct {
+	DistributionAlias string `env:"CLOUDFRONT_ALIAS" required:"true"`
+}
+
 type Config struct {
 	DBConfig
 	AwsConfig
@@ -44,6 +48,7 @@ type Config struct {
 type IngestConfig struct {
 	DBConfig
 	AwsConfig
+	CloudFrontConfig
 }
 
 func ApiConfig() (*Config, error) {

@@ -77,7 +77,7 @@ func NewPermission(v string) (Permission, error) {
 // NoteShare represents a shared note and permission level
 type NoteShare struct {
 	Model
-	NoteID           uuid.UUID  `json:"-"`
+	NoteID           uuid.UUID  `json:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	SharedWithUserID uuid.UUID  `json:"-" gorm:"index"`
 	SharedWith       User       `json:"shared_with" gorm:"foreignKey:SharedWithUserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Permission       Permission `json:"permission"` // "read", "write"

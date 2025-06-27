@@ -1,11 +1,11 @@
-package auth
+package handlers
 
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
-	"net/http"
+	"strings"
+	"vault/internal/awsx"
 	"vault/internal/db"
 	"vault/internal/errors"
 	"vault/internal/firebasex"
@@ -13,101 +13,12 @@ import (
 	"vault/internal/models"
 )
 
-// Register godoc
-//
-//	@Summary		Register a new u
-//	@Summary		Register a new user
-//	@Description	Register using email, password, and username
-//	@Tags			auth
-//	@ID			    register
-//	@Accept			json
-//	@Produce		json
-//	@Param			input	body		UserIn	true	"user info"
-//	@Success		201		{object}	UserOut
-//	@Failure		400		{object}	map[string]string
-//	@Failure		409		{object}	map[string]string
-//	@Router			/register [post]
-func Register(c *gin.Context) (any, error) {
-	var input models.UserIn
-
-	if err := c.ShouldBindJSON(&input); err != nil {
-		return nil, errors.NewValidationError(err)
-	}
-
-	hashed, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
-
-	if err != nil {
-		return nil, errors.NewServerError(err)
-	}
-
-	user := &models.User{
-		Email:    input.Email,
-		Username: input.Username,
-		Password: string(hashed),
-	}
-
-	if err := db.DB.Create(user).Error; err != nil {
-		return nil, errors.NewConflictError("Email or username already in use", err)
-	}
-
-	response := &models.UserOut{
-		ID:       user.ID,
-		Email:    user.Email,
-		Username: user.Username,
-	}
-
-	return response, nil
-}
-
-// Login godoc
-//
-//	@Summary		Log in a user
-//	@Description	Authenticates a user and returns a JWT token
-//	@Tags			auth
-//	@ID			    login
-//	@Accept			json
-//	@Produce		json
-//	@Param			credentials	body		Login	true	"Login credentials"
-//	@Success		200			{object}	LoginOut
-//	@Failure		400			{object}	ErrorResponse	"Bad request"
-//	@Failure		401			{object}	ErrorResponse	"Unauthorized"
-//	@Failure		500			{object}	ErrorResponse	"Server error"
-//	@Router			/login [post]
-func Login(c *gin.Context) (any, error) {
-	var input models.Login
-
-	if err := c.ShouldBindJSON(&input); err != nil {
-		return nil, errors.NewValidationError(err)
-	}
-
-	var user models.User
-	if err := db.DB.Where("email = ?", input.Email).First(&user).Error; err != nil {
-		return nil, errors.NewUnauthorizedError("Invalid email or password", err)
-	}
-
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
-		return nil, errors.NewUnauthorizedError("Invalid email or password", err)
-	}
-
-	token, err := jwtx.Generate(user.ID)
-	if err != nil {
-		return nil, errors.NewServerError(err)
-	}
-
-	refreshToken, err := jwtx.GenerateRefresh(user.ID)
-	if err != nil {
-		return nil, errors.NewServerError(err)
-	}
-
-	return models.NewLoginOut(token, refreshToken, user), nil
-}
-
 // Refresh godoc
 //
 //	@Summary		Refresh access token
 //	@Description	Refreshes JWT access token using a refresh token
 //	@Tags			auth
-//	@ID			    refresh
+//	@ID				refresh
 //	@Accept			json
 //	@Produce		json
 //	@Param			refreshToken	body		map[string]string	true	"Refresh token payload"
@@ -135,12 +46,12 @@ func Refresh(c *gin.Context) (any, error) {
 		return nil, errors.NewServerError(fmt.Errorf("invalid user ID in token"))
 	}
 
-	accessToken, err := jwtx.Generate(userID)
+	accessToken, err := jwtx.Generate(userID, true)
 	if err != nil {
 		return nil, errors.NewServerError(err)
 	}
 
-	refreshToken, err := jwtx.GenerateRefresh(userID)
+	refreshToken, err := jwtx.GenerateRefresh(userID, true)
 	if err != nil {
 		return nil, errors.NewServerError(err)
 	}
@@ -153,7 +64,7 @@ func Refresh(c *gin.Context) (any, error) {
 //	@Summary		Get current user
 //	@Description	Returns the currently authenticated user's information
 //	@Tags			auth
-//	@ID			    me
+//	@ID				me
 //	@Security		BearerAuth
 //	@Produce		json
 //	@Success		200	{object}	UserOut
@@ -174,7 +85,7 @@ func Me(_ *gin.Context, userID uuid.UUID) (any, error) {
 //	@Summary		Sign in with Firebase
 //	@Description	Authenticates a user using Firebase ID token and returns JWT tokens
 //	@Tags			auth
-//	@ID			    firebase-signin
+//	@ID				firebase-signin
 //	@Accept			json
 //	@Produce		json
 //	@Param			input	body		FirebaseSignInRequest	true	"Firebase ID token"
@@ -194,32 +105,99 @@ func SignInWithFirebase(c *gin.Context) (any, error) {
 		return nil, errors.NewValidationError(err)
 	}
 
+	emailVerified, ok := firebaseToken.Claims["email_verified"].(bool)
+
+	if !ok {
+		return nil, errors.NewForbiddenError("Invalid email verification status in token", nil)
+	}
+
 	var user models.User
 	result := db.DB.Where("firebase_uid = ?", firebaseToken.UID).First(&user)
 
-	if result.Error != nil { // User does not exist, so create them
-		newUser := models.User{
-			Username:    firebaseToken.Claims["name"].(string),
-			Email:       firebaseToken.Claims["email"].(string),
-			FirebaseUID: firebaseToken.UID,
+	if result.Error != nil { // registration flow
+		username := req.Username
+		if username == "" {
+			if nameFromToken, nameOK := firebaseToken.Claims["name"].(string); nameOK {
+				username = nameFromToken
+			}
 		}
 
-		if createResult := db.DB.Create(&newUser); createResult.Error != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create user"})
-			return nil, err
+		avatarURL := ""
+		if pictureFromToken, picOK := firebaseToken.Claims["picture"].(string); picOK {
+			avatarURL = pictureFromToken
+		}
+
+		newUser := models.User{
+			Username:    username,
+			Email:       firebaseToken.Claims["email"].(string),
+			FirebaseUID: firebaseToken.UID,
+			AvatarUrl:   avatarURL,
+		}
+
+		create := db.DB.Create(&newUser)
+
+		if create.Error != nil {
+			err := create.Error.Error()
+			if strings.Contains(err, "duplicate key") && strings.Contains(err, "username") {
+				suffix := uuid.New().String()[:6]
+				newUser.Username = fmt.Sprintf("%s_%s", username, suffix)
+				if create := db.DB.Create(&newUser); create.Error != nil {
+					return nil, errors.NewServerError(create.Error)
+				}
+			} else {
+				return nil, errors.NewServerError(create.Error)
+			}
+
 		}
 		user = newUser
 	}
 
-	token, err := jwtx.Generate(user.ID)
+	token, err := jwtx.Generate(user.ID, emailVerified)
 	if err != nil {
 		return nil, errors.NewServerError(err)
 	}
 
-	refreshToken, err := jwtx.GenerateRefresh(user.ID)
+	refreshToken, err := jwtx.GenerateRefresh(user.ID, emailVerified)
 	if err != nil {
 		return nil, errors.NewServerError(err)
 	}
 
 	return models.NewLoginOut(token, refreshToken, user), nil
+}
+
+// PresignAvatar godoc
+//
+//	@Summary		Get presigned URL for avatar upload
+//	@Description	Generates a presigned S3 URL for uploading user avatar
+//	@Tags			auth
+//	@ID				presign-avatar
+//	@Accept			json
+//	@Produce		json
+//	@Param			input	body	PresignUploadRequest	true	"Upload request"
+//	@Security		BearerAuth
+//	@Success		200	{object}	PresignUploadResponse
+//	@Failure		400	{object}	ErrorResponse	"Bad request"
+//	@Failure		401	{object}	ErrorResponse	"Unauthorized"
+//	@Failure		500	{object}	ErrorResponse	"Server error"
+//	@Router			/me/avatar [post]
+func PresignAvatar(c *gin.Context, userID uuid.UUID) (any, error) {
+	var req models.PresignUploadRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		return nil, errors.NewValidationError(err)
+	}
+
+	if !strings.HasPrefix(req.ContentType, "image/") {
+		return nil, errors.NewValidationError(fmt.Errorf("only image files are allowed"))
+	}
+
+	key := fmt.Sprintf("avatars/%s", userID)
+	url, err := awsx.GeneratePresignedPutURL(key, req.ContentType)
+	if err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	return models.PresignUploadResponse{
+		URL: url,
+		Key: key,
+	}, nil
 }
