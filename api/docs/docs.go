@@ -114,6 +114,64 @@ const docTemplate = `{
                 }
             }
         },
+        "/me/avatar": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Generates a presigned S3 URL for uploading user avatar",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Get presigned URL for avatar upload",
+                "operationId": "presign-avatar",
+                "parameters": [
+                    {
+                        "description": "Upload request",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/PresignUploadRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/PresignUploadResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/notes": {
             "get": {
                 "security": [
@@ -1296,9 +1354,13 @@ const docTemplate = `{
         },
         "PresignDownloadResponse": {
             "type": "object",
+            "required": [
+                "url"
+            ],
             "properties": {
                 "url": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "https://s3.com/download?key=example.txt"
                 }
             }
         },
@@ -1321,6 +1383,10 @@ const docTemplate = `{
         },
         "PresignUploadResponse": {
             "type": "object",
+            "required": [
+                "key",
+                "url"
+            ],
             "properties": {
                 "key": {
                     "type": "string",
@@ -1339,6 +1405,10 @@ const docTemplate = `{
                 "username"
             ],
             "properties": {
+                "avatar_url": {
+                    "type": "string",
+                    "example": "https://vault.awry.me/avatars/123e4567-e89b-12d3-a456-426614174000"
+                },
                 "id": {
                     "type": "string",
                     "example": "123e4567-e89b-12d3-a456-426614174000"
@@ -1415,6 +1485,22 @@ const docTemplate = `{
                 "username"
             ],
             "properties": {
+                "attachments_count": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "avatar_url": {
+                    "type": "string",
+                    "example": "https://vault.awry.me/avatars/123e4567-e89b-12d3-a456-426614174000"
+                },
+                "created_at": {
+                    "type": "string",
+                    "example": "2023-01-01T12:00:00Z"
+                },
+                "deleted_notes_count": {
+                    "type": "integer",
+                    "example": 5
+                },
                 "email": {
                     "type": "string",
                     "example": "jane@mail.com"
@@ -1422,6 +1508,10 @@ const docTemplate = `{
                 "id": {
                     "type": "string",
                     "example": "123e4567-e89b-12d3-a456-426614174000"
+                },
+                "notes_count": {
+                    "type": "integer",
+                    "example": 42
                 },
                 "username": {
                     "type": "string",
