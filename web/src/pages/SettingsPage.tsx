@@ -63,7 +63,7 @@ export default function ProfilePage() {
 
         localStorage.setItem("user", JSON.stringify(finalUser));
 
-      }, 2000);
+      }, 3000);
 
     } catch (error) {
       console.error('Avatar upload failed', error);
