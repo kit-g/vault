@@ -2,12 +2,6 @@ package models
 
 import "github.com/google/uuid"
 
-type UserIn struct {
-	Email    string `json:"email" binding:"required,email" example:"jane@mail.com"`
-	Password string `json:"password" binding:"required,min=6" example:"password123"`
-	Username string `json:"username" binding:"required,min=1" example:"jane_doe"`
-} // @name UserIn
-
 type PublicUserOut struct {
 	ID       uuid.UUID `json:"id" example:"123e4567-e89b-12d3-a456-426614174000" binding:"required"`
 	Username string    `json:"username" example:"jane_doe" binding:"required"`

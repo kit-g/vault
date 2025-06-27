@@ -52,7 +52,6 @@ func TestNewUserOut(t *testing.T) {
 			user: User{
 				Email:    "test@example.com",
 				Username: "testuser",
-				Password: "should-not-be-exposed",
 			},
 			want: UserOut{
 				Email:    "test@example.com",
@@ -92,7 +91,6 @@ func TestNewLoginOut(t *testing.T) {
 			user: User{
 				Email:    "test@example.com",
 				Username: "testuser",
-				Password: "should-not-be-exposed",
 			},
 			want: LoginOut{
 				Session: Session{

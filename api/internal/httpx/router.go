@@ -33,8 +33,6 @@ func Router(origins string) *gin.Engine {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Public routes
-	r.POST("/register", Route(auth.Register))
-	r.POST("/login", Route(auth.Login))
 	r.POST("/refresh", Route(auth.Refresh))
 	r.POST("/firebase", Route(auth.SignInWithFirebase))
 

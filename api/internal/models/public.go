@@ -25,5 +25,6 @@ type ShareToUserRequest struct {
 } // @name ShareToUserRequest
 
 type FirebaseSignInRequest struct {
-	IDToken string `json:"idToken" binding:"required"`
+	IDToken  string `json:"idToken" binding:"required"`
+	Username string `json:"username" example:"jane_doe"`
 } // @name FirebaseSignInRequest
