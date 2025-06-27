@@ -10,7 +10,6 @@ export function AppHeader({ onMenuClick }: { onMenuClick: () => void }) {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
 
-  console.log(user?.avatar_url)
   return (
     <header className="flex items-center justify-between border-b border-[var(--border)] px-10 py-3">
       <div className="flex items-center gap-4">
