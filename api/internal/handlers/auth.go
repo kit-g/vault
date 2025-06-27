@@ -5,6 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"
+	"strings"
+	"vault/internal/awsx"
 	"vault/internal/db"
 	"vault/internal/errors"
 	"vault/internal/firebasex"
@@ -17,7 +19,7 @@ import (
 //	@Summary		Refresh access token
 //	@Description	Refreshes JWT access token using a refresh token
 //	@Tags			auth
-//	@ID			    refresh
+//	@ID				refresh
 //	@Accept			json
 //	@Produce		json
 //	@Param			refreshToken	body		map[string]string	true	"Refresh token payload"
@@ -63,7 +65,7 @@ func Refresh(c *gin.Context) (any, error) {
 //	@Summary		Get current user
 //	@Description	Returns the currently authenticated user's information
 //	@Tags			auth
-//	@ID			    me
+//	@ID				me
 //	@Security		BearerAuth
 //	@Produce		json
 //	@Success		200	{object}	UserOut
@@ -84,7 +86,7 @@ func Me(_ *gin.Context, userID uuid.UUID) (any, error) {
 //	@Summary		Sign in with Firebase
 //	@Description	Authenticates a user using Firebase ID token and returns JWT tokens
 //	@Tags			auth
-//	@ID			    firebase-signin
+//	@ID				firebase-signin
 //	@Accept			json
 //	@Produce		json
 //	@Param			input	body		FirebaseSignInRequest	true	"Firebase ID token"
@@ -138,4 +140,41 @@ func SignInWithFirebase(c *gin.Context) (any, error) {
 	}
 
 	return models.NewLoginOut(token, refreshToken, user), nil
+}
+
+// PresignAvatar godoc
+//
+//	@Summary		Get presigned URL for avatar upload
+//	@Description	Generates a presigned S3 URL for uploading user avatar
+//	@Tags			auth
+//	@ID				presign-avatar
+//	@Accept			json
+//	@Produce		json
+//	@Param			input	body	PresignUploadRequest	true	"Upload request"
+//	@Security		BearerAuth
+//	@Success		200	{object}	PresignUploadResponse
+//	@Failure		400	{object}	ErrorResponse	"Bad request"
+//	@Failure		401	{object}	ErrorResponse	"Unauthorized"
+//	@Failure		500	{object}	ErrorResponse	"Server error"
+//	@Router			/me/avatar [post]
+func PresignAvatar(c *gin.Context, userID uuid.UUID) (any, error) {
+	var req models.PresignUploadRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		return nil, errors.NewValidationError(err)
+	}
+
+	if !strings.HasPrefix(req.ContentType, "image/") {
+		return nil, errors.NewValidationError(fmt.Errorf("only image files are allowed"))
+	}
+
+	key := fmt.Sprintf("avatars/%s", userID)
+	url, err := awsx.GeneratePresignedPutURL(key, req.ContentType)
+	if err != nil {
+		return nil, errors.NewServerError(err)
+	}
+
+	return models.PresignUploadResponse{
+		URL: url,
+		Key: key,
+	}, nil
 }

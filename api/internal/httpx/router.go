@@ -40,6 +40,7 @@ func Router(origins string) *gin.Engine {
 	authGroup := r.Group("/")
 	authGroup.Use(middleware.AuthenticationMiddleware())
 	authGroup.GET("/me", Authenticated(handlers.Me))
+	authGroup.POST("/me/avatar", Authenticated(handlers.PresignAvatar))
 
 	// notes
 	vaultGroup := r.Group("/notes")
