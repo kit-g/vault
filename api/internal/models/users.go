@@ -12,6 +12,7 @@ type User struct {
 	NotesCount        int    `gorm:"type:integer;default:0;not null"`
 	DeletedNotesCount int    `gorm:"type:integer;default:0;not null"`
 	AttachmentsCount  int    `gorm:"type:integer;default:0;not null"`
+	AvatarUrl         string `gorm:"type:varchar(255);"`
 }
 
 func (u User) String() string {

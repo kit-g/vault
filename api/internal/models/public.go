@@ -10,12 +10,12 @@ type PresignUploadRequest struct {
 } // @name PresignUploadRequest
 
 type PresignUploadResponse struct {
-	URL string `json:"url" example:"https://s3.com/upload?key=example.txt"`
-	Key string `json:"key" example:"attachments/123e4567-e89b-12d3-a456-426614174000/example.txt"`
+	URL string `json:"url" example:"https://s3.com/upload?key=example.txt" binding:"required"`
+	Key string `json:"key" example:"attachments/123e4567-e89b-12d3-a456-426614174000/example.txt" binding:"required"`
 } // @name PresignUploadResponse
 
 type PresignDownloadResponse struct {
-	URL string `json:"url"`
+	URL string `json:"url" binding:"required" example:"https://s3.com/download?key=example.txt"`
 } // @name PresignDownloadResponse
 
 type ShareToUserRequest struct {
