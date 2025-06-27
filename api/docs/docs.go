@@ -76,59 +76,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/login": {
-            "post": {
-                "description": "Authenticates a user and returns a JWT token",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Log in a user",
-                "operationId": "login",
-                "parameters": [
-                    {
-                        "description": "Login credentials",
-                        "name": "credentials",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/Login"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/LoginOut"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request",
-                        "schema": {
-                            "$ref": "#/definitions/ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Server error",
-                        "schema": {
-                            "$ref": "#/definitions/ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/me": {
             "get": {
                 "security": [
@@ -1147,59 +1094,6 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/register": {
-            "post": {
-                "description": "Register using email, password, and username",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Register a new user",
-                "operationId": "register",
-                "parameters": [
-                    {
-                        "description": "user info",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/UserIn"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/UserOut"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
@@ -1282,22 +1176,10 @@ const docTemplate = `{
             "properties": {
                 "idToken": {
                     "type": "string"
-                }
-            }
-        },
-        "Login": {
-            "type": "object",
-            "required": [
-                "email",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "jane@mail.com"
                 },
-                "password": {
-                    "type": "string"
+                "username": {
+                    "type": "string",
+                    "example": "jane_doe"
                 }
             }
         },
@@ -1523,30 +1405,6 @@ const docTemplate = `{
                 "shared_with": {
                     "type": "string",
                     "example": "username"
-                }
-            }
-        },
-        "UserIn": {
-            "type": "object",
-            "required": [
-                "email",
-                "password",
-                "username"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string",
-                    "example": "jane@mail.com"
-                },
-                "password": {
-                    "type": "string",
-                    "minLength": 6,
-                    "example": "password123"
-                },
-                "username": {
-                    "type": "string",
-                    "minLength": 1,
-                    "example": "jane_doe"
                 }
             }
         },
