@@ -12,7 +12,6 @@ export type { AttachmentRef } from './models/AttachmentRef';
 export type { AttachmentResponse } from './models/AttachmentResponse';
 export type { ErrorResponse } from './models/ErrorResponse';
 export type { FirebaseSignInRequest } from './models/FirebaseSignInRequest';
-export type { Login } from './models/Login';
 export type { LoginOut } from './models/LoginOut';
 export type { NoteIn } from './models/NoteIn';
 export type { NoteOut } from './models/NoteOut';
@@ -25,7 +24,6 @@ export type { PublicUserOut } from './models/PublicUserOut';
 export type { Session } from './models/Session';
 export type { Share } from './models/Share';
 export type { ShareToUserRequest } from './models/ShareToUserRequest';
-export type { UserIn } from './models/UserIn';
 export type { UserOut } from './models/UserOut';
 
 export { AuthService } from './services/AuthService';

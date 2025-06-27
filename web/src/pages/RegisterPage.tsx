@@ -1,10 +1,19 @@
 import * as React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthService, type UserIn } from "../api";
 import { useAuth } from "../features/AuthContext";
 import FirebaseSignInButton from "../components/FirebaseSignInButton.tsx";
 import Or from "./Or.tsx";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import auth from "../features/Firebase.ts";
+import { AuthService } from "../api";
+
+
+type UserIn = {
+  username: string;
+  email: string;
+  password: string;
+}
 
 export default function RegisterPage() {
   const [form, setForm] = useState<UserIn & { passwordConfirm: string }>(
@@ -38,20 +47,20 @@ export default function RegisterPage() {
 
     try {
       const { email, password, username } = form;
-      const user = await AuthService.register({ requestBody: { email, password, username } });
-      if (user) {
-        const email = user.email;
-        if (email) {
-          const res = await AuthService.login({ requestBody: { email, password } });
-          if (res.session?.token) {
-            login(res.session.token, res.user);
-          } else {
-            setError("Login failed. Please try again.");
-            return;
-          }
+
+      const { user } = await createUserWithEmailAndPassword(auth, email, password);
+      await sendEmailVerification(user);
+      const { session, user: registered } = await AuthService.firebaseSignin({
+        requestBody: {
+          idToken: await user.getIdToken(),
+          username: username,
         }
+      });
+
+      if (session?.token) {
+        login(session.token, registered);
       } else {
-        setError("Account creation failed");
+        setError("Login failed. Please try again.");
         return;
       }
       navigate("/");

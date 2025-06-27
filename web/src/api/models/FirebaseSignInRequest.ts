@@ -4,5 +4,6 @@
 /* eslint-disable */
 export type FirebaseSignInRequest = {
     idToken: string;
+    username?: string;
 };
 

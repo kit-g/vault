@@ -3,10 +3,8 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { FirebaseSignInRequest } from '../models/FirebaseSignInRequest';
-import type { Login } from '../models/Login';
 import type { LoginOut } from '../models/LoginOut';
 import type { Session } from '../models/Session';
-import type { UserIn } from '../models/UserIn';
 import type { UserOut } from '../models/UserOut';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
@@ -29,32 +27,6 @@ export class AuthService {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/firebase',
-            body: requestBody,
-            mediaType: 'application/json',
-            errors: {
-                400: `Bad request`,
-                401: `Unauthorized`,
-                500: `Server error`,
-            },
-        });
-    }
-    /**
-     * Log in a user
-     * Authenticates a user and returns a JWT token
-     * @returns LoginOut OK
-     * @throws ApiError
-     */
-    public static login({
-        requestBody,
-    }: {
-        /**
-         * Login credentials
-         */
-        requestBody: Login,
-    }): CancelablePromise<LoginOut> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/login',
             body: requestBody,
             mediaType: 'application/json',
             errors: {
@@ -103,31 +75,6 @@ export class AuthService {
                 400: `Bad request`,
                 401: `Unauthorized`,
                 500: `Server error`,
-            },
-        });
-    }
-    /**
-     * Register a new user
-     * Register using email, password, and username
-     * @returns UserOut Created
-     * @throws ApiError
-     */
-    public static register({
-        requestBody,
-    }: {
-        /**
-         * user info
-         */
-        requestBody: UserIn,
-    }): CancelablePromise<UserOut> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/register',
-            body: requestBody,
-            mediaType: 'application/json',
-            errors: {
-                400: `Bad Request`,
-                409: `Conflict`,
             },
         });
     }

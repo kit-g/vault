@@ -1,12 +1,19 @@
 import * as React from "react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AuthService, type Login } from "../api";
+import { AuthService } from "../api";
 import { useAuth } from "../features/AuthContext";
 import { ThemeSwitchButton } from "../components/ThemeSwitch.tsx";
 import { Seo } from "../components/Seo.tsx";
 import FirebaseSignInButton from "../components/FirebaseSignInButton.tsx";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import auth from "../features/Firebase.ts";
 import Or from "./Or.tsx";
+
+type Login = {
+  email: string;
+  password: string;
+}
 
 export default function LoginPage() {
   const [form, setForm] = useState<Login>({
@@ -28,18 +35,27 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const res = await AuthService.login({ requestBody: form });
-      if (!res.session) {
+
+      const { user } = await signInWithEmailAndPassword(auth, form.email, form.password);
+      const {
+        session,
+        user: signedIn
+      } = await AuthService.firebaseSignin({
+        requestBody: { idToken: await user.getIdToken() }
+      });
+
+      if (!session) {
         setError("Login failed. Please try again.");
         return;
       }
 
-      if (res.session?.token) {
-        login(res.session?.token, res.user);
+      if (session?.token) {
+        login(session?.token, signedIn);
         navigate("/");
       }
 
-    } catch {
+    } catch (error) {
+      console.log(error)
       setError("Invalid email or password.");
     } finally {
       setLoading(false);
