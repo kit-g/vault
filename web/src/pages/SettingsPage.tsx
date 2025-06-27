@@ -48,18 +48,22 @@ export default function ProfilePage() {
 
       toast.success('Avatar updated!', { id: toastId });
 
-      const baseUrl = user.avatar_url?.split('?')[0]; // Get URL without existing query params
-      const cacheBustedUrl = `${ baseUrl }?v=${ new Date().getTime() }`;
+      setTimeout(async () => {
+        const updatedUser = await AuthService.me();
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+        const baseUrl = updatedUser.avatar_url?.split('?')[0];
+        const cacheBustedUrl = `${ baseUrl }?v=${ new Date().getTime() }`;
+        const finalUser: UserOut = {
+          ...user,
+          avatar_url: cacheBustedUrl,
+        };
 
-      const updatedUser: UserOut = {
-        ...user,
-        avatar_url: cacheBustedUrl,
-      };
+        setUser(finalUser);
+        setProfile(finalUser);
 
-      setUser(updatedUser);
-      setProfile(updatedUser);
+        localStorage.setItem("user", JSON.stringify(finalUser));
 
-      localStorage.setItem("user", JSON.stringify(updatedUser));
+      }, 2000);
 
     } catch (error) {
       console.error('Avatar upload failed', error);
