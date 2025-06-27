@@ -8,7 +8,7 @@ import { Seo } from "../components/Seo.tsx";
 import FirebaseSignInButton from "../components/FirebaseSignInButton.tsx";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import auth from "../features/Firebase.ts";
-import Or from "./Or.tsx";
+import Or from "../components/Or.tsx";
 
 type Login = {
   email: string;

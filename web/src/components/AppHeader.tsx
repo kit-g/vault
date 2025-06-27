@@ -7,7 +7,7 @@ import { MenuIcon } from "lucide-react";
 import Logo from "./Logo.tsx";
 
 export function AppHeader({ onMenuClick }: { onMenuClick: () => void }) {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
 
   return (
@@ -42,7 +42,7 @@ export function AppHeader({ onMenuClick }: { onMenuClick: () => void }) {
           <MenuButton className="flex items-center gap-2">
             <div
               className="rounded-full size-10 bg-cover bg-center"
-              style={ { backgroundImage: "url('https://i.pravatar.cc/40')" } }
+              style={ { backgroundImage: `url('${ user?.avatar_url }')` } }
             />
           </MenuButton>
 
@@ -53,7 +53,7 @@ export function AppHeader({ onMenuClick }: { onMenuClick: () => void }) {
                 { ({ focus }) => (
                   <button
                     className={ `w-full text-left px-4 py-2 ${ focus ? "bg-[var(--card-hover-bg)]" : "" }` }
-                    onClick={ () => navigate("/account") }
+                    onClick={ () => navigate("/settings") }
                   >
                     Account
                   </button>

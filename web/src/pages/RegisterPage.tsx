@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../features/AuthContext";
 import FirebaseSignInButton from "../components/FirebaseSignInButton.tsx";
-import Or from "./Or.tsx";
+import Or from "../components/Or.tsx";
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import auth from "../features/Firebase.ts";
 import { AuthService } from "../api";
