@@ -18,6 +18,9 @@ Parameters:
     Type: String
     Description: "The Firebase Auth domain for the web app"
     Default: 'vault-f7191.firebaseapp.com'
+  FileBucket:
+    Type: String
+    Description: "Bucket with app files"
 
 Conditions:
   HasCustomDomain: !Not [ !Equals [ !Ref DomainName, '' ] ]
@@ -64,8 +67,23 @@ Resources:
             DomainName: !Ref FirebaseAuthDomain
             CustomOriginConfig:
               OriginProtocolPolicy: https-only
+          - Id: !Ref FileBucket
+            DomainName: !Sub "${FileBucket}.s3.${AWS::Region}.amazonaws.com"
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+            OriginAccessControlId: !Ref BucketOriginAccessControl
 
         CacheBehaviors:
+          - PathPattern: "/avatars/*"
+            TargetOriginId: !Ref FileBucket
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: [ 'GET', 'HEAD' ]
+            CachedMethods: [ 'GET', 'HEAD' ]
+            # MediaCacheWithQuery, my custom policy
+            # Copy of CachingOptimized policy, except it allows the 'v' query param
+            CachePolicyId: 'c22015ff-1182-4047-9c2d-11ade8272700'
+            Compress: true
+
           - PathPattern: "/__/auth/*"
             TargetOriginId: FirebaseAuthOrigin
             ViewerProtocolPolicy: redirect-to-https
@@ -115,7 +133,7 @@ Resources:
              - !Sub "www.${DomainName}"
            - !Ref AWS::NoValue
 
-  ExerciseBucketPolicy:
+  WebAppBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
       Bucket: !Ref HostingBucket
@@ -125,6 +143,22 @@ Resources:
             Effect: Allow
             Action: "s3:GetObject"
             Resource: !Sub "${HostingBucket.Arn}/*"
+            Principal:
+              Service: "cloudfront.amazonaws.com"
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}"
+
+  FileBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref FileBucket
+      PolicyDocument:
+        Statement:
+          - Sid: AllowCloudFrontServicePrincipal
+            Effect: Allow
+            Action: "s3:GetObject"
+            Resource: !Sub "arn:aws:s3:::${FileBucket}/*"
             Principal:
               Service: "cloudfront.amazonaws.com"
             Condition:
