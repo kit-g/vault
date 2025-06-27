@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"net/http"
 	"strings"
 	"vault/internal/awsx"
 	"vault/internal/db"
@@ -115,16 +114,40 @@ func SignInWithFirebase(c *gin.Context) (any, error) {
 	var user models.User
 	result := db.DB.Where("firebase_uid = ?", firebaseToken.UID).First(&user)
 
-	if result.Error != nil { // User does not exist, so create them
-		newUser := models.User{
-			Username:    req.Username,
-			Email:       firebaseToken.Claims["email"].(string),
-			FirebaseUID: firebaseToken.UID,
+	if result.Error != nil { // registration flow
+		username := req.Username
+		if username == "" {
+			if nameFromToken, nameOK := firebaseToken.Claims["name"].(string); nameOK {
+				username = nameFromToken
+			}
 		}
 
-		if createResult := db.DB.Create(&newUser); createResult.Error != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create user"})
-			return nil, err
+		avatarURL := ""
+		if pictureFromToken, picOK := firebaseToken.Claims["picture"].(string); picOK {
+			avatarURL = pictureFromToken
+		}
+
+		newUser := models.User{
+			Username:    username,
+			Email:       firebaseToken.Claims["email"].(string),
+			FirebaseUID: firebaseToken.UID,
+			AvatarUrl:   avatarURL,
+		}
+
+		create := db.DB.Create(&newUser)
+
+		if create.Error != nil {
+			err := create.Error.Error()
+			if strings.Contains(err, "duplicate key") && strings.Contains(err, "username") {
+				suffix := uuid.New().String()[:6]
+				newUser.Username = fmt.Sprintf("%s_%s", username, suffix)
+				if create := db.DB.Create(&newUser); create.Error != nil {
+					return nil, errors.NewServerError(create.Error)
+				}
+			} else {
+				return nil, errors.NewServerError(create.Error)
+			}
+
 		}
 		user = newUser
 	}

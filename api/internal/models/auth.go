@@ -63,7 +63,6 @@ func NewPublicUserOut(out User) PublicUserOut {
 		Username:  out.Username,
 		AvatarUrl: out.AvatarUrl,
 	}
-
 }
 
 func NewLoginOut(token string, refresh string, user User) LoginOut {
