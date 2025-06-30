@@ -79,7 +79,6 @@ func GetNotes(c *gin.Context, userID uuid.UUID) (any, error) {
 	var notes []models.NoteWithCount
 
 	query := db.DB.
-		Debug().
 		Model(&models.Note{}).
 		Joins("JOIN users ON users.id = notes.user_id").
 		Select("notes.*, users.notes_count").

@@ -7,6 +7,8 @@ type SearchFieldProps = {
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   className?: string;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
 };
 
 export function SearchField(
@@ -16,6 +18,8 @@ export function SearchField(
     value,
     onChange,
     className = "",
+    onBlur,
+    onFocus,
   }: SearchFieldProps
 ) {
   return (
@@ -25,7 +29,9 @@ export function SearchField(
         type="text"
         placeholder={ placeholder }
         value={ value }
+        onBlur={ onBlur }
         onChange={ onChange }
+        onFocus={ onFocus }
       />
     </div>
   );
