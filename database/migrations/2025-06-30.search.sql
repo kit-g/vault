@@ -46,3 +46,7 @@ COMMENT ON FUNCTION note_to_search() IS 'Converts the note into a search vector'
 COMMENT ON FUNCTION attachment_to_search() IS 'Converts the note into a search vector';
 COMMENT ON TRIGGER on_attachment_2 ON attachments IS 'Converts the note into a search vector';
 COMMENT ON TRIGGER on_note_2 ON notes IS 'Converts the note into a search vector';
+
+DROP INDEX IF EXISTS idx_notes_search_vector;
+CREATE INDEX IF NOT EXISTS idx_notes_search_vector
+    ON notes USING gin (search_vector);

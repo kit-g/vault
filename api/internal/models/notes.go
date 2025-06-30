@@ -17,7 +17,7 @@ type Note struct {
 	Archived     bool         `json:"archived"`
 	Attachments  []Attachment `json:"attachments" gorm:"foreignKey:NoteID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 	Shares       []NoteShare  `json:"shares" gorm:"foreignKey:NoteID"`
-	SearchVector string       `json:"-" gorm:"type:tsvector; index:,type:gin;"`
+	SearchVector string       `json:"-" gorm:"type:tsvector;"` // index created in migration not to break tests
 }
 
 func (n *Note) String() string {
