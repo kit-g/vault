@@ -24,6 +24,7 @@ export class NotesService {
     public static getNotes({
         page = 1,
         limit = 10,
+        q,
         archived,
         encrypted,
     }: {
@@ -35,6 +36,10 @@ export class NotesService {
          * Items per page
          */
         limit?: number,
+        /**
+         * Search query
+         */
+        q?: string,
         /**
          * Filter by archived status
          */
@@ -50,6 +55,7 @@ export class NotesService {
             query: {
                 'page': page,
                 'limit': limit,
+                'q': q,
                 'archived': archived,
                 'encrypted': encrypted,
             },

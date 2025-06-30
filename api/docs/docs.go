@@ -207,6 +207,12 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
+                        "type": "string",
+                        "description": "Search query",
+                        "name": "q",
+                        "in": "query"
+                    },
+                    {
                         "type": "boolean",
                         "description": "Filter by archived status",
                         "name": "archived",

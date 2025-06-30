@@ -393,6 +393,11 @@ paths:
                   schema:
                     default: 10
                     type: integer
+                - description: Search query
+                  in: query
+                  name: q
+                  schema:
+                    type: string
                 - description: Filter by archived status
                   in: query
                   name: archived

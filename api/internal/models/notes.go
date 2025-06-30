@@ -9,14 +9,15 @@ import (
 // Note represents a secure user note
 type Note struct {
 	SoftDeleteModel
-	UserID      uuid.UUID    `json:"-" gorm:"index;type:uuid;not null"`
-	User        User         `json:"user" gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	Title       string       `json:"title" binding:"required"`
-	Content     string       `json:"content" binding:"required"`
-	Encrypted   bool         `json:"encrypted"`
-	Archived    bool         `json:"archived"`
-	Attachments []Attachment `json:"attachments" gorm:"foreignKey:NoteID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
-	Shares      []NoteShare  `json:"shares" gorm:"foreignKey:NoteID"`
+	UserID       uuid.UUID    `json:"-" gorm:"index;type:uuid;not null"`
+	User         User         `json:"user" gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Title        string       `json:"title" binding:"required"`
+	Content      string       `json:"content" binding:"required"`
+	Encrypted    bool         `json:"encrypted"`
+	Archived     bool         `json:"archived"`
+	Attachments  []Attachment `json:"attachments" gorm:"foreignKey:NoteID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	Shares       []NoteShare  `json:"shares" gorm:"foreignKey:NoteID"`
+	SearchVector string       `json:"-" gorm:"type:tsvector; index:,type:gin;"`
 }
 
 func (n *Note) String() string {

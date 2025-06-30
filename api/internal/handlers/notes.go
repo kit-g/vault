@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm/clause"
 	"net/mail"
 	"strconv"
+	"strings"
 	"vault/internal/awsx"
 	"vault/internal/db"
 	"vault/internal/errors"
@@ -56,6 +57,7 @@ func CreateNote(c *gin.Context, userID uuid.UUID) (any, error) {
 //	@ID				getNotes
 //	@Param			page		query		int		false	"Page number"		default(1)
 //	@Param			limit		query		int		false	"Items per page"	default(10)
+//	@Param			q   		query		string	false	"Search query"
 //	@Param			archived	query		bool	false	"Filter by archived status"
 //	@Param			encrypted	query		bool	false	"Filter by encrypted status"
 //	@Success		200			{object}	NotesResponse
@@ -71,6 +73,7 @@ func GetNotes(c *gin.Context, userID uuid.UUID) (any, error) {
 	var (
 		archived, archivedSet   = c.GetQuery("archived")
 		encrypted, encryptedSet = c.GetQuery("encrypted")
+		search                  = c.Query("q")
 	)
 
 	var notes []models.NoteWithCount
@@ -97,6 +100,11 @@ func GetNotes(c *gin.Context, userID uuid.UUID) (any, error) {
 		}
 	}
 
+	if search != "" {
+		tsquery := strings.ReplaceAll(search, " ", " & ")
+		query = query.Where("search_vector @@ to_tsquery('english', ?)", tsquery)
+	}
+
 	if err := query.Find(&notes).Error; err != nil {
 		return nil, errors.NewServerError(err)
 	}
@@ -110,6 +118,7 @@ func GetNotes(c *gin.Context, userID uuid.UUID) (any, error) {
 		}
 		out = append(out, models.NewNoteOut(&n.Note))
 	}
+
 	return models.NotesResponse{
 		Notes: out,
 		Total: total,
