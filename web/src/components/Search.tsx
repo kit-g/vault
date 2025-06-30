@@ -46,9 +46,6 @@ function createSnippet(text: string, query: string, contextLength: number = 80):
   return parts;
 }
 
-
-// --- Search Components ---
-
 /**
  * Renders an individual search result item.
  */
@@ -105,12 +102,11 @@ function SearchResults({ results, query, isLoading }: { results: NoteOut[], quer
   }
 
   if (query && results && results.length === 0) {
-    return (
-      <div
-        className="absolute top-full mt-2 w-full bg-[var(--card-bg)] border border-[var(--border)] rounded shadow-lg z-50 p-4 text-center">
-        <p className="text-sm">No results found for "{ query }"</p>
-      </div>
-    );
+    return EmptyState(query);
+  }
+
+  if (!results) {
+    return EmptyState(query);
   }
 
   if (results && results.length === 0) return null;
@@ -118,10 +114,19 @@ function SearchResults({ results, query, isLoading }: { results: NoteOut[], quer
   return (
     <ul
       className="absolute top-full mt-2 w-full max-h-96 overflow-y-auto bg-[var(--card-bg)] border border-[var(--border)] rounded shadow-lg z-50">
-      { results.map(note => (
+      { results?.map(note => (
         <SearchResultItem key={ note.id } note={ note } query={ query }/>
       )) }
     </ul>
+  );
+}
+
+function EmptyState(query: string) {
+  return (
+    <div
+      className="absolute top-full mt-2 w-full bg-[var(--card-bg)] border border-[var(--border)] rounded shadow-lg z-50 p-4 text-center">
+      <p className="text-sm">No results found for "{ query }"</p>
+    </div>
   );
 }
 
