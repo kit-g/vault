@@ -238,3 +238,8 @@ Outputs:
     Export:
       Name: !Sub '${AWS::StackName}-cloud-front-domain-name'
 
+  GitHubOIDCProvider:
+    Description: 'GitHub federated identity provider'
+    Value: !GetAtt GitHubOIDCProvider.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-github-idp-arn'
