@@ -2,9 +2,10 @@ package db
 
 import (
 	"fmt"
+	"vault/internal/config"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"vault/internal/config"
 )
 
 var DB *gorm.DB
@@ -19,7 +20,12 @@ func Connect(cfg *config.DBConfig) error {
 		cfg.DBSSLMode,
 		cfg.AppName,
 	)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+
+	db, err := gorm.Open(postgres.New(postgres.Config{
+		DSN:                  dsn,
+		PreferSimpleProtocol: true, // disables implicit prepared statement usage
+	}), &gorm.Config{})
+
 	if err != nil {
 		return err
 	}
