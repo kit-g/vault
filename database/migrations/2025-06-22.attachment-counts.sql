@@ -8,7 +8,7 @@ BEGIN
         -- new attachment
         TG_OP = 'INSERT' THEN
         UPDATE users u
-        SET attachment_count = attachment_count + 1
+        SET attachments_count = attachments_count + 1
         FROM notes n
         WHERE n.id = new.note_id::UUID
           AND u.id = n.user_id::UUID;
@@ -17,7 +17,7 @@ BEGIN
         -- hard delete
         TG_OP = 'DELETE' THEN
         UPDATE users u
-        SET attachment_count = greatest(attachment_count - 1, 0)
+        SET attachments_count = greatest(attachments_count - 1, 0)
         FROM notes n
         WHERE n.id = old.note_id::UUID
           AND u.id = n.user_id::UUID;
@@ -48,7 +48,7 @@ WITH attachment_counts AS (
     GROUP BY n.user_id
 )
 UPDATE users u
-SET attachment_count = coalesce(ac.count, 0)
+SET attachments_count = coalesce(ac.count, 0)
 FROM attachment_counts ac
 WHERE u.id = ac.user_id;
 

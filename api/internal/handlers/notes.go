@@ -2,10 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 	"net/mail"
 	"strconv"
 	"strings"
@@ -13,6 +9,11 @@ import (
 	"vault/internal/db"
 	"vault/internal/errors"
 	"vault/internal/models"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // CreateNote godoc
@@ -529,7 +530,7 @@ func GetAttachments(c *gin.Context, userID uuid.UUID) (any, error) {
 	var attachments []struct {
 		models.Attachment
 		models.Note
-		AttachmentsCount int `gorm:"column:attachment_count"`
+		AttachmentsCount int `gorm:"column:attachments_count"`
 	}
 
 	if err := query.Limit(limit).Offset(offset).Find(&attachments).Error; err != nil {
